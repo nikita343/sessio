@@ -13,6 +13,18 @@ const Body = z.object({
 
 const LANG_NAME = { pl: "Polish", uk: "Ukrainian", en: "English" } as const;
 
+function localDraft(transcript: string, sessionNumber: number, form: string) {
+  const clean = transcript.replace(/\s+/g, " ").trim();
+  const sentences = clean.split(/(?<=[.!?])\s+/);
+  const working = sentences.filter((x) => /^(check|consider|maybe|next time i|remember|sprawdzi|rozważ|перевір)/i.test(x)).join(" ");
+  const record = sentences.filter((x) => !working.includes(x)).join(" ");
+  return {
+    record: `Individual session (${sessionNumber}), ${form.toLowerCase()}. ${record.charAt(0).toUpperCase()}${record.slice(1)}`,
+    working,
+    offline: true,
+  };
+}
+
 export async function POST(req: Request) {
   const { user } = await requireUser();
   if (!user) return NextResponse.json({ error: "Sign in again." }, { status: 401 });
@@ -20,14 +32,7 @@ export async function POST(req: Request) {
   if (!parsed.success) return NextResponse.json({ error: "The memo is too short to draft from." }, { status: 400 });
   const { transcript, lang, sessionNumber, form } = parsed.data;
 
-  if (!aiAvailable()) {
-    const clean = transcript.replace(/\s+/g, " ").trim();
-    return NextResponse.json({
-      record: `Individual session (${sessionNumber}), ${form.toLowerCase()}. ${clean.charAt(0).toUpperCase()}${clean.slice(1)}`,
-      working: "",
-      offline: true,
-    });
-  }
+  if (!aiAvailable()) return NextResponse.json(localDraft(transcript, sessionNumber, form));
 
   try {
     const { output } = await generateText({
@@ -55,6 +60,7 @@ Rules:
     return NextResponse.json(output);
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "The AI draft isn't available right now — you can write the record yourself." }, { status: 503 });
+    // AI unavailable — fall back to a local, rule-based draft so the therapist is never blocked.
+    return NextResponse.json(localDraft(transcript, sessionNumber, form));
   }
 }

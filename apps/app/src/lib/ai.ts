@@ -1,10 +1,23 @@
 import { gateway } from "@ai-sdk/gateway";
+import { createAnthropic } from "@ai-sdk/anthropic";
 
 export const FAST_MODEL = process.env.AI_MODEL_FAST ?? "anthropic/claude-haiku-4.5";
 export const SMART_MODEL = process.env.AI_MODEL ?? "anthropic/claude-sonnet-4.5";
 
+/** AI runs through Vercel AI Gateway, or directly on Anthropic when ANTHROPIC_API_KEY is set. */
 export function aiAvailable() {
-  return Boolean(process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || process.env.VERCEL);
+  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || process.env.VERCEL);
 }
 
-export const model = (id: string) => gateway(id);
+const DIRECT: Record<string, string> = {
+  "anthropic/claude-haiku-4.5": "claude-haiku-4-5",
+  "anthropic/claude-sonnet-4.5": "claude-sonnet-4-5",
+};
+
+export function model(id: string) {
+  if (process.env.ANTHROPIC_API_KEY) {
+    const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    return anthropic(DIRECT[id] ?? id.replace(/^anthropic\//, "").replace(/\./g, "-"));
+  }
+  return gateway(id);
+}
