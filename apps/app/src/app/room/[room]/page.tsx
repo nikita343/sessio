@@ -1,0 +1,42 @@
+import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
+import { Logo } from "@/components/logo";
+import { RoomClient } from "./room-client";
+
+export const metadata: Metadata = { title: "Session room", robots: { index: false } };
+
+type Access = { booking_id: string; role: "therapist" | "client"; display_name: string; other_name: string; starts_at: string; ends_at: string };
+
+export default async function Room(props: PageProps<"/room/[room]">) {
+  const { room } = await props.params;
+  const sp = await props.searchParams;
+  const token = typeof sp.t === "string" && /^[0-9a-f-]{36}$/.test(sp.t) ? sp.t : null;
+  const sb = await createClient();
+  const { data } = await sb.rpc("room_access", { p_room: room, p_token: token });
+  const access = (Array.isArray(data) ? data[0] : data) as Access | undefined;
+
+  if (!access)
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-paper px-5 text-center">
+        <Logo size={26} />
+        <h1 className="t-heading-s">This room isn&rsquo;t available</h1>
+        <p className="t-body-s max-w-sm text-stone">Open the link from your booking email, or sign in if you&rsquo;re the therapist. Cancelled sessions close their room.</p>
+      </main>
+    );
+
+  return (
+    <RoomClient
+      room={room}
+      role={access.role}
+      me={access.display_name}
+      other={access.other_name}
+      startsAt={access.starts_at}
+      endsAt={access.ends_at}
+      iceExtra={
+        process.env.TURN_URL
+          ? [{ urls: process.env.TURN_URL, username: process.env.TURN_USERNAME, credential: process.env.TURN_CREDENTIAL }]
+          : []
+      }
+    />
+  );
+}

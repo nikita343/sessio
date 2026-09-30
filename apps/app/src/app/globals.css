@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/dm-sans";
+
+/* Sessio design tokens — mirrors the Figma variables (Sessio — MVP design) */
+@theme {
+  --font-display: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-paper: #f4f3ef;
+  --color-surface: #ffffff;
+  --color-sunken: #eceae4;
+  --color-ink: #1c2530;
+  --color-stone: #667080;
+  --color-line: #e3e1da;
+  --color-line-strong: #cdcac1;
+  --color-sage: #3f6b5e;
+  --color-sage-hover: #355a4f;
+  --color-sage-soft: #e4ede8;
+  --color-clay: #a97b62;
+  --color-clay-soft: #f3eae2;
+  --color-lavender: #b8b0e0;
+  --color-lavender-soft: #ebe8f7;
+  --color-splash-sage: #c9dfd1;
+  --color-splash-lavender: #d8d3ee;
+  --color-splash-sky: #cfe2ec;
+  --color-splash-sand: #efe1cc;
+  --color-warn: #b4533c;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-card: 0 1px 2px rgb(28 37 48 / 0.04), 0 12px 32px -12px rgb(28 37 48 / 0.12);
+  --shadow-float: 0 2px 4px rgb(28 37 48 / 0.04), 0 24px 60px -20px rgb(28 37 48 / 0.22);
+}
+
+/* Type ramp (Figma text styles) */
+@utility t-display-xl {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(44px, 6.2vw, 72px);
+  line-height: 1.08;
+  letter-spacing: -0.06em;
+}
+@utility t-display-l {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(36px, 4.6vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.06em;
+}
+@utility t-heading-m {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(28px, 3vw, 36px);
+  line-height: 1.14;
+  letter-spacing: -0.045em;
+}
+@utility t-heading-s {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+@utility t-title-m {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: -0.017em;
+}
+@utility t-body-l {
+  font-size: 18px;
+  line-height: 1.5;
+}
+@utility t-body-m {
+  font-size: 16px;
+  line-height: 1.5;
+}
+@utility t-body-s {
+  font-size: 14px;
+  line-height: 1.45;
+}
+@utility t-label-m {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  letter-spacing: -0.007em;
+}
+@utility t-caption {
+  font-size: 12px;
+  line-height: 16px;
+}
+@utility t-overline {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.033em;
+  text-transform: uppercase;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  background: var(--color-paper);
+}
+::selection {
+  background: var(--color-splash-sage);
+}

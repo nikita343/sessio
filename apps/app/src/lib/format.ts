@@ -1,0 +1,50 @@
+import { TZDate } from "@date-fns/tz";
+import { format } from "date-fns";
+
+export const LANGS: Record<string, string> = { pl: "Polish", uk: "Ukrainian", en: "English", ru: "Russian", de: "German" };
+export const FORMAT_LABEL = { online: "Online", in_person: "In person" } as const;
+
+export function money(minor: number, currency = "PLN") {
+  const v = minor / 100;
+  const n = new Intl.NumberFormat("pl-PL", { maximumFractionDigits: v % 1 ? 2 : 0 }).format(v);
+  return currency === "PLN" ? `${n} zł` : `${n} ${currency}`;
+}
+
+/** Format an instant in the therapist's timezone. */
+export function inTz(iso: string | Date, tz: string, pattern: string) {
+  return format(new TZDate(new Date(iso).getTime(), tz), pattern);
+}
+
+export function initials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]!.toUpperCase())
+      .join("") || "·"
+  );
+}
+
+export function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] ?? name;
+}
+
+export function shortName(name: string) {
+  const [f, l] = name.trim().split(/\s+/);
+  return l ? `${f} ${l[0]}.` : f ?? name;
+}
+
+export function tzLabel(tz: string) {
+  if (tz === "Europe/Warsaw") return "Warsaw (CET)";
+  return tz.replace("_", " ");
+}
+
+export function timeAgo(iso: string) {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 60) return "just now";
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
+  if (s < 172800) return "yesterday";
+  return `${Math.floor(s / 86400)} days ago`;
+}
