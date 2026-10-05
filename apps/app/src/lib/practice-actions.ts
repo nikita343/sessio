@@ -101,3 +101,43 @@ export async function saveAgreementNotes(form: FormData) {
   revalidatePath("/settings");
   redirect("/settings?saved=agreement");
 }
+
+/** Rich public profile: what you help with, how you work, education, first session, translations. */
+export async function saveProfileDetails(form: FormData) {
+  const { supabase, user } = await requireUser();
+  if (!user) redirect("/login");
+  if (user.email === (process.env.DEMO_EMAIL ?? "demo@usesessio.com")) redirect("/booking-page?saved=profile");
+  const { SPECIALTIES, APPROACHES, WORKS_WITH } = await import("./profile");
+  const pick = (name: string, allowed: Record<string, unknown>) => form.getAll(name).map(String).filter((k) => k in allowed).slice(0, 20);
+  const text = (name: string, max: number) => {
+    const v = String(form.get(name) ?? "").trim().slice(0, max);
+    return v || null;
+  };
+  const since = Number(form.get("practising_since"));
+  const i18n: Record<string, Record<string, string>> = {};
+  for (const l of ["pl", "en", "uk"]) {
+    const entry: Record<string, string> = {};
+    for (const f of ["title", "bio", "about", "first_session"]) {
+      const v = String(form.get(`tr_${l}_${f}`) ?? "").trim().slice(0, f === "about" ? 3000 : 800);
+      if (v) entry[f] = v;
+    }
+    if (Object.keys(entry).length) i18n[l] = entry;
+  }
+  await supabase
+    .from("therapists")
+    .update({
+      specialties: pick("specialties", SPECIALTIES),
+      approaches: pick("approaches", APPROACHES),
+      works_with: pick("works_with", WORKS_WITH),
+      about: text("about", 3000),
+      first_session: text("first_session", 1200),
+      education: text("education", 2000),
+      memberships: text("memberships", 1000),
+      register_number: text("register_number", 40),
+      practising_since: since >= 1960 && since <= new Date().getFullYear() ? since : null,
+      profile_i18n: i18n,
+    })
+    .eq("id", user.id);
+  revalidatePath("/booking-page");
+  redirect("/booking-page?saved=profile#profile");
+}

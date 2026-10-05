@@ -68,7 +68,7 @@ export function Picker({
         })}
       </div>
       <p className="t-body-s text-stone">
-        <span className="capitalize">{dayLabel}</span> · {tzText}
+        <span className="inline-block first-letter:uppercase">{dayLabel}</span> · {tzText}
       </p>
       <div className="grid grid-cols-3 gap-2">
         {day?.slots.map((s) => {

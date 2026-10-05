@@ -16,6 +16,16 @@ export type Therapist = {
   currency: string;
   cancellation_hours: number;
   agreement_notes?: string | null;
+  specialties?: string[];
+  approaches?: string[];
+  works_with?: string[];
+  about?: string | null;
+  first_session?: string | null;
+  education?: string | null;
+  memberships?: string | null;
+  practising_since?: number | null;
+  register_number?: string | null;
+  profile_i18n?: Record<string, { title?: string; city?: string; bio?: string; about?: string; first_session?: string; education?: string; memberships?: string }> | null;
   stripe_account_id: string | null;
   stripe_charges_enabled?: boolean;
   published: boolean;

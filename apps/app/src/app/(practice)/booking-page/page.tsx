@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PracticeForm } from "@/components/practice-form";
+import { ProfileDetails } from "./profile-details";
 import { CopyLink } from "@/components/copy-link";
 import { appHost, getTherapist } from "@/lib/therapist";
 import { PageHeader, btn } from "@/components/ui";
@@ -7,7 +8,8 @@ import type { Availability, Service } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Booking page" };
 
-export default async function BookingPageSettings() {
+export default async function BookingPageSettings(props: PageProps<"/booking-page">) {
+  const sp = await props.searchParams;
   const { supabase, therapist } = await getTherapist();
   const [{ data: services }, { data: availability }] = await Promise.all([
     supabase.from("services").select("*").eq("therapist_id", therapist.id).order("sort").limit(1),
@@ -30,6 +32,9 @@ export default async function BookingPageSettings() {
       />
       <div className="max-w-[820px]">
         <PracticeForm therapist={therapist} service={(services?.[0] as Service) ?? null} availability={(availability as Availability[]) ?? []} from="settings" host={appHost()} />
+      </div>
+      <div className="max-w-[820px]">
+        <ProfileDetails therapist={therapist} saved={sp.saved === "profile"} />
       </div>
     </div>
   );
