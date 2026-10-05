@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPublicBooking } from "@/lib/booking-public";
-import { stripe } from "@/lib/stripe";
+import { stripe, refundBooking } from "@/lib/stripe";
 import { markPaid } from "@/lib/confirm";
 import { publicClient } from "@/lib/supabase/server";
 import { fmtDate, pickLang, t } from "@/lib/i18n";
@@ -25,7 +25,8 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
   if (b.payment_status !== "paid" && typeof sp.session_id === "string") {
     const s = stripe();
     if (s) {
-      const session = await s.checkout.sessions.retrieve(sp.session_id);
+      const acct = typeof sp.acct === "string" && sp.acct.startsWith("acct_") ? sp.acct : undefined;
+      const session = await s.checkout.sessions.retrieve(sp.session_id, undefined, acct ? { stripeAccount: acct } : undefined);
       if (session.payment_status === "paid" && session.metadata?.booking_id === id) {
         await markPaid(id, String(session.payment_intent ?? session.id), session.metadata?.method ?? "card");
         b = (await getPublicBooking(id, token))!;
@@ -40,7 +41,8 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
 
   async function cancel() {
     "use server";
-    await publicClient().rpc("cancel_booking_by_client", { p_id: id, p_token: token });
+    const { data: ok } = await publicClient().rpc("cancel_booking_by_client", { p_id: id, p_token: token });
+    if (ok) await refundBooking(id).catch((e) => console.error("refund failed", e));
     redirect(`/b/${id}?t=${token}&lang=${lang}`);
   }
 

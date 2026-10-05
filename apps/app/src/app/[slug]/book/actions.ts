@@ -2,8 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { publicClient, SERVER_SECRET } from "@/lib/supabase/server";
+import { publicClient } from "@/lib/supabase/server";
 import { stripe, PAY_METHODS, type PayMethod } from "@/lib/stripe";
+import { startCheckout } from "@/lib/checkout";
 import type { Lang } from "@/lib/i18n";
 
 export type BookState = { error?: string };
@@ -39,27 +40,28 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
   const s = stripe();
   if (!s) redirect(`/pay/${b.booking_id}?t=${b.manage_token}&m=${method}&lang=${lang}`);
 
-  const session = await s.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: [method],
-    customer_email: String(form.get("email")),
-    locale: lang === "uk" ? "auto" : lang,
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: b.currency.toLowerCase(),
-          unit_amount: b.price_minor,
-          product_data: { name: String(form.get("summary") ?? "Session") },
-        },
-      },
-    ],
-    metadata: { booking_id: b.booking_id, method },
-    payment_intent_data: { metadata: { booking_id: b.booking_id } },
-    expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-    success_url: `${back}&session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${app}/${slug}?lang=${lang}`,
-  });
-  await sb.rpc("server_set_checkout", { p_secret: SERVER_SECRET(), p_id: b.booking_id, p_session: session.id });
-  redirect(session.url!);
+  let url: string | null = null;
+  try {
+    url = await startCheckout({
+      bookingId: b.booking_id,
+      token: b.manage_token,
+      method,
+      lang,
+      email: String(form.get("email")),
+      summary: String(form.get("summary") ?? "Session"),
+      priceMinor: b.price_minor,
+      currency: b.currency,
+      slug,
+      app,
+    });
+  } catch (e) {
+    console.error("stripe checkout failed", e);
+    // release the slot we were holding for this payment
+    await sb.rpc("cancel_booking_by_client", { p_id: b.booking_id, p_token: b.manage_token });
+    const msg = e instanceof Error ? e.message : "";
+    if (/payment method type|not activated|not enabled|invalid.*payment_method_types/i.test(msg))
+      return { error: lang === "pl" ? "Ta metoda płatności jest chwilowo niedostępna. Wybierz inną." : lang === "uk" ? "Цей спосіб оплати тимчасово недоступний. Оберіть інший." : "That payment method isn’t available right now. Please choose another." };
+    return { error: lang === "pl" ? "Płatność chwilowo niedostępna. Spróbuj ponownie." : lang === "uk" ? "Оплата тимчасово недоступна. Спробуйте ще раз." : "Payments are briefly unavailable. Please try again." };
+  }
+  redirect(url!);
 }

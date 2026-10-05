@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient, publicClient, SERVER_SECRET } from "@/lib/supabase/server";
 import { DEMO_CLIENT_EMAIL, demoClientPassword } from "@/lib/portal";
+import { refundBooking } from "@/lib/stripe";
 
 function safeNext(v: FormDataEntryValue | null, fallback = "/me") {
   const s = String(v ?? "");
@@ -56,7 +57,8 @@ export async function cancelSession(form: FormData) {
   const id = String(form.get("id") ?? "");
   const token = String(form.get("token") ?? "");
   // the client owns the manage token (it is returned only to them by my_sessions)
-  await publicClient().rpc("cancel_booking_by_client", { p_id: id, p_token: token });
+  const { data: ok } = await publicClient().rpc("cancel_booking_by_client", { p_id: id, p_token: token });
+  if (ok) await refundBooking(id).catch((e) => console.error("refund failed", e));
   revalidatePath("/me");
   redirect("/me");
 }

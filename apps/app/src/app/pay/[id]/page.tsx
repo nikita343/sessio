@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { publicClient } from "@/lib/supabase/server";
 import { markPaid } from "@/lib/confirm";
+import { stripe, PAY_METHODS, type PayMethod } from "@/lib/stripe";
+import { startCheckout } from "@/lib/checkout";
+import type { Lang } from "@/lib/i18n";
 import { money } from "@/lib/format";
 import { Logo } from "@/components/logo";
 
 export const metadata: Metadata = { title: "Pay", robots: { index: false } };
 
-type B = { id: string; payment_status: string; price_minor: number; currency: string; therapist_name: string; therapist_slug: string };
+type B = { id: string; status: string; payment_status: string; price_minor: number; currency: string; therapist_name: string; therapist_slug: string; client_email: string; service_name: string | null };
 
 /**
  * Test-mode payment screen, used when no Stripe key is configured.
@@ -25,8 +28,28 @@ export default async function Pay(props: PageProps<"/pay/[id]">) {
   const done = `/b/${id}?t=${token}&lang=${lang}`;
   if (b.payment_status === "paid") redirect(done);
 
+  // With Stripe configured this page only resumes a real payment — the test screen below is never shown.
+  if (stripe()) {
+    if (b.status !== "pending_payment") redirect(done);
+    const m = (PAY_METHODS.includes(method as PayMethod) ? method : "blik") as PayMethod;
+    const url = await startCheckout({
+      bookingId: id,
+      token,
+      method: m,
+      lang: (["pl", "uk", "en"].includes(lang) ? lang : "pl") as Lang,
+      email: b.client_email,
+      summary: `${b.service_name ?? "Session"} with ${b.therapist_name}`,
+      priceMinor: b.price_minor,
+      currency: b.currency,
+      slug: b.therapist_slug,
+      app: process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com",
+    }).catch(() => null);
+    redirect(url ?? done);
+  }
+
   async function pay(form: FormData) {
     "use server";
+    if (stripe()) redirect(done); // never mark paid without Stripe when it is configured
     const code = String(form.get("code") ?? "");
     if (method === "blik" && !/^\d{6}$/.test(code)) redirect(`/pay/${id}?t=${token}&m=${method}&lang=${lang}&e=1`);
     await markPaid(id, `test_${method}_${Date.now()}`, method === "p24" ? "Przelewy24" : method.toUpperCase());

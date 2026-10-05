@@ -16,6 +16,7 @@ export type Therapist = {
   currency: string;
   cancellation_hours: number;
   stripe_account_id: string | null;
+  stripe_charges_enabled?: boolean;
   published: boolean;
 };
 
