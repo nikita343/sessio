@@ -15,7 +15,7 @@ export function PortalShell({
 }: {
   lang: Lang;
   profile: MyProfile;
-  current: "sessions" | "messages";
+  current: "sessions" | "messages" | "details";
   path: string;
   children: React.ReactNode;
 }) {
@@ -23,6 +23,7 @@ export function PortalShell({
   const tabs = [
     ["sessions", d.sessions, "/me"],
     ["messages", d.messages, "/me/messages"],
+    ["details", d.details, "/me/details"],
   ] as const;
   return (
     <div className="relative min-h-dvh overflow-hidden bg-paper">
@@ -37,7 +38,7 @@ export function PortalShell({
               key={k}
               href={href}
               aria-current={current === k ? "page" : undefined}
-              className={`t-label-m rounded-full px-3.5 py-1.5 sm:px-4 ${current === k ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
+              className={`t-label-m rounded-full px-3 py-1.5 sm:px-4 ${current === k ? "bg-ink text-white" : "text-ink/70 hover:text-ink"}`}
             >
               {label}
             </Link>

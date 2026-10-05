@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { btn } from "./ui";
+import type { Lang } from "@/lib/i18n";
+import { COPY_T } from "@/lib/ui/booking";
 
-export function CopyLink({ url, label = "Copy booking link", className = "" }: { url: string; label?: string; className?: string }) {
+export function CopyLink({ url, label, className = "", lang = "pl" }: { url: string; label?: string; className?: string; lang?: Lang }) {
+  const t = COPY_T[lang] ?? COPY_T.pl;
   const [done, setDone] = useState(false);
   return (
     <button
@@ -15,7 +18,7 @@ export function CopyLink({ url, label = "Copy booking link", className = "" }: {
         setTimeout(() => setDone(false), 1800);
       }}
     >
-      {done ? "Copied ✓" : label}
+      {done ? t.copied : (label ?? t.copyBooking)}
     </button>
   );
 }

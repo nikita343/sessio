@@ -1,5 +1,6 @@
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
+import { enGB, pl, uk } from "date-fns/locale";
 
 export const LANGS: Record<string, string> = { pl: "Polish", uk: "Ukrainian", en: "English", ru: "Russian", de: "German" };
 export const FORMAT_LABEL = { online: "Online", in_person: "In person" } as const;
@@ -10,9 +11,11 @@ export function money(minor: number, currency = "PLN") {
   return currency === "PLN" ? `${n} zł` : `${n} ${currency}`;
 }
 
-/** Format an instant in the therapist's timezone. */
-export function inTz(iso: string | Date, tz: string, pattern: string) {
-  return format(new TZDate(new Date(iso).getTime(), tz), pattern);
+const DATE_LOCALE = { pl, uk, en: enGB } as const;
+
+/** Format an instant in the therapist's timezone. Pass `lang` for localized month/day names (defaults to English). */
+export function inTz(iso: string | Date, tz: string, pattern: string, lang?: "pl" | "uk" | "en") {
+  return format(new TZDate(new Date(iso).getTime(), tz), pattern, lang ? { locale: DATE_LOCALE[lang] } : undefined);
 }
 
 export function initials(name: string) {

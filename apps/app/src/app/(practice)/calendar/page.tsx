@@ -7,8 +7,12 @@ import { inTz, shortName } from "@/lib/format";
 import { PageHeader, btn } from "@/components/ui";
 import { AddSession } from "./add-session";
 import type { Availability } from "@/lib/types";
+import { pick, uiLang } from "@/lib/ui-lang";
+import { CALENDAR_T } from "@/lib/ui/calendar";
 
-export const metadata: Metadata = { title: "Calendar" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: pick(CALENDAR_T, await uiLang()).title };
+}
 
 const START_H = 8;
 const END_H = 21;
@@ -16,6 +20,8 @@ const PX = 56; // px per hour
 
 export default async function Calendar(props: PageProps<"/calendar">) {
   const sp = await props.searchParams;
+  const lang = await uiLang();
+  const t = pick(CALENDAR_T, lang);
   const w = Number(sp.w ?? 0) || 0;
   const { supabase, therapist: th } = await getTherapist();
   const tz = th.timezone;
@@ -38,20 +44,20 @@ export default async function Calendar(props: PageProps<"/calendar">) {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        eyebrow={`${inTz(monday, tz, "d MMM")} – ${inTz(new Date(next.getTime() - 1), tz, "d MMM yyyy")}`}
-        title="Calendar"
+        eyebrow={`${inTz(monday, tz, "d MMM", lang)} – ${inTz(new Date(next.getTime() - 1), tz, "d MMM yyyy", lang)}`}
+        title={t.title}
         actions={
           <>
-            <Link href={`/calendar?w=${w - 1}`} className={btn("secondary", "md", "!px-3")} aria-label="Previous week">
+            <Link href={`/calendar?w=${w - 1}`} className={btn("secondary", "md", "!px-3")} aria-label={t.prevWeek}>
               ←
             </Link>
             <Link href="/calendar" className={btn("secondary")}>
-              This week
+              {t.thisWeek}
             </Link>
-            <Link href={`/calendar?w=${w + 1}`} className={btn("secondary", "md", "!px-3")} aria-label="Next week">
+            <Link href={`/calendar?w=${w + 1}`} className={btn("secondary", "md", "!px-3")} aria-label={t.nextWeek}>
               →
             </Link>
-            <AddSession open={Boolean(sp.new)} clients={clients ?? []} defaultDate={inTz(new Date(), tz, "yyyy-MM-dd")} />
+            <AddSession open={Boolean(sp.new)} clients={clients ?? []} defaultDate={inTz(new Date(), tz, "yyyy-MM-dd")} lang={lang} />
           </>
         }
       />
@@ -62,7 +68,7 @@ export default async function Calendar(props: PageProps<"/calendar">) {
             const key = inTz(d, tz, "yyyy-MM-dd");
             return (
               <div key={key} className={`border-b border-l border-line px-3 py-2.5 ${key === todayKey ? "bg-sage-soft/60" : ""}`}>
-                <p className="t-caption text-stone">{inTz(d, tz, "EEE")}</p>
+                <p className="t-caption text-stone">{inTz(d, tz, "EEE", lang)}</p>
                 <p className="font-display text-[18px] font-medium">{inTz(d, tz, "d")}</p>
               </div>
             );
@@ -106,9 +112,9 @@ export default async function Calendar(props: PageProps<"/calendar">) {
                       }`}
                       style={{ top: top(b.starts_at) + 1, height: h - 2 }}
                     >
-                      <span className="font-medium">{shortName(b.client?.full_name ?? "Client")}</span>
+                      <span className="font-medium">{shortName(b.client?.full_name ?? t.client)}</span>
                       <span className="opacity-80">
-                        {inTz(b.starts_at, tz, "HH:mm")} · {b.format === "online" ? "online" : "in person"}
+                        {inTz(b.starts_at, tz, "HH:mm")} · {b.format === "online" ? t.online : t.inPerson}
                       </span>
                     </Link>
                   );
@@ -118,7 +124,7 @@ export default async function Calendar(props: PageProps<"/calendar">) {
           })}
         </div>
       </div>
-      <p className="t-caption text-stone">Shaded hours are when clients can book. Green sessions are online, clay ones in person.</p>
+      <p className="t-caption text-stone">{t.legend}</p>
     </div>
   );
 }

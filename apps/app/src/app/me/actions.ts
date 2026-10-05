@@ -83,3 +83,25 @@ export async function cancelSession(form: FormData) {
   revalidatePath("/me");
   redirect("/me");
 }
+
+/** Client fills in their own documentation details for one therapist (Art. 28). */
+export async function updateMyIdentity(form: FormData) {
+  const slug = String(form.get("slug") ?? "");
+  const s = (k: string, max = 200) => String(form.get(k) ?? "").trim().slice(0, max);
+  const pesel = s("pesel", 11).replace(/\s/g, "");
+  const { validPesel, birthFromPesel } = await import("@/lib/art28");
+  if (pesel && !validPesel(pesel)) redirect(`/me/details?with=${encodeURIComponent(slug)}&err=pesel#${slug}`);
+  const birth = s("birth_date", 10) || (pesel ? birthFromPesel(pesel) : null);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("update_my_identity2", {
+    p_slug: slug,
+    p_birth_date: birth || null,
+    p_pesel: pesel || null,
+    p_id_document: s("id_document", 40),
+    p_address: s("address"),
+    p_guardian_name: s("guardian_name", 120),
+    p_guardian_contact: s("guardian_contact", 120),
+  });
+  revalidatePath("/me/details");
+  redirect(`/me/details?${error ? "err=save" : "saved=" + encodeURIComponent(slug)}#${slug}`);
+}

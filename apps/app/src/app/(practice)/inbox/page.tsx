@@ -4,9 +4,14 @@ import { revalidatePath } from "next/cache";
 import { getTherapist } from "@/lib/therapist";
 import { requireUser } from "@/lib/supabase/server";
 import { timeAgo } from "@/lib/format";
+import { uiLang, pick } from "@/lib/ui-lang";
+import { INBOX_T, REPLY_EMAIL_T } from "@/lib/ui/inbox";
+import type { Lang } from "@/lib/i18n";
 import { Avatar, Badge, Button, Card, Empty, PageHeader, textareaCls } from "@/components/ui";
 
-export const metadata: Metadata = { title: "Inbox" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: pick(INBOX_T, await uiLang()).metaTitle };
+}
 
 async function reply(form: FormData) {
   "use server";
@@ -16,17 +21,19 @@ async function reply(form: FormData) {
   const body = form.get("handled_only") ? "" : String(form.get("body") ?? "").trim();
   if (body) {
     await supabase.from("messages").insert({ therapist_id: user.id, client_id: clientId, author: "therapist", body });
-    const { data: c } = await supabase.from("clients").select("email, full_name").eq("id", clientId).single();
+    const { data: c } = await supabase.from("clients").select("email, full_name, language").eq("id", clientId).single();
     const { data: th } = await supabase.from("therapists").select("full_name").eq("id", user.id).single();
     if (c && process.env.RESEND_API_KEY) {
+      const cl: Lang = c.language === "uk" || c.language === "en" ? c.language : "pl";
+      const mail = REPLY_EMAIL_T[cl];
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { authorization: `Bearer ${process.env.RESEND_API_KEY}`, "content-type": "application/json" },
         body: JSON.stringify({
           from: process.env.EMAIL_FROM ?? "Sessio <bookings@usesessio.com>",
           to: [c.email],
-          subject: `Reply from ${th?.full_name ?? "your therapist"}`,
-          text: `${body}\n\n—\nReply or see your sessions: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com"}/me/messages`,
+          subject: mail.subject(th?.full_name ?? null),
+          text: `${body}\n\n—\n${mail.footer(`${process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com"}/me/messages`)}`,
         }),
       }).catch(() => {});
     }
@@ -39,6 +46,8 @@ async function reply(form: FormData) {
 export default async function Inbox(props: PageProps<"/inbox">) {
   const sp = await props.searchParams;
   const { supabase } = await getTherapist();
+  const lang = await uiLang();
+  const tr = pick(INBOX_T, lang);
   const { data } = await supabase.from("messages").select("*, client:clients(id, full_name, email)").order("created_at", { ascending: true }).limit(400);
   const { data: flagged } = await supabase.from("activity").select("ref_id, urgent").eq("needs_review", true);
   const flaggedIds = new Set((flagged ?? []).map((f) => f.ref_id));
@@ -64,9 +73,9 @@ export default async function Inbox(props: PageProps<"/inbox">) {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title="Inbox" eyebrow="Messages from your booking page. The assistant answers admin questions; anything personal waits for you." />
+      <PageHeader title={tr.title} eyebrow={tr.eyebrow} />
       {list.length === 0 ? (
-        <Empty title="No messages yet" body="When a client asks something on your booking page, the conversation shows up here." />
+        <Empty title={tr.emptyTitle} body={tr.emptyBody} />
       ) : (
         <div className="grid items-start gap-4 lg:grid-cols-[300px_1fr]">
           <Card className="overflow-hidden">
@@ -84,13 +93,13 @@ export default async function Inbox(props: PageProps<"/inbox">) {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
                           <span className="t-label-m truncate">{t.client.full_name}</span>
-                          <span className="t-caption shrink-0 text-stone">{timeAgo(last.created_at)}</span>
+                          <span className="t-caption shrink-0 text-stone">{timeAgo(last.created_at, lang)}</span>
                         </div>
                         <p className="t-caption truncate text-stone">{last.body}</p>
                         {urgentIds.has(t.client.id) ? (
-                          <span className="t-overline mt-1 inline-flex rounded-full bg-warn px-2 py-0.5 text-white">Urgent · read now</span>
+                          <span className="t-overline mt-1 inline-flex rounded-full bg-warn px-2 py-0.5 text-white">{tr.urgent}</span>
                         ) : (
-                          flaggedIds.has(t.client.id) && <Badge tone="clay" className="mt-1">Needs you</Badge>
+                          flaggedIds.has(t.client.id) && <Badge tone="clay" className="mt-1">{tr.needsYou}</Badge>
                         )}
                       </div>
                     </Link>
@@ -103,8 +112,8 @@ export default async function Inbox(props: PageProps<"/inbox">) {
             <Card className="flex flex-col gap-3 p-5">
               {urgentIds.has(active.client.id) && (
                 <div role="alert" className="flex flex-col gap-1 rounded-[14px] border border-warn/30 bg-[#f6e3dc] px-4 py-3 text-warn">
-                  <p className="t-label-m">This client may be at risk.</p>
-                  <p className="t-body-s">Crisis lines (112, 116 123) were shared automatically. Please read their message and contact them as soon as you can.</p>
+                  <p className="t-label-m">{tr.riskTitle}</p>
+                  <p className="t-body-s">{tr.riskBody}</p>
                 </div>
               )}
               <div className="flex items-center justify-between">
@@ -117,7 +126,7 @@ export default async function Inbox(props: PageProps<"/inbox">) {
                 {active.msgs.map((m) => (
                   <div key={m.id} className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${m.urgent && m.author === "client" ? "ring-2 ring-warn/50 " : ""}${m.author === "client" ? "self-start rounded-bl-md bg-paper" : m.author === "assistant" ? "self-end rounded-br-md bg-lavender-soft" : "self-end rounded-br-md bg-ink text-white"}`}>
                     <p className={`t-caption ${m.author === "therapist" ? "text-white/60" : "text-stone"}`}>
-                      {m.author === "client" ? active.client.full_name.split(" ")[0] : m.author === "assistant" ? "Assistant" : "You"} · {timeAgo(m.created_at)}
+                      {m.author === "client" ? active.client.full_name.split(" ")[0] : m.author === "assistant" ? tr.assistant : tr.you} · {timeAgo(m.created_at, lang)}
                     </p>
                     <p className="t-body-s whitespace-pre-line">{m.body}</p>
                   </div>
@@ -125,14 +134,14 @@ export default async function Inbox(props: PageProps<"/inbox">) {
               </div>
               <form action={reply} className="mt-2 flex flex-col gap-2">
                 <input type="hidden" name="client_id" value={active.client.id} />
-                <textarea name="body" rows={3} className={textareaCls} placeholder={`Reply to ${active.client.full_name.split(" ")[0]} — sent by email`} />
+                <textarea name="body" rows={3} className={textareaCls} placeholder={tr.replyPlaceholder(active.client.full_name.split(" ")[0])} />
                 <div className="flex justify-end gap-2">
                   {flaggedIds.has(active.client.id) && (
                     <button name="handled_only" value="1" formNoValidate className="t-label-m px-3 text-stone hover:text-ink">
-                      Mark as handled
+                      {tr.markHandled}
                     </button>
                   )}
-                  <Button>Send reply</Button>
+                  <Button>{tr.send}</Button>
                 </div>
               </form>
             </Card>

@@ -3,11 +3,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { GoogleButton } from "@/components/google-button";
+import { EmailCodeForm } from "@/components/email-code-form";
 import { LangSwitcher } from "@/components/lang-switcher";
 import { portalLang, pt } from "@/lib/portal";
 import { signInDemoClient } from "../actions";
 
-export const metadata: Metadata = { title: "Sign in — your sessions" };
+export const metadata: Metadata = { title: "Moje sesje — Sessio" };
+
+const ERR = {
+  pl: { demo: "Demo właśnie się odświeża. Spróbuj za minutę.", auth: "Logowanie nie zostało dokończone. Spróbuj ponownie." },
+  en: { demo: "The demo is resting. Try again in a minute.", auth: "Sign-in didn’t finish. Please try again." },
+  uk: { demo: "Демо оновлюється. Спробуйте за хвилину.", auth: "Вхід не завершено. Спробуйте ще раз." },
+};
 
 export default async function ClientLogin(props: PageProps<"/me/login">) {
   const sp = await props.searchParams;
@@ -28,9 +35,12 @@ export default async function ClientLogin(props: PageProps<"/me/login">) {
           <p className="t-overline text-sage">{d.portal}</p>
           <h1 className="t-heading-s mt-2">{d.signInTitle}</h1>
           <p className="t-body-s mt-2 text-stone">{d.signInBody}</p>
-          {sp.error === "demo" && <p className="t-body-s mt-4 rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">The demo is resting. Try again in a minute.</p>}
-          {sp.error === "auth" && <p className="t-body-s mt-4 rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">Sign-in didn’t finish. Please try again.</p>}
+          {sp.error === "demo" && <p className="t-body-s mt-4 rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{ERR[lang].demo}</p>}
+          {sp.error === "auth" && <p className="t-body-s mt-4 rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{ERR[lang].auth}</p>}
           <div className="mt-6">
+            <EmailCodeForm lang={lang} next={next} />
+          </div>
+          <div className="mt-3">
             <GoogleButton next={next} label={d.google} />
           </div>
           <div className="my-5 flex items-center gap-3 text-stone">

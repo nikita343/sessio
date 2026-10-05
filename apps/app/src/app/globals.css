@@ -115,3 +115,44 @@ body {
 ::selection {
   background: var(--color-splash-sage);
 }
+
+/* Loading skeletons — a soft light sweep over the sunken tone (see components/skeleton.tsx) */
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+@layer components {
+  .skeleton {
+    --skeleton-base: var(--color-sunken);
+    --skeleton-shine: rgb(255 255 255 / 0.6);
+    background-color: var(--skeleton-base);
+    background-image: linear-gradient(90deg, transparent 20%, var(--skeleton-shine) 50%, transparent 80%);
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+  /* on dark surfaces (bg-ink panels) */
+  .skeleton-dark {
+    --skeleton-base: rgb(255 255 255 / 0.1);
+    --skeleton-shine: rgb(255 255 255 / 0.1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton {
+      background-image: none;
+      animation: skeleton-pulse 2.4s ease-in-out infinite;
+    }
+  }
+}

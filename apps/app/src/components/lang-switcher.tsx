@@ -12,7 +12,7 @@ function saveLang(l: Lang) {
  * Language menu: Polski · English · Українська. Remembers the choice in a cookie
  * (read on the server by pickLang/portalLang) and keeps the rest of the URL.
  */
-export function LangSwitcher({ lang, align = "right", tone = "light" }: { lang: Lang; align?: "left" | "right"; tone?: "light" | "plain" }) {
+export function LangSwitcher({ lang, align = "right", tone = "light", up = false }: { lang: Lang; align?: "left" | "right"; tone?: "light" | "plain"; up?: boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -63,7 +63,7 @@ export function LangSwitcher({ lang, align = "right", tone = "light" }: { lang: 
         <ul
           role="listbox"
           aria-label="Language"
-          className={`absolute top-11 z-50 w-[200px] rounded-[16px] border border-line bg-surface p-1.5 shadow-[var(--shadow-float)] ${align === "right" ? "right-0" : "left-0"}`}
+          className={`absolute ${up ? "bottom-11" : "top-11"} z-50 w-[200px] rounded-[16px] border border-line bg-surface p-1.5 shadow-[var(--shadow-float)] ${align === "right" ? "right-0" : "left-0"}`}
         >
           {LANG_ORDER.map((l) => (
             <li key={l}>

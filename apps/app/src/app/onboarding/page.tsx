@@ -3,11 +3,17 @@ import { Logo } from "@/components/logo";
 import { PracticeForm } from "@/components/practice-form";
 import { appHost, getTherapist } from "@/lib/therapist";
 import type { Availability, Service } from "@/lib/types";
+import { uiLang, pick } from "@/lib/ui-lang";
+import { ONBOARDING_T } from "@/lib/ui/booking";
 
-export const metadata: Metadata = { title: "Set up your practice" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: pick(ONBOARDING_T, await uiLang()).metaTitle };
+}
 
 export default async function Onboarding() {
   const { supabase, therapist } = await getTherapist({ allowUnpublished: true });
+  const lang = await uiLang();
+  const t = pick(ONBOARDING_T, lang);
   const [{ data: services }, { data: availability }] = await Promise.all([
     supabase.from("services").select("*").eq("therapist_id", therapist.id).order("sort").limit(1),
     supabase.from("availability").select("*").eq("therapist_id", therapist.id).order("weekday"),
@@ -18,11 +24,9 @@ export default async function Onboarding() {
         <Logo size={24} />
       </header>
       <div className="mx-auto max-w-[760px] px-4 pb-24">
-        <p className="t-overline text-sage">Step 1 of 1</p>
-        <h1 className="t-heading-m mt-2">Set up your booking page</h1>
-        <p className="t-body-m mt-2 max-w-[560px] text-stone">
-          Tell clients who you are, what a session costs and when you work. You can change all of this later.
-        </p>
+        <p className="t-overline text-sage">{t.step}</p>
+        <h1 className="t-heading-m mt-2">{t.title}</h1>
+        <p className="t-body-m mt-2 max-w-[560px] text-stone">{t.body}</p>
         <div className="mt-8">
           <PracticeForm
             therapist={therapist}
@@ -30,6 +34,7 @@ export default async function Onboarding() {
             availability={(availability as Availability[]) ?? []}
             from="onboarding"
             host={appHost()}
+            lang={lang}
           />
         </div>
       </div>

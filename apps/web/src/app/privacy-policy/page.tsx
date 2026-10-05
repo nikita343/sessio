@@ -31,7 +31,7 @@ const BLOCKS: Block[] = [
       ["Website visitors", "Technical data needed to deliver pages (IP address, browser, requested page) in short-lived server logs. No analytics or advertising trackers.", "Legitimate interest in running a secure website (Art. 6(1)(f))"],
       ["Waitlist and webinar sign-ups", "Email address and which form you used.", "Your consent (Art. 6(1)(a)); withdraw any time"],
       ["Therapists (account holders)", "Name, email, sign-in details, practice details (title, city, bio, photo, address, prices, hours, languages), Stripe account status, subscription and support messages.", "Performing our contract with you (Art. 6(1)(b)); legal obligations such as accounting (Art. 6(1)(c))"],
-      ["Clients of therapists (processed for the therapist)", "Name, email, optional phone and note, bookings, payment status, accepted agreement version, messages, and the records the therapist writes.", "The therapist's legal basis as controller; health data under Art. 9(2)(h) GDPR"],
+      ["Clients of therapists (processed for the therapist)", "Name, email, optional phone and note, bookings, payment status, accepted agreement version, messages, the records the therapist writes, and the identification data the Psychologist Act requires in documentation (date of birth, PESEL or ID document number, address; a legal guardian's details for minors). Clients can enter these themselves in their account.", "The therapist's legal basis as controller; health data under Art. 9(2)(h) GDPR"],
       ["Everyone who writes to us", "Your message and contact details.", "Legitimate interest in answering you (Art. 6(1)(f))"],
     ],
   },

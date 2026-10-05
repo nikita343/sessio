@@ -19,9 +19,9 @@ export async function saveNote(id: string, patch: { body?: string; working?: str
 export async function signNote(id: string, body: string, working: string) {
   const { supabase, user } = await requireUser();
   if (!user) redirect("/login");
-  if (!body.trim()) return { ok: false, error: "The record is empty." };
+  if (!body.trim()) return { ok: false, error: "Wpis jest pusty. / The record is empty." };
   const { data: n } = await supabase.from("notes").select("fields, status, booking_id").eq("id", id).single();
-  if (!n || n.status === "signed") return { ok: false, error: "Already signed." };
+  if (!n || n.status === "signed") return { ok: false, error: "Wpis jest już podpisany. / Already signed." };
   await supabase
     .from("notes")
     .update({ body, fields: { ...(n.fields ?? {}), working }, status: "signed", signed_at: new Date().toISOString() })

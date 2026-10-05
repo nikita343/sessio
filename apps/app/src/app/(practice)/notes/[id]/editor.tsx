@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { discardNote, saveNote, signNote } from "@/lib/note-actions";
 import { Badge, Button, textareaCls } from "@/components/ui";
+import type { Lang } from "@/lib/i18n";
+import { NOTES_T } from "@/lib/ui/notes";
 
 type Phase = "idle" | "recording" | "loading-model" | "transcribing" | "drafting";
 
@@ -62,6 +64,7 @@ async function toMono16k(blob: Blob) {
 
 export function NoteEditor(p: {
   id: string;
+  lang: Lang;
   signed: boolean;
   signedAt: string | null;
   initialBody: string;
@@ -72,6 +75,7 @@ export function NoteEditor(p: {
   sessionNumber: number;
 }) {
   const router = useRouter();
+  const t = NOTES_T[p.lang] ?? NOTES_T.pl;
   const [body, setBody] = useState(p.initialBody);
   const [working, setWorking] = useState(p.initialWorking);
   const [transcript, setTranscript] = useState("");
@@ -79,7 +83,7 @@ export function NoteEditor(p: {
   const [progress, setProgress] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [lang, setLang] = useState<"pl" | "uk" | "en">("pl");
+  const [lang, setLang] = useState<"pl" | "uk" | "en">(p.lang);
   const [aiDraft, setAiDraft] = useState<false | "ai" | "template">(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState<"" | "saving" | "saved">("");
@@ -123,7 +127,7 @@ export function NoteEditor(p: {
       setPhase("recording");
       timer.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch {
-      setError("Microphone access was blocked. Allow it in the browser, or type your memo below.");
+      setError(t.micBlocked);
     }
   }
 
@@ -151,13 +155,13 @@ export function NoteEditor(p: {
           setTranscript((prev) => (prev ? prev + "\n" : "") + m.text);
           setPhase("idle");
         } else if (m.type === "error") {
-          setError(`Transcription failed on this device (${m.message}). You can type the memo instead.`);
+          setError(t.transcriptionFailed(m.message));
           setPhase("idle");
         }
       };
       w.postMessage({ audio: data, language: lang }, [data.buffer]);
     } catch (e) {
-      setError(`Could not read the recording: ${(e as Error).message}`);
+      setError(t.readFailed((e as Error).message));
       setPhase("idle");
     }
   }
@@ -186,7 +190,7 @@ export function NoteEditor(p: {
       if (j.working && !working) setWorking(j.working);
       setAiDraft(j.offline ? "template" : "ai");
     } catch (e) {
-      setError((e as Error).message || "Drafting failed");
+      setError((e as Error).message || t.draftFailed);
     } finally {
       setPhase("idle");
     }
@@ -203,12 +207,12 @@ export function NoteEditor(p: {
             <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
             <path d="M8 11V8a4 4 0 1 1 8 0v3" stroke="currentColor" strokeWidth="2" />
           </svg>
-          Privacy mode · transcribed on this device
+          {t.privacyMode}
         </span>
         <div className="flex items-center justify-between">
-          <h2 className="t-title-m">Your voice memo</h2>
+          <h2 className="t-title-m">{t.yourMemo}</h2>
           {!p.signed && (
-            <select value={lang} onChange={(e) => setLang(e.target.value as typeof lang)} className="t-caption rounded-full border border-line-strong bg-surface px-2 py-1" aria-label="Memo language">
+            <select value={lang} onChange={(e) => setLang(e.target.value as typeof lang)} className="t-caption rounded-full border border-line-strong bg-surface px-2 py-1" aria-label={t.memoLanguage}>
               <option value="en">English</option>
               <option value="pl">Polski</option>
               <option value="uk">Українська</option>
@@ -219,11 +223,11 @@ export function NoteEditor(p: {
         {!p.signed && (
           <div className="flex items-center gap-3 rounded-[14px] bg-paper p-3">
             {phase === "recording" ? (
-              <button onClick={stopRec} className="flex size-10 items-center justify-center rounded-full bg-warn text-white" aria-label="Stop recording">
+              <button onClick={stopRec} className="flex size-10 items-center justify-center rounded-full bg-warn text-white" aria-label={t.stopRecording}>
                 <span className="size-3.5 rounded-sm bg-white" />
               </button>
             ) : (
-              <button onClick={startRec} disabled={busy} className="flex size-10 items-center justify-center rounded-full bg-ink text-white disabled:opacity-40" aria-label="Record a memo">
+              <button onClick={startRec} disabled={busy} className="flex size-10 items-center justify-center rounded-full bg-ink text-white disabled:opacity-40" aria-label={t.recordMemo}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                   <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor" />
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -233,64 +237,64 @@ export function NoteEditor(p: {
             <div className="flex-1">
               {phase === "recording" ? (
                 <p className="t-label-m flex items-center gap-2">
-                  <span className="size-2 animate-pulse rounded-full bg-warn" /> Recording · {fmt(seconds)}
+                  <span className="size-2 animate-pulse rounded-full bg-warn" /> {t.recording} · {fmt(seconds)}
                 </p>
               ) : phase === "loading-model" ? (
-                <p className="t-body-s text-stone">Preparing on-device transcription{progress ? ` · ${progress}%` : "…"}</p>
+                <p className="t-body-s text-stone">{t.preparing}{progress ? ` · ${progress}%` : "…"}</p>
               ) : phase === "transcribing" ? (
-                <p className="t-body-s text-stone">Transcribing {fmt(seconds)} of audio on this device…</p>
+                <p className="t-body-s text-stone">{t.transcribing(fmt(seconds))}</p>
               ) : audioUrl ? (
                 <audio src={audioUrl} controls className="h-9 w-full" />
               ) : (
-                <p className="t-body-s text-stone">Tap to record what matters from the session.</p>
+                <p className="t-body-s text-stone">{t.tapToRecord}</p>
               )}
             </div>
           </div>
         )}
         {!p.signed && phase === "idle" && (
           <label className="t-caption -mt-2 cursor-pointer text-stone hover:text-ink">
-            or upload an audio file
+            {t.uploadAudio}
             <input type="file" accept="audio/*" onChange={onFile} className="sr-only" />
           </label>
         )}
 
         <div className="flex flex-col gap-2">
-          <p className="t-overline text-stone">Transcript</p>
+          <p className="t-overline text-stone">{t.transcript}</p>
           <textarea
             value={transcript}
             onChange={(e) => setTranscript(e.target.value)}
             rows={7}
             disabled={p.signed}
             className={textareaCls}
-            placeholder={p.signed ? "The transcript was deleted when the record was signed." : "Your memo appears here. You can also type or paste it."}
+            placeholder={p.signed ? t.transcriptDeleted : t.transcriptPlaceholder}
           />
           {!p.signed && (
             <Button variant="dark" onClick={draft} disabled={!transcript.trim() || busy}>
-              {phase === "drafting" ? "Drafting the record…" : "Draft the record"}
+              {phase === "drafting" ? t.drafting : t.draftRecord}
             </Button>
           )}
         </div>
         {error && <p className="t-body-s rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{error}</p>}
         <p className="t-caption text-stone">
-          Audio never leaves this device and is not saved. Your client&rsquo;s and your own name, phone numbers, emails, PESEL and street addresses are removed before any AI step, and the transcript is discarded when you sign.
+          {t.privacyNote}
         </p>
       </section>
 
       {/* record */}
       <section className="flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="t-title-m">Session record</h2>
-          {p.signed ? <Badge tone="sage">Signed · {p.signedAt}</Badge> : aiDraft === "ai" ? <Badge tone="clay">AI draft · review before signing</Badge> : aiDraft === "template" ? <Badge tone="stone">Template draft · AI is off · review before signing</Badge> : <Badge tone="stone">Draft</Badge>}
+          <h2 className="t-title-m">{t.recordTitle}</h2>
+          {p.signed ? <Badge tone="sage">{t.signedBadge(p.signedAt)}</Badge> : aiDraft === "ai" ? <Badge tone="clay">{t.aiDraft}</Badge> : aiDraft === "template" ? <Badge tone="stone">{t.templateDraft}</Badge> : <Badge tone="stone">{t.draft}</Badge>}
         </div>
         <p className="t-overline text-stone">
-          Formal record <span className="normal-case tracking-normal text-stone/80">· Art. 28 · visible to the client on request</span>
+          {t.formalRecord} <span className="normal-case tracking-normal text-stone/80">{t.formalRecordNote}</span>
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
           {[
-            ["Client", p.meta.client],
-            ["Date", p.meta.date],
-            ["Form", p.meta.form],
-            ["Psychologist", p.meta.psychologist],
+            [t.fieldClient, p.meta.client],
+            [t.fieldDate, p.meta.date],
+            [t.fieldForm, p.meta.form],
+            [t.fieldPsychologist, p.meta.psychologist],
           ].map(([k, v]) => (
             <div key={k} className="rounded-[12px] bg-paper px-3.5 py-2.5">
               <p className="t-caption text-stone">{k}</p>
@@ -304,10 +308,10 @@ export function NoteEditor(p: {
           readOnly={p.signed}
           rows={8}
           className={`${textareaCls} !text-[16px] !leading-[1.6]`}
-          placeholder="Draft the record from your memo, or write it here."
+          placeholder={t.bodyPlaceholder}
         />
         <p className="t-overline text-stone">
-          Working notes <span className="normal-case tracking-normal text-stone/80">· private · not shared with the client</span>
+          {t.workingNotes} <span className="normal-case tracking-normal text-stone/80">{t.workingNote}</span>
         </p>
         <textarea
           value={working}
@@ -315,21 +319,21 @@ export function NoteEditor(p: {
           readOnly={p.signed}
           rows={3}
           className={`${textareaCls} border-transparent !bg-clay-soft/70`}
-          placeholder="Hypotheses, things to check next time…"
+          placeholder={t.workingPlaceholder}
         />
-        <p className="t-caption text-stone">Signed records are kept for 5 years from the end of the year in which your work with the client ended (art. 28), then Sessio prepares a destruction protocol for you to confirm.</p>
+        <p className="t-caption text-stone">{t.retention}</p>
         {!p.signed && (
           <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line pt-4">
-            <span className="t-caption mr-auto text-stone">{saved === "saving" ? "Saving…" : saved === "saved" ? "Draft saved" : ""}</span>
+            <span className="t-caption mr-auto text-stone">{saved === "saving" ? t.saving : saved === "saved" ? t.saved : ""}</span>
             <Button variant="secondary" disabled={pending} onClick={() => start(() => discardNote(p.id))}>
-              Discard draft
+              {t.discard}
             </Button>
             <Button
               disabled={pending || !body.trim()}
               onClick={() =>
                 start(async () => {
                   const r = await signNote(p.id, body, working);
-                  if (!r.ok) setError(r.error ?? "Could not sign");
+                  if (!r.ok) setError(r.error ?? t.signFailed);
                   else {
                     setTranscript("");
                     router.refresh();
@@ -337,7 +341,7 @@ export function NoteEditor(p: {
                 })
               }
             >
-              Approve &amp; sign
+              {t.approveSign}
             </Button>
           </div>
         )}

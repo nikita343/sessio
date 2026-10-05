@@ -13,13 +13,15 @@ const Body = z.object({
 
 const LANG_NAME = { pl: "Polish", uk: "Ukrainian", en: "English" } as const;
 
-function localDraft(transcript: string, sessionNumber: number, form: string) {
+const SESSION_WORD = { pl: "Sesja indywidualna", uk: "Індивідуальна сесія", en: "Individual session" } as const;
+
+function localDraft(transcript: string, sessionNumber: number, form: string, lang: keyof typeof SESSION_WORD) {
   const clean = transcript.replace(/\s+/g, " ").trim();
   const sentences = clean.split(/(?<=[.!?])\s+/);
-  const working = sentences.filter((x) => /^(check|consider|maybe|next time i|remember|sprawdzi|rozważ|перевір)/i.test(x)).join(" ");
+  const working = sentences.filter((x) => /^(check|consider|maybe|next time i|remember|sprawdzi|rozważ|zastanawiam|może|zapytać|перевір|можливо)/i.test(x)).join(" ");
   const record = sentences.filter((x) => !working.includes(x)).join(" ");
   return {
-    record: `Individual session (${sessionNumber}), ${form.toLowerCase()}. ${record.charAt(0).toUpperCase()}${record.slice(1)}`,
+    record: `${SESSION_WORD[lang]} (${sessionNumber}), ${form.toLowerCase()}. ${record.charAt(0).toUpperCase()}${record.slice(1)}`,
     working,
     offline: true,
   };
@@ -27,12 +29,12 @@ function localDraft(transcript: string, sessionNumber: number, form: string) {
 
 export async function POST(req: Request) {
   const { user } = await requireUser();
-  if (!user) return NextResponse.json({ error: "Sign in again." }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Zaloguj się ponownie. / Sign in again." }, { status: 401 });
   const parsed = Body.safeParse(await req.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "The memo is too short to draft from." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Notatka jest za krótka. / The memo is too short." }, { status: 400 });
   const { transcript, lang, sessionNumber, form } = parsed.data;
 
-  if (!aiAvailable()) return NextResponse.json(localDraft(transcript, sessionNumber, form));
+  if (!aiAvailable()) return NextResponse.json(localDraft(transcript, sessionNumber, form, lang));
 
   try {
     const { output } = await generateText({
@@ -61,6 +63,6 @@ Rules:
   } catch (e) {
     console.error(e);
     // AI unavailable — fall back to a local, rule-based draft so the therapist is never blocked.
-    return NextResponse.json(localDraft(transcript, sessionNumber, form));
+    return NextResponse.json(localDraft(transcript, sessionNumber, form, lang));
   }
 }

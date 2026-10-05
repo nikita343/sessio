@@ -25,6 +25,7 @@ export type Therapist = {
   memberships?: string | null;
   practising_since?: number | null;
   register_number?: string | null;
+  practice_name?: string | null;
   profile_i18n?: Record<string, { title?: string; city?: string; bio?: string; about?: string; first_session?: string; education?: string; memberships?: string }> | null;
   stripe_account_id: string | null;
   stripe_charges_enabled?: boolean;

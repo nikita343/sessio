@@ -64,7 +64,7 @@ export async function POST(req: Request) {
               .describe("true if the message contains ANY hint that the writer may be at risk of harming themselves or others, or is in acute distress (hopelessness, wanting everything to end, not wanting to live), even if indirect or uncertain."),
             reply: z.string().describe("The answer to the client, in the client's language, 1–4 short sentences, warm and plain."),
             needs_review: z.boolean().describe("true if the therapist must personally handle this (clinical/personal content, requests for exceptions, complaints, refunds, anything you cannot answer from the facts)."),
-            summary: z.string().describe("One line for the therapist's activity feed, in English, e.g. 'Answered Ola's question about evening times'."),
+            summary: z.string().describe("One line for the therapist's activity feed, in Polish (the therapist's working language), e.g. 'Odpowiedź na pytanie Oli o wieczorne terminy'."),
           }),
         }),
         system: `You are the booking assistant on the Sessio page of ${th.full_name}, ${th.title || "a therapist"} in ${th.city || "Poland"}.

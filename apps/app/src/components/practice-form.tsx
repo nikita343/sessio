@@ -3,10 +3,10 @@
 import { useActionState, useState } from "react";
 import { savePractice, type PracticeState } from "@/lib/practice-actions";
 import { LANGS } from "@/lib/format";
+import type { Lang } from "@/lib/i18n";
+import { PRACTICE_T, langLabel } from "@/lib/ui/booking";
 import type { Availability, Service, Therapist } from "@/lib/types";
 import { Button, Card, Field, Input, Textarea, inputCls } from "./ui";
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function slugify(s: string) {
   return s
@@ -25,13 +25,16 @@ export function PracticeForm({
   availability,
   from,
   host,
+  lang = "pl",
 }: {
   therapist: Therapist;
   service: Service | null;
   availability: Availability[];
   from: "onboarding" | "settings";
   host: string;
+  lang?: Lang;
 }) {
+  const t = PRACTICE_T[lang] ?? PRACTICE_T.pl;
   const [state, action, pending] = useActionState<PracticeState, FormData>(savePractice, {});
   const [name, setName] = useState(therapist.full_name);
   const [slug, setSlug] = useState(therapist.slug ?? "");
@@ -54,11 +57,11 @@ export function PracticeForm({
 
       <Card className="flex flex-col gap-5 p-6">
         <div>
-          <h2 className="t-title-m">About you</h2>
-          <p className="t-body-s text-stone">This is what clients see on your booking page.</p>
+          <h2 className="t-title-m">{t.aboutTitle}</h2>
+          <p className="t-body-s text-stone">{t.aboutBody}</p>
         </div>
         <div className="grid gap-5 md:grid-cols-2">
-          <Field label="Full name" htmlFor="full_name">
+          <Field label={t.fullName} htmlFor="full_name">
             <Input
               id="full_name"
               name="full_name"
@@ -70,7 +73,7 @@ export function PracticeForm({
               }}
             />
           </Field>
-          <Field label="Your link" htmlFor="slug" hint={`${host}/${slug || "your-name"}`}>
+          <Field label={t.yourLink} htmlFor="slug" hint={`${host}/${slug || t.slugPlaceholder}`}>
             <Input
               id="slug"
               name="slug"
@@ -82,34 +85,34 @@ export function PracticeForm({
               }}
             />
           </Field>
-          <Field label="Title" htmlFor="title" hint="For example: Psychologist · CBT">
-            <Input id="title" name="title" defaultValue={therapist.title} placeholder="Psychologist · CBT" />
+          <Field label={t.title} htmlFor="title" hint={t.titleHint}>
+            <Input id="title" name="title" defaultValue={therapist.title} placeholder={t.titlePlaceholder} />
           </Field>
-          <Field label="City" htmlFor="city">
-            <Input id="city" name="city" defaultValue={therapist.city} placeholder="Warsaw" />
+          <Field label={t.city} htmlFor="city">
+            <Input id="city" name="city" defaultValue={therapist.city} placeholder={t.cityPlaceholder} />
           </Field>
         </div>
-        <Field label="A few words for clients" htmlFor="bio" hint="Who you work with and how. Two or three sentences is plenty.">
-          <Textarea id="bio" name="bio" rows={3} defaultValue={therapist.bio} placeholder="I work with anxiety, burnout and life transitions…" />
+        <Field label={t.bio} htmlFor="bio" hint={t.bioHint}>
+          <Textarea id="bio" name="bio" rows={3} defaultValue={therapist.bio} placeholder={t.bioPlaceholder} />
         </Field>
         <div className="grid gap-5 md:grid-cols-2">
           <fieldset className="flex flex-col gap-2">
-            <legend className="t-label-m mb-1.5">Languages</legend>
+            <legend className="t-label-m mb-1.5">{t.languages}</legend>
             <div className="flex flex-wrap gap-2">
-              {Object.entries(LANGS).map(([code, label]) => (
+              {Object.keys(LANGS).map((code) => (
                 <label key={code} className="t-label-m flex cursor-pointer items-center gap-2 rounded-full border border-line-strong px-3 py-1.5 has-[:checked]:border-sage has-[:checked]:bg-sage-soft has-[:checked]:text-sage">
                   <input type="checkbox" name="languages" value={code} defaultChecked={therapist.languages?.includes(code)} className="sr-only" />
-                  {label}
+                  {langLabel(code, lang)}
                 </label>
               ))}
             </div>
           </fieldset>
           <fieldset className="flex flex-col gap-2">
-            <legend className="t-label-m mb-1.5">Sessions</legend>
+            <legend className="t-label-m mb-1.5">{t.sessions}</legend>
             <div className="flex flex-wrap gap-2">
               {[
-                ["online", "Online — private video room"],
-                ["in_person", "In person"],
+                ["online", t.online],
+                ["in_person", t.inPerson],
               ].map(([v, label]) => (
                 <label key={v} className="t-label-m flex cursor-pointer items-center gap-2 rounded-full border border-line-strong px-3 py-1.5 has-[:checked]:border-sage has-[:checked]:bg-sage-soft has-[:checked]:text-sage">
                   <input
@@ -127,7 +130,7 @@ export function PracticeForm({
           </fieldset>
         </div>
         {formats.includes("in_person") && (
-          <Field label="Practice address" htmlFor="address">
+          <Field label={t.address} htmlFor="address">
             <Input id="address" name="address" defaultValue={therapist.address ?? ""} placeholder="ul. Puławska 24/5, Warszawa" />
           </Field>
         )}
@@ -135,21 +138,21 @@ export function PracticeForm({
 
       <Card className="flex flex-col gap-5 p-6">
         <div>
-          <h2 className="t-title-m">Your session</h2>
-          <p className="t-body-s text-stone">Clients prepay this when they book. It goes to your own account.</p>
+          <h2 className="t-title-m">{t.sessionTitle}</h2>
+          <p className="t-body-s text-stone">{t.sessionBody}</p>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
-          <Field label="Name" htmlFor="service_name">
-            <Input id="service_name" name="service_name" defaultValue={service?.name ?? "Individual session"} />
+          <Field label={t.name} htmlFor="service_name">
+            <Input id="service_name" name="service_name" defaultValue={service?.name ?? t.defaultService} />
           </Field>
-          <Field label="Price (zł)" htmlFor="price">
+          <Field label={t.price} htmlFor="price">
             <Input id="price" name="price" type="number" min={0} step={10} defaultValue={service ? service.price_minor / 100 : 200} />
           </Field>
-          <Field label="Length" htmlFor="duration">
+          <Field label={t.length} htmlFor="duration">
             <select id="duration" name="duration" defaultValue={service?.duration_min ?? 50} className={inputCls}>
               {[30, 45, 50, 60, 75, 90, 120].map((m) => (
                 <option key={m} value={m}>
-                  {m} minutes
+                  {t.minutes(m)}
                 </option>
               ))}
             </select>
@@ -159,11 +162,11 @@ export function PracticeForm({
 
       <Card className="flex flex-col gap-4 p-6">
         <div>
-          <h2 className="t-title-m">When you work</h2>
-          <p className="t-body-s text-stone">Clients can only pick times inside these hours. Times are in Warsaw time.</p>
+          <h2 className="t-title-m">{t.hoursTitle}</h2>
+          <p className="t-body-s text-stone">{t.hoursBody}</p>
         </div>
         <div className="flex flex-col divide-y divide-line">
-          {DAYS.map((label, i) => {
+          {t.days.map((label, i) => {
             const d = i + 1;
             const h = hours.find((x) => x.weekday === d);
             return (
@@ -174,12 +177,12 @@ export function PracticeForm({
                 </label>
                 {h ? (
                   <div className="flex items-center gap-2">
-                    <input type="time" step={1800} value={h.start} onChange={(e) => setTime(d, "start", e.target.value)} className={`${inputCls} h-9 w-[110px]`} aria-label={`${label} start`} />
+                    <input type="time" step={1800} value={h.start} onChange={(e) => setTime(d, "start", e.target.value)} className={`${inputCls} h-9 w-[110px]`} aria-label={t.dayStart(label)} />
                     <span className="text-stone">–</span>
-                    <input type="time" step={1800} value={h.end} onChange={(e) => setTime(d, "end", e.target.value)} className={`${inputCls} h-9 w-[110px]`} aria-label={`${label} end`} />
+                    <input type="time" step={1800} value={h.end} onChange={(e) => setTime(d, "end", e.target.value)} className={`${inputCls} h-9 w-[110px]`} aria-label={t.dayEnd(label)} />
                   </div>
                 ) : (
-                  <span className="t-body-s text-stone">Not working</span>
+                  <span className="t-body-s text-stone">{t.notWorking}</span>
                 )}
               </div>
             );
@@ -189,10 +192,10 @@ export function PracticeForm({
 
       <div className="sticky bottom-4 flex items-center justify-between gap-4 rounded-full border border-line bg-surface/95 py-2 pl-5 pr-2 shadow-[var(--shadow-card)] backdrop-blur">
         <p className="t-body-s text-stone">
-          {state.error ? <span className="text-warn">{state.error}</span> : state.saved ? <span className="text-sage">Saved. Your page is up to date.</span> : "Your page goes live when you save."}
+          {state.error ? <span className="text-warn">{state.error}</span> : state.saved ? <span className="text-sage">{t.saved}</span> : t.goesLive}
         </p>
         <Button size="md" disabled={pending}>
-          {pending ? "Saving…" : from === "onboarding" ? "Publish my page" : "Save changes"}
+          {pending ? t.saving : from === "onboarding" ? t.publish : t.saveChanges}
         </Button>
       </div>
     </form>

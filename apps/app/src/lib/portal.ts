@@ -74,6 +74,7 @@ const en = {
   portal: "Your sessions",
   sessions: "Sessions",
   messages: "Messages",
+  details: "My details",
   signOut: "Sign out",
   hi: (n: string) => (n ? `Hi, ${n}.` : "Hi."),
   nextUp: "Next session",
@@ -137,6 +138,7 @@ const pl: PortalDict = {
   portal: "Twoje sesje",
   sessions: "Sesje",
   messages: "Wiadomości",
+  details: "Moje dane",
   signOut: "Wyloguj",
   hi: (n) => (n ? `Cześć, ${n}.` : "Cześć."),
   nextUp: "Najbliższa sesja",
@@ -198,6 +200,7 @@ const pl: PortalDict = {
 const uk: PortalDict = {
   portal: "Ваші сесії",
   sessions: "Сесії",
+  details: "Мої дані",
   messages: "Повідомлення",
   signOut: "Вийти",
   hi: (n) => (n ? `Привіт, ${n}.` : "Привіт."),

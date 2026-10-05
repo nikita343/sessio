@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient, publicClient, SERVER_SECRET } from "@/lib/supabase/server";
+import { pick, uiLang } from "@/lib/ui-lang";
+import { LOGIN_T } from "@/lib/ui/login";
 
 export type AuthState = { error?: string; info?: string };
 
@@ -15,7 +17,7 @@ export async function signIn(_: AuthState, form: FormData): Promise<AuthState> {
   const email = String(form.get("email") ?? "").trim();
   const password = String(form.get("password") ?? "");
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: "That email and password don't match." };
+  if (error) return { error: pick(LOGIN_T, await uiLang()).badCredentials };
   redirect(safeNext(form.get("next")));
 }
 
@@ -24,7 +26,7 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
   const email = String(form.get("email") ?? "").trim();
   const password = String(form.get("password") ?? "");
   const full_name = String(form.get("full_name") ?? "").trim();
-  if (password.length < 8) return { error: "Use at least 8 characters for the password." };
+  if (password.length < 8) return { error: pick(LOGIN_T, await uiLang()).passwordShort };
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -34,7 +36,7 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
     },
   });
   if (error) return { error: error.message };
-  if (!data.session) return { info: "Check your inbox — we sent a link to confirm your email." };
+  if (!data.session) return { info: pick(LOGIN_T, await uiLang()).checkInbox };
   redirect("/onboarding");
 }
 

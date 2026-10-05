@@ -8,15 +8,18 @@ import { firstName, inTz, money, shortName, timeAgo } from "@/lib/format";
 import { Badge, Card, LinkButton, btn } from "@/components/ui";
 import { CopyLink } from "@/components/copy-link";
 import type { Activity, Availability } from "@/lib/types";
+import { pick, uiLang } from "@/lib/ui-lang";
+import { DASHBOARD_T } from "@/lib/ui/dashboard";
+import { activityText } from "@/lib/ui/activity";
 
-export const metadata: Metadata = { title: "Today" };
-
-function greeting(h: number) {
-  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: pick(DASHBOARD_T, await uiLang()).title };
 }
 
 export default async function Dashboard(props: PageProps<"/dashboard">) {
   const sp = await props.searchParams;
+  const lang = await uiLang();
+  const t = pick(DASHBOARD_T, lang);
   const { supabase, therapist: th } = await getTherapist();
   const tz = th.timezone;
   const now = new TZDate(Date.now(), tz);
@@ -59,32 +62,33 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
   const app = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
   const stats = [
-    ["Today", `${today.length} session${today.length === 1 ? "" : "s"}`, today.length ? `${online} online · ${today.length - online} in person` : "a quiet day"],
-    ["This week", `${week.length} session${week.length === 1 ? "" : "s"}`, `${freeLeft} slot${freeLeft === 1 ? "" : "s"} left`],
-    ["Paid this month", money(paidSum, th.currency), "all prepaid, 0 chasing"],
-    ["No-shows", String(noShows ?? 0), "since prepayment"],
+    [t.statToday, t.sessions(today.length), today.length ? t.todaySplit(online, today.length - online) : t.quietDay],
+    [t.statWeek, t.sessions(week.length), t.slotsLeft(freeLeft)],
+    [t.statPaidMonth, money(paidSum, th.currency), t.allPrepaid],
+    [t.statNoShows, String(noShows ?? 0), t.sincePrepayment],
   ];
+  const dateLine = inTz(new Date(), tz, "EEEE, d MMMM", lang);
 
   return (
     <div className="flex flex-col gap-6">
       {sp.welcome && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[16px] bg-sage px-5 py-4 text-white">
-          <p className="t-body-m">Your booking page is live. Share the link with clients — they can book and pay in under a minute.</p>
+          <p className="t-body-m">{t.welcome}</p>
           <a href={`/${th.slug}`} target="_blank" className="t-label-m rounded-full bg-white px-4 py-2 text-sage">
-            Open my page
+            {t.openMyPage}
           </a>
         </div>
       )}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="t-caption text-stone">{inTz(new Date(), tz, "EEEE, d MMMM")}</p>
+          <p className="t-caption text-stone">{dateLine.charAt(0).toUpperCase() + dateLine.slice(1)}</p>
           <h1 className="t-heading-m !text-[36px]">
-            {greeting(now.getHours())}, {firstName(th.full_name)}
+            {t.greeting(now.getHours())}, {firstName(th.full_name)}
           </h1>
         </div>
         <div className="flex gap-2">
-          <CopyLink url={`${app}/${th.slug}`} />
-          <LinkButton href="/calendar?new=1">+ Add session</LinkButton>
+          <CopyLink url={`${app}/${th.slug}`} label={t.copyBookingLink} lang={lang} />
+          <LinkButton href="/calendar?new=1">{t.addSession}</LinkButton>
         </div>
       </div>
 
@@ -101,15 +105,15 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_400px]">
         <Card className="overflow-hidden">
           <div className="flex items-center justify-between border-b border-line px-6 py-4">
-            <h2 className="t-title-m">{today.length ? "Today" : "Coming up"}</h2>
+            <h2 className="t-title-m">{today.length ? t.today : t.comingUp}</h2>
             <Link href="/calendar" className="t-label-m text-sage">
-              View calendar →
+              {t.viewCalendar}
             </Link>
           </div>
           {list.length === 0 ? (
             <div className="px-6 py-10 text-center">
-              <p className="t-title-m">No sessions booked yet</p>
-              <p className="t-body-s mx-auto mt-1 max-w-sm text-stone">Share your booking link. When a client books and pays, the session appears here with its video room.</p>
+              <p className="t-title-m">{t.emptyTitle}</p>
+              <p className="t-body-s mx-auto mt-1 max-w-sm text-stone">{t.emptyBody}</p>
             </div>
           ) : (
             <ul className="divide-y divide-line">
@@ -120,35 +124,37 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
                 const n = nums.get(b.id) ?? 1;
                 const note = noteBy.get(b.id);
                 return (
-                  <li key={b.id} className="flex items-center gap-4 px-6 py-4">
+                  <li key={b.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-4 sm:flex-nowrap sm:px-6">
                     <div className="w-14 shrink-0">
                       <p className="font-display text-[20px] font-medium tracking-[-0.03em]">{inTz(b.starts_at, tz, "HH:mm")}</p>
-                      {!today.length && <p className="t-caption text-stone">{inTz(b.starts_at, tz, "EEE d")}</p>}
+                      {!today.length && <p className="t-caption text-stone">{inTz(b.starts_at, tz, "EEE d", lang)}</p>}
                     </div>
                     <div className="min-w-0 flex-1">
                       <Link href={`/clients/${b.client_id}`} className="t-label-m hover:underline">
-                        {shortName(b.client?.full_name ?? "Client")}
+                        {shortName(b.client?.full_name ?? t.client)}
                       </Link>
                       <p className="t-caption text-stone">
-                        {n === 1 ? "First session" : `Session ${n}`} · {b.format === "online" ? "online" : "in person"}
+                        {n === 1 ? t.firstSession : t.sessionN(n)} · {b.format === "online" ? t.online : t.inPerson}
                         {b.client?.language && b.client.language !== "pl" ? ` · ${b.client.language === "uk" ? "UA" : b.client.language.toUpperCase()}` : ""}
                       </p>
                     </div>
-                    {b.status === "no_show" ? <Badge tone="warn">No-show</Badge> : b.payment_status === "paid" ? <Badge tone="sage">Paid</Badge> : <Badge tone="clay">Unpaid</Badge>}
-                    <div className="w-[104px] text-right">
+                    <div className="flex w-full items-center justify-between gap-3 pl-[72px] sm:contents">
+                    {b.status === "no_show" ? <Badge tone="warn">{t.noShow}</Badge> : b.payment_status === "paid" ? <Badge tone="sage">{t.paid}</Badge> : <Badge tone="clay">{t.unpaid}</Badge>}
+                    <div className="text-right sm:w-[120px]">
                       {live && b.room_name ? (
                         <Link href={`/room/${b.room_name}`} className={btn("primary", "md")}>
-                          Join
+                          {t.join}
                         </Link>
                       ) : past ? (
                         <Link href={`/notes/new?booking=${b.id}`} className="t-label-m text-ink hover:underline">
-                          {note === "signed" ? "Signed" : note ? "Note ready" : "Write note"}
+                          {note === "signed" ? t.signed : note ? t.noteReady : t.writeNote}
                         </Link>
                       ) : (
                         <Link href={`/clients/${b.client_id}`} className="t-label-m text-ink hover:underline">
-                          Details
+                          {t.details}
                         </Link>
                       )}
+                    </div>
                     </div>
                   </li>
                 );
@@ -159,29 +165,27 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
 
         <div className="flex flex-col gap-4 rounded-[20px] bg-ink p-6 text-white">
           <p className="t-overline flex items-center gap-2 text-white/80">
-            <span className="size-1.5 rounded-full bg-white" /> Handled for you
+            <span className="size-1.5 rounded-full bg-white" /> {t.handledForYou}
           </p>
-          {handled.length === 0 && review.length === 0 && (
-            <p className="t-body-s text-white/70">When clients book, pay, cancel or ask questions, the assistant handles the admin and lists it here.</p>
-          )}
+          {handled.length === 0 && review.length === 0 && <p className="t-body-s text-white/70">{t.handledEmpty}</p>}
           <ul className="flex flex-col divide-y divide-white/10">
             {handled.map((a) => (
               <li key={a.id} className="py-3 first:pt-0">
-                <p className="t-body-s">{a.summary}</p>
-                <p className="t-caption mt-0.5 text-white/50">{timeAgo(a.created_at)}</p>
+                <p className="t-body-s">{activityText(a.summary, lang)}</p>
+                <p className="t-caption mt-0.5 text-white/50">{timeAgo(a.created_at, lang)}</p>
               </li>
             ))}
           </ul>
           {review.slice(0, 2).map((a) => (
             <div key={a.id} className={`flex flex-col gap-3 rounded-[14px] p-4 text-ink ${a.urgent ? "bg-[#f6e3dc] ring-2 ring-warn/60" : "bg-clay-soft"}`}>
-              <p className={`t-overline ${a.urgent ? "text-warn" : "text-clay"}`}>{a.urgent ? "Urgent · possible risk" : "Needs your OK"}</p>
-              <p className="t-body-s">{a.summary}</p>
+              <p className={`t-overline ${a.urgent ? "text-warn" : "text-clay"}`}>{a.urgent ? t.urgent : t.needsOk}</p>
+              <p className="t-body-s">{activityText(a.summary, lang)}</p>
               <LinkButton href={a.ref_id ? `/inbox?c=${a.ref_id}` : "/inbox"} className="self-start">
-                Review &amp; reply
+                {t.reviewReply}
               </LinkButton>
             </div>
           ))}
-          <p className="t-caption text-white/50">The assistant sees bookings, payments and messages — never what is said in sessions.</p>
+          <p className="t-caption text-white/50">{t.privacy}</p>
         </div>
       </div>
     </div>
