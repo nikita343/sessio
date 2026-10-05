@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { Motion } from "@/components/motion";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://usesessio.com"),
@@ -22,8 +23,14 @@ export const viewport: Viewport = { themeColor: "#F4F3EF" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
+      <body>
+        {children}
+        <Motion />
+      </body>
     </html>
   );
 }

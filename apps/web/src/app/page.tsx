@@ -4,29 +4,36 @@ import { WaitlistForm } from "@/components/waitlist-form";
 import { APP_URL, ButtonLink, Footer, MobileNav, Nav, Pill, Splash, TextLink } from "@/components/site";
 import { POSTS, fmtDate } from "@/content/posts";
 import { WEBINARS, fmtWhen } from "@/content/webinars";
+import { Story } from "@/components/story";
 
 /* ---------------------------------- Hero --------------------------------- */
 
 function Hero() {
   return (
     <section className="relative overflow-hidden md:h-[726px]">
-      <Splash src="/splash/hero.webp" />
+      <Splash src="/splash/hero.webp" drift />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[254px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav />
       <MobileNav />
       <div className="relative mx-auto flex max-w-[680px] flex-col items-center gap-6 px-5 pb-24 pt-16 text-center md:pt-[120px]">
-        <Pill>For psychologists &amp; therapists</Pill>
-        <h1 className="t-display-xl">
+        <span data-hero-fade>
+          <Pill>For psychologists &amp; therapists</Pill>
+        </span>
+        <h1 data-split className="t-display-xl">
           Your whole practice,
           <br />
           <span className="text-stone">in one quiet place.</span>
         </h1>
-        <p className="t-body-l text-stone">
+        <p data-hero-fade className="t-body-l text-stone">
           Booking, BLIK prepayment, private video and notes from a two-minute voice memo. No commission, no session
           recordings — your clients stay yours.
         </p>
-        <ButtonLink href="#waitlist">Become a founding therapist</ButtonLink>
-        <p className="t-caption text-stone">149 zł / month, all-in · price locked for life</p>
+        <span data-hero-fade>
+          <ButtonLink href="#waitlist">Become a founding therapist</ButtonLink>
+        </span>
+        <p data-hero-fade className="t-caption text-stone">
+          149 zł / month, all-in · price locked for life
+        </p>
       </div>
     </section>
   );
@@ -37,8 +44,8 @@ function Hero() {
 function Showcase() {
   return (
     <section id="how" className="px-5 pb-[120px] md:px-16">
-      <div className="relative mx-auto aspect-[1312/700] max-w-[1312px] overflow-hidden rounded-[20px] bg-sunken md:rounded-[32px]">
-        <Splash src="/splash/showcase.webp" />
+      <div data-zoom className="relative mx-auto aspect-[1312/700] max-w-[1312px] overflow-hidden rounded-[20px] bg-sunken md:rounded-[32px]">
+        <Splash src="/splash/showcase.webp" drift />
         <Image
           src="/img/dash.webp"
           alt="Sessio dashboard: today's sessions, payments and what the assistant handled"
@@ -53,6 +60,7 @@ function Showcase() {
           alt="A therapist's booking page on a phone, with times to pick and BLIK prepayment"
           width={849}
           height={1449}
+          data-rise="140"
           className="absolute"
           style={{ left: "66.77%", top: "8.571%", width: "32.36%", height: "auto" }}
         />
@@ -73,7 +81,7 @@ function Numbers() {
   return (
     <section className="mx-auto grid max-w-[1440px] grid-cols-2 gap-y-10 px-5 pb-[140px] md:grid-cols-4 md:px-16">
       {items.map(([big, small], i) => (
-        <div key={big} className={`flex flex-col gap-2 ${i % 2 ? "border-l border-line pl-6 md:pl-8" : ""} ${i === 2 ? "md:border-l md:border-line md:pl-8" : ""}`}>
+        <div key={big} data-reveal className={`flex flex-col gap-2 ${i % 2 ? "border-l border-line pl-6 md:pl-8" : ""} ${i === 2 ? "md:border-l md:border-line md:pl-8" : ""}`}>
           <span className="t-display-l">{big}</span>
           <span className="t-label-m text-stone">{small}</span>
         </div>
@@ -108,14 +116,14 @@ function Feature({
   return (
     <section id={id} className="mx-auto max-w-[1440px] px-5 pb-[120px] md:px-16">
       <div className={`flex flex-col items-center gap-12 md:gap-20 ${reverse ? "md:flex-row-reverse" : "md:flex-row"}`}>
-        <div className="flex w-full flex-col items-start gap-5 md:flex-1">
+        <div data-reveal className="flex w-full flex-col items-start gap-5 md:flex-1">
           <Pill tone={tone}>{pill}</Pill>
           <h2 className="t-display-l max-w-[560px]">{title}</h2>
           <p className="t-body-l max-w-[612px] text-stone">{body}</p>
           <TextLink href={link[1]}>{link[0]}</TextLink>
         </div>
-        <div className="relative flex aspect-[620/540] w-full items-center justify-center overflow-hidden rounded-[28px] bg-sunken md:w-[620px] md:shrink-0">
-          <Splash src={splash} />
+        <div data-reveal className="relative flex aspect-[620/540] w-full items-center justify-center overflow-hidden rounded-[28px] bg-sunken md:w-[620px] md:shrink-0">
+          <Splash src={splash} drift />
           <div className="relative w-[82%] max-w-[420px]">{children}</div>
         </div>
       </div>
@@ -134,7 +142,7 @@ function Row({ k, v }: { k: string; v: string }) {
 
 function BookingCard() {
   return (
-    <div className="flex flex-col gap-3.5 rounded-[20px] bg-surface p-6 shadow-[var(--shadow-float)]">
+    <div data-seq="0.14" className="flex flex-col gap-3.5 rounded-[20px] bg-surface p-6 shadow-[var(--shadow-float)]">
       <div className="flex items-center justify-between">
         <span className="t-title-m">New booking</span>
         <span className="t-overline rounded-full bg-sage-soft px-2.5 py-1 text-sage">Paid · BLIK</span>
@@ -152,7 +160,7 @@ function BookingCard() {
 
 function ThreadCard() {
   return (
-    <div className="flex flex-col gap-3 rounded-[20px] bg-surface p-5 shadow-[var(--shadow-float)]">
+    <div data-seq="0.5" className="flex flex-col gap-3 rounded-[20px] bg-surface p-5 shadow-[var(--shadow-float)]">
       <div className="flex items-center gap-2.5">
         <span className="t-label-m flex size-8 items-center justify-center rounded-full bg-lavender-soft text-[#5b5299]">P</span>
         <div>
@@ -177,7 +185,7 @@ function ThreadCard() {
 function MemoCard() {
   const bars = [8, 14, 10, 18, 12, 20, 9, 16, 11, 19, 7, 13, 17, 10, 15, 8, 12, 18, 9, 14, 11, 16];
   return (
-    <div className="flex flex-col gap-3 rounded-[20px] bg-surface p-5 shadow-[var(--shadow-float)]">
+    <div data-seq="0.22" className="flex flex-col gap-3 rounded-[20px] bg-surface p-5 shadow-[var(--shadow-float)]">
       <span className="t-caption inline-flex w-fit items-center gap-1.5 rounded-full bg-sage-soft px-2.5 py-1 text-sage">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
           <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -191,7 +199,7 @@ function MemoCard() {
             <path d="M2 1l7 4-7 4z" fill="currentColor" />
           </svg>
         </span>
-        <span className="flex flex-1 items-center gap-[3px]" aria-hidden>
+        <span className="flex flex-1 items-center gap-[3px]" aria-hidden data-wave>
           {bars.map((h, i) => (
             <span key={i} className={`w-[3px] rounded-full ${i < 9 ? "bg-ink" : "bg-line-strong"}`} style={{ height: h }} />
           ))}
@@ -219,8 +227,8 @@ function Cta() {
         id="waitlist"
         className="relative mx-auto flex max-w-[1312px] scroll-mt-10 flex-col items-center overflow-hidden rounded-[28px] bg-surface px-5 py-24 text-center md:min-h-[650px] md:justify-center md:rounded-[32px]"
       >
-        <Splash src="/splash/cta.webp" />
-        <div className="relative flex max-w-[680px] flex-col items-center gap-6">
+        <Splash src="/splash/cta.webp" drift />
+        <div data-reveal className="relative flex max-w-[680px] flex-col items-center gap-6">
           <Pill>Founding therapists · first 100</Pill>
           <h2 className="t-display-xl">
             Less admin.
@@ -245,10 +253,10 @@ function HumanIntro() {
   return (
     <section className="mx-auto max-w-[1440px] px-5 pb-[140px] md:px-16">
       <div className="grid items-center gap-10 md:grid-cols-[1.15fr_1fr] md:gap-20">
-        <div className="relative aspect-[3/2] overflow-hidden rounded-[28px]">
-          <Image src="/photos/session.webp" alt="A psychologist in her light-filled practice, sitting in a sage armchair" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
+        <div data-reveal className="relative aspect-[3/2] overflow-hidden rounded-[28px]">
+          <Image data-parallax="0.35" src="/photos/session.webp" alt="A psychologist in her light-filled practice, sitting in a sage armchair" fill sizes="(min-width: 768px) 55vw, 100vw" className="scale-[1.14] object-cover" />
         </div>
-        <div className="flex flex-col gap-5">
+        <div data-reveal className="flex flex-col gap-5">
           <Pill>Why we built it</Pill>
           <h2 className="t-display-l">For the people who hold the room.</h2>
           <p className="t-body-l text-stone">
@@ -273,7 +281,7 @@ const CASES = [
 function UseCasesTeaser() {
   return (
     <section className="mx-auto max-w-[1440px] px-5 pb-[140px] md:px-16">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div data-reveal className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-4">
           <Pill>Use cases</Pill>
           <h2 className="t-display-l max-w-[620px]">Different practices. The same quiet Monday.</h2>
@@ -282,7 +290,7 @@ function UseCasesTeaser() {
       </div>
       <div className="mt-10 grid gap-6 md:grid-cols-3">
         {CASES.map(([img, who, quote, href]) => (
-          <Link key={href} href={href} className="group flex flex-col gap-4">
+          <Link key={href} href={href} data-reveal className="group flex flex-col gap-4">
             <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-sunken">
               <Image src={img} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
             </div>
@@ -300,7 +308,7 @@ function Resources() {
   const next = WEBINARS[0];
   return (
     <section className="mx-auto max-w-[1440px] px-5 pb-[120px] md:px-16">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div data-reveal className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-4">
           <Pill>Resources</Pill>
           <h2 className="t-display-l max-w-[620px]">Plain answers about the new Act, money and privacy.</h2>
@@ -309,7 +317,7 @@ function Resources() {
       </div>
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr_1fr_1.15fr]">
         {posts.map((p) => (
-          <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex flex-col gap-3">
+          <Link key={p.slug} href={`/blog/${p.slug}`} data-reveal className="group flex flex-col gap-3">
             <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] bg-sunken">
               <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 22vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
             </div>
@@ -320,7 +328,7 @@ function Resources() {
             </p>
           </Link>
         ))}
-        <Link href={`/webinars#${next.slug}`} className="group relative flex flex-col justify-between gap-6 overflow-hidden rounded-[24px] bg-ink p-6 text-white">
+        <Link href={`/webinars#${next.slug}`} data-reveal className="group relative flex flex-col justify-between gap-6 overflow-hidden rounded-[24px] bg-ink p-6 text-white">
           <div className="flex flex-col gap-3">
             <span className="t-overline text-white/60">Free webinar · {next.lang}</span>
             <h3 className="t-heading-s">{next.title}</h3>
@@ -387,6 +395,7 @@ export default function Home() {
       >
         <MemoCard />
       </Feature>
+      <Story />
       <UseCasesTeaser />
       <Resources />
       <Cta />

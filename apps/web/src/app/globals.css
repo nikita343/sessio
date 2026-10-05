@@ -115,3 +115,16 @@ body {
 ::selection {
   background: var(--color-splash-sage);
 }
+
+/* Motion: hide opt-in elements until GSAP takes over (only when JS is running) */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal],
+  .js [data-split],
+  .js [data-hero-fade],
+  .js [data-seq] > * {
+    visibility: hidden;
+  }
+}
+.split-word {
+  will-change: transform;
+}

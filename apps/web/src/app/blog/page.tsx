@@ -26,7 +26,7 @@ export default function Blog() {
         body="The new Act, documentation, money and privacy — written plainly, with sources, for therapists who would rather be doing therapy."
       />
       <section className="mx-auto max-w-[1312px] px-5 pb-[110px] md:px-0">
-        <Link href={`/blog/${lead.slug}`} className="group grid items-center gap-8 rounded-[28px] bg-surface p-4 md:grid-cols-[1.2fr_1fr] md:p-6">
+        <Link href={`/blog/${lead.slug}`} data-reveal className="group grid items-center gap-8 rounded-[28px] bg-surface p-4 md:grid-cols-[1.2fr_1fr] md:p-6">
           <div className="relative aspect-[16/10] overflow-hidden rounded-[20px]">
             <Image src={lead.image} alt="" fill priority sizes="(min-width: 768px) 60vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
           </div>
@@ -41,7 +41,7 @@ export default function Blog() {
         </Link>
         <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {rest.map((p) => (
-            <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex flex-col gap-3">
+            <Link key={p.slug} href={`/blog/${p.slug}`} data-reveal className="group flex flex-col gap-3">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] bg-sunken">
                 <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
               </div>

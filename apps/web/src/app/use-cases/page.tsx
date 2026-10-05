@@ -88,7 +88,7 @@ export default function UseCases() {
         <section key={c.id} id={c.id} className="mx-auto max-w-[1440px] scroll-mt-10 px-5 pb-[110px] md:px-16">
           <div className={`flex flex-col items-center gap-10 md:gap-20 ${i % 2 ? "md:flex-row-reverse" : "md:flex-row"}`}>
             <Photo src={c.photo} alt={c.alt} className="w-full md:w-[600px] md:shrink-0" priority={i === 0} />
-            <div className="flex w-full flex-col gap-5 md:flex-1">
+            <div data-reveal className="flex w-full flex-col gap-5 md:flex-1">
               <Pill tone={c.tone}>{c.who}</Pill>
               <h2 className="t-heading-m max-w-[560px]">{c.title}</h2>
               <p className="t-body-l max-w-[560px] text-stone">{c.story}</p>

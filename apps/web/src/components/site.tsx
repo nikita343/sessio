@@ -4,9 +4,10 @@ import { Logo } from "@/components/logo";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
-export function Splash({ src, className = "" }: { src: string; className?: string }) {
+export function Splash({ src, className = "", drift = false }: { src: string; className?: string; drift?: boolean }) {
   return (
     <Image
+      data-drift={drift ? "" : undefined}
       src={src}
       alt=""
       aria-hidden
@@ -112,15 +113,25 @@ export function PageHero({
 }) {
   return (
     <section className="relative overflow-hidden">
-      <Splash src={splash} className="opacity-80" />
+      <Splash src={splash} className="opacity-80" drift />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[200px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav current={current} />
       <MobileNav />
       <div className="relative mx-auto flex max-w-[760px] flex-col items-center gap-5 px-5 pb-20 pt-12 text-center md:pb-24 md:pt-20">
-        {pill && <Pill>{pill}</Pill>}
-        <h1 className="t-display-l">{title}</h1>
-        {body && <p className="t-body-l max-w-[620px] text-stone">{body}</p>}
-        {children}
+        {pill && (
+          <span data-hero-fade>
+            <Pill>{pill}</Pill>
+          </span>
+        )}
+        <h1 data-split className="t-display-l">
+          {title}
+        </h1>
+        {body && (
+          <p data-hero-fade className="t-body-l max-w-[620px] text-stone">
+            {body}
+          </p>
+        )}
+        {children && <div data-hero-fade>{children}</div>}
       </div>
     </section>
   );
@@ -128,7 +139,7 @@ export function PageHero({
 
 export function Photo({ src, alt, ratio = "aspect-[3/2]", className = "", priority = false }: { src: string; alt: string; ratio?: string; className?: string; priority?: boolean }) {
   return (
-    <div className={`relative overflow-hidden rounded-[24px] bg-sunken ${ratio} ${className}`}>
+    <div data-reveal className={`relative overflow-hidden rounded-[24px] bg-sunken ${ratio} ${className}`}>
       <Image src={src} alt={alt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" priority={priority} />
     </div>
   );
@@ -187,6 +198,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1440px] px-5 md:px-16">
         <p
           aria-hidden
+          data-rise="90"
           className="font-display -mb-[0.28em] mt-16 select-none bg-cover bg-clip-text font-semibold leading-none text-transparent opacity-85"
           style={{
             backgroundImage: "url(/splash/texture.webp), linear-gradient(90deg,#c9dfd1,#d8d3ee,#cfe2ec)",
@@ -206,8 +218,8 @@ export function Footer() {
 export function ClosingCta({ title = "Your practice, your clients.", body = "149 zł a month, all-in. Founding therapists keep that price for life." }: { title?: string; body?: string }) {
   return (
     <section className="px-5 pb-[80px] md:px-16">
-      <div className="relative mx-auto flex max-w-[1312px] flex-col items-center gap-5 overflow-hidden rounded-[28px] bg-surface px-5 py-20 text-center md:rounded-[32px]">
-        <Splash src="/splash/cta.webp" />
+      <div data-reveal className="relative mx-auto flex max-w-[1312px] flex-col items-center gap-5 overflow-hidden rounded-[28px] bg-surface px-5 py-20 text-center md:rounded-[32px]">
+        <Splash src="/splash/cta.webp" drift />
         <h2 className="t-display-l relative max-w-[640px]">{title}</h2>
         <p className="t-body-l relative max-w-[520px] text-stone">{body}</p>
         <div className="relative flex flex-wrap justify-center gap-2">

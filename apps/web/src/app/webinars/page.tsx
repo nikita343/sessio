@@ -28,7 +28,7 @@ export default function Webinars() {
       </section>
       <section className="mx-auto flex max-w-[1120px] flex-col gap-6 px-5 pb-[110px]">
         {WEBINARS.map((w) => (
-          <article key={w.slug} id={w.slug} className="grid gap-6 rounded-[28px] bg-surface p-6 md:grid-cols-[1.3fr_1fr] md:p-10">
+          <article key={w.slug} id={w.slug} data-reveal className="grid gap-6 rounded-[28px] bg-surface p-6 md:grid-cols-[1.3fr_1fr] md:p-10">
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap gap-2">
                 <Pill tone="sage">{w.status === "upcoming" ? "Upcoming · free" : "Replay soon"}</Pill>
