@@ -20,7 +20,9 @@ const DIRECT: Record<string, string> = {
 
 export function model(id: string) {
   if (process.env.ANTHROPIC_API_KEY) {
-    const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    // Keys made outside a workspace need the workspace named on every request.
+    const ws = process.env.ANTHROPIC_WORKSPACE_ID;
+    const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY, headers: ws ? { "anthropic-workspace-id": ws } : undefined });
     return anthropic(DIRECT[id] ?? id.replace(/^anthropic\//, "").replace(/\./g, "-"));
   }
   return gateway(id);
