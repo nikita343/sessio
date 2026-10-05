@@ -5,8 +5,9 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/logo";
-
-export type NavItem = [label: string, href: string, hint: string];
+import { Icon } from "@/components/icons";
+import { DesktopMenu } from "@/components/nav-menu";
+import { groupActive, type NavGroup } from "@/components/nav-data";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
@@ -33,7 +34,7 @@ function Burger({ open, onClick, className = "" }: { open: boolean; onClick: () 
  * Mobile menu (full-screen sheet) + a compact header that slides in when the
  * reader scrolls back up. Rendered once per page by <Nav />.
  */
-export function HeaderChrome({ items, current }: { items: NavItem[]; current?: string }) {
+export function HeaderChrome({ items, current }: { items: NavGroup[]; current?: string }) {
   const [open, setOpen] = useState(false);
   const mounted = useSyncExternalStore(
     () => () => {},
@@ -102,17 +103,11 @@ export function HeaderChrome({ items, current }: { items: NavItem[]; current?: s
             <Link href="/" aria-label="Sessio home" tabIndex={bar ? 0 : -1}>
               <Logo size={24} />
             </Link>
-            <nav className="hidden items-center gap-6 lg:flex">
-              {items.map(([label, href]) => (
-                <Link key={href} href={href} tabIndex={bar ? 0 : -1} className={`t-label-m ${current === href ? "text-ink" : "text-ink/70 hover:text-ink"}`}>
-                  {label}
-                </Link>
-              ))}
-            </nav>
+            <DesktopMenu groups={items} current={current} tabbable={bar} className="relative hidden lg:block" />
             <div className="flex items-center gap-1.5">
               <Link href="/#waitlist" tabIndex={bar ? 0 : -1} className="t-label-m inline-flex h-11 items-center rounded-full bg-sage px-5 text-white hover:bg-sage-hover">
-                <span className="sm:hidden">Join</span>
-                <span className="hidden sm:inline">Join the waitlist</span>
+                <span className="sm:hidden lg:inline xl:hidden">Join</span>
+                <span className="hidden sm:inline lg:hidden xl:inline">Join the waitlist</span>
               </Link>
               <Burger open={open} onClick={toggle} />
             </div>
@@ -137,25 +132,54 @@ export function HeaderChrome({ items, current }: { items: NavItem[]; current?: s
           <Burger open={open} onClick={toggle} />
         </div>
 
-        <nav className="relative flex flex-1 flex-col px-5 pt-4" aria-label="Main">
-          {items.map(([label, href, hint], i) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={close}
-              aria-current={current === href ? "page" : undefined}
-              className={`group flex items-center justify-between border-b border-line py-4 transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] ${open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
-              style={{ transitionDelay: open ? `${80 + i * 50}ms` : "0ms" }}
-            >
-              <span className="flex flex-col gap-0.5">
-                <span className={`font-display text-[32px] font-medium leading-tight tracking-[-0.05em] ${current === href ? "text-sage" : "text-ink"}`}>{label}</span>
-                <span className="t-body-s text-stone">{hint}</span>
-              </span>
-              <span aria-hidden className="flex size-10 items-center justify-center rounded-full border border-line-strong text-ink transition-transform group-active:translate-x-0.5">
-                →
-              </span>
-            </Link>
-          ))}
+        <nav className="relative flex flex-1 flex-col px-5 pt-2" aria-label="Main">
+          {items.map((g, i) => {
+            const on = groupActive(g, current);
+            const anim = `border-b border-line transition-all duration-500 ease-[cubic-bezier(.2,.8,.2,1)] ${open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`;
+            const delay = { transitionDelay: open ? `${80 + i * 50}ms` : "0ms" };
+            const title = `font-display text-[30px] font-medium leading-tight tracking-[-0.05em] ${on ? "text-sage" : "text-ink"}`;
+            if (!g.items) {
+              return (
+                <Link key={g.href} href={g.href} onClick={close} aria-current={current === g.href ? "page" : undefined} className={`group flex items-center justify-between py-3.5 ${anim}`} style={delay}>
+                  <span className={title}>{g.label}</span>
+                  <span aria-hidden className="flex size-9 items-center justify-center rounded-full border border-line-strong text-ink">
+                    →
+                  </span>
+                </Link>
+              );
+            }
+            return (
+              <details key={g.label} className={`group/acc ${anim}`} style={delay} open={on || undefined}>
+                <summary className="flex cursor-pointer list-none items-center justify-between py-3.5 [&::-webkit-details-marker]:hidden">
+                  <span className="flex flex-col">
+                    <span className={title}>{g.label}</span>
+                    <span className="t-body-s text-stone">{g.hint}</span>
+                  </span>
+                  <span aria-hidden className="relative flex size-9 shrink-0 items-center justify-center rounded-full border border-line-strong text-ink">
+                    <span className="absolute h-[1.5px] w-3 bg-ink" />
+                    <span className="absolute h-3 w-[1.5px] bg-ink transition-transform duration-300 group-open/acc:scale-y-0" />
+                  </span>
+                </summary>
+                <ul className="grid gap-1 pb-4">
+                  {g.items.map((it) => (
+                    <li key={it.href}>
+                      <Link href={it.href} onClick={close} className="flex items-center gap-3 rounded-[14px] p-2 active:bg-surface">
+                        {it.icon && (
+                          <span className="flex size-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-surface text-sage">
+                            <Icon name={it.icon} className="size-[18px]" />
+                          </span>
+                        )}
+                        <span className="flex min-w-0 flex-col">
+                          <span className="t-label-m text-ink">{it.label}</span>
+                          <span className="t-caption truncate text-stone">{it.hint}</span>
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            );
+          })}
         </nav>
 
         <div

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ClosingCta, Footer, PageHero, Pill } from "@/components/site";
 import { POSTS, fmtDate } from "@/content/posts";
+import { BlogGrid } from "@/components/blog-grid";
 
 export const metadata: Metadata = {
   title: "Blog — Sessio",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function Blog() {
-  const [lead, ...rest] = POSTS;
+  const lead = POSTS[0];
   return (
     <main>
       <PageHero
@@ -25,7 +26,7 @@ export default function Blog() {
         }
         body="The new Act, documentation, money and privacy — written plainly, with sources, for therapists who would rather be doing therapy."
       />
-      <section className="mx-auto max-w-[1312px] px-5 pb-[110px] md:px-0">
+      <section className="mx-auto max-w-[1312px] px-5 pb-[110px] md:px-8 lg:px-0">
         <Link href={`/blog/${lead.slug}`} data-reveal className="group grid items-center gap-8 rounded-[28px] bg-surface p-4 md:grid-cols-[1.2fr_1fr] md:p-6">
           <div className="relative aspect-[16/10] overflow-hidden rounded-[20px]">
             <Image src={lead.image} alt="" fill priority sizes="(min-width: 768px) 60vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
@@ -39,19 +40,12 @@ export default function Blog() {
             </p>
           </div>
         </Link>
-        <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {rest.map((p) => (
-            <Link key={p.slug} href={`/blog/${p.slug}`} data-reveal className="group flex flex-col gap-3">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] bg-sunken">
-                <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
-              </div>
-              <p className="t-overline text-stone">{p.category}</p>
-              <h3 className="t-title-m group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{p.title}</h3>
-              <p className="t-caption text-stone">
-                {fmtDate(p.date)} · {p.readMin} min read
-              </p>
-            </Link>
-          ))}
+        <div className="mt-16 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-5">
+          <h2 className="t-heading-m">All articles</h2>
+          <p className="t-body-s text-stone">Written by the Sessio team, with sources at the end of every piece.</p>
+        </div>
+        <div className="mt-6">
+          <BlogGrid posts={POSTS.map((p) => ({ slug: p.slug, title: p.title, dek: p.dek, category: p.category, date: fmtDate(p.date), readMin: p.readMin, image: p.image, author: p.author }))} />
         </div>
       </section>
       <ClosingCta />

@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
-import { HeaderChrome, type NavItem } from "@/components/header-chrome";
+import { HeaderChrome } from "@/components/header-chrome";
+import { DesktopMenu } from "@/components/nav-menu";
+import { NAV } from "@/components/nav-data";
 import { InkCanvas } from "@/components/ink";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
@@ -62,34 +64,20 @@ export function TextLink({ href, children }: { href: string; children: React.Rea
   );
 }
 
-const NAV: NavItem[] = [
-  ["Product", "/product", "Booking, video, notes and the assistant"],
-  ["Use cases", "/use-cases", "Who Sessio is for"],
-  ["Pricing", "/pricing", "149 zł a month, all-in"],
-  ["Blog", "/blog", "The new Act, money and privacy"],
-  ["Webinars", "/webinars", "Free live sessions"],
-];
-
 export function Nav({ current }: { current?: string }) {
   return (
-    <header className="relative z-10 mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-3 px-5 md:h-[90px] md:px-16">
+    <header className="relative z-30 mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-3 px-5 md:h-[90px] md:px-16">
       <Link href="/" aria-label="Sessio home">
         <Logo size={28} />
       </Link>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 rounded-full border border-line bg-surface/85 px-6 py-3 lg:flex">
-        {NAV.map(([label, href]) => (
-          <Link key={label} href={href} className={`t-label-m ${current === href ? "text-ink" : "text-ink/70 hover:text-ink"}`}>
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <DesktopMenu groups={NAV} current={current} className="absolute left-1/2 hidden -translate-x-1/2 rounded-full border border-line bg-surface/85 p-1 lg:block" />
       <div className="flex items-center gap-1.5 sm:gap-2">
-        <a href={`${APP_URL}/login`} className="t-label-m hidden px-3 text-ink/80 hover:text-ink lg:inline">
+        <a href={`${APP_URL}/login`} className="t-label-m hidden px-3 text-ink/80 hover:text-ink xl:inline">
           Sign in
         </a>
         <Link href="/#waitlist" className="t-label-m inline-flex h-11 items-center justify-center rounded-full bg-sage px-5 text-white transition-colors hover:bg-sage-hover sm:px-6">
-          <span className="sm:hidden">Join</span>
-          <span className="hidden sm:inline">Join the waitlist</span>
+          <span className="sm:hidden lg:inline xl:hidden">Join</span>
+          <span className="hidden sm:inline lg:hidden xl:inline">Join the waitlist</span>
         </Link>
         <HeaderChrome items={NAV} current={current} />
       </div>
@@ -164,18 +152,28 @@ export function Footer() {
       ],
     ],
     [
-      "Resources",
+      "Who it's for",
       [
+        ["For therapists", "/for-therapists"],
+        ["For clients", "/for-clients"],
         ["Use cases", "/use-cases"],
-        ["Blog", "/blog"],
-        ["Webinars", "/webinars"],
         ["Demo booking page", `${APP_URL}/anna-kowalska`],
         ["Client sign-in", `${APP_URL}/me/login`],
       ],
     ],
     [
+      "Resources",
+      [
+        ["Blog", "/blog"],
+        ["Guides", "/guides"],
+        ["Webinars", "/webinars"],
+        ["FAQ", "/faq"],
+      ],
+    ],
+    [
       "Company",
       [
+        ["About", "/about"],
         ["Privacy", "/privacy"],
         ["Data processing (DPA)", "/privacy#dpa"],
         ["Contact", "mailto:hello@usesessio.com"],
@@ -184,12 +182,12 @@ export function Footer() {
   ];
   return (
     <footer className="overflow-hidden bg-ink text-white">
-      <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-5 pt-16 md:flex-row md:px-16">
+      <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-5 pt-16 md:px-16 lg:flex-row">
         <div className="flex flex-col gap-4">
           <Logo size={24} tone="inverse" />
           <p className="t-body-s max-w-[260px] text-white/60">Practice software for psychologists and therapists. Made in Warsaw, hosted in the EU.</p>
         </div>
-        <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 sm:gap-16">
+        <div className="grid grid-cols-2 gap-10 sm:grid-cols-4 sm:gap-12 lg:gap-16">
           {cols.map(([title, links]) => (
             <div key={title} className="flex flex-col gap-2.5">
               <p className="t-overline text-white/50">{title}</p>
