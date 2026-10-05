@@ -34,7 +34,8 @@ export async function startCheckout(o: {
       payment_intent_data: { metadata: { booking_id: o.bookingId, method: o.method }, description: o.summary },
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       success_url: `${back}${account ? `&acct=${account}` : ""}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${o.app}/${o.slug}?lang=${o.lang}`,
+      // Back on Stripe releases the held slot straight away
+      cancel_url: `${o.app}/b/${o.bookingId}/abandon?t=${o.token}&lang=${o.lang}&s=${encodeURIComponent(o.slug)}`,
     },
     account ? { stripeAccount: account } : undefined,
   );

@@ -4,9 +4,13 @@ import { createAnthropic } from "@ai-sdk/anthropic";
 export const FAST_MODEL = process.env.AI_MODEL_FAST ?? "anthropic/claude-haiku-4.5";
 export const SMART_MODEL = process.env.AI_MODEL ?? "anthropic/claude-sonnet-4.5";
 
-/** AI runs through Vercel AI Gateway, or directly on Anthropic when ANTHROPIC_API_KEY is set. */
+/**
+ * AI runs only when explicitly configured: ANTHROPIC_API_KEY (direct), AI_GATEWAY_API_KEY, or AI_GATEWAY=1
+ * (Vercel AI Gateway with project auth). Otherwise every caller uses its local, labelled fallback —
+ * no text is sent anywhere just to fail.
+ */
 export function aiAvailable() {
-  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN || process.env.VERCEL);
+  return Boolean(process.env.ANTHROPIC_API_KEY || process.env.AI_GATEWAY_API_KEY || process.env.AI_GATEWAY === "1");
 }
 
 const DIRECT: Record<string, string> = {

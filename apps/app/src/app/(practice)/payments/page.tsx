@@ -62,7 +62,7 @@ export default async function Payments(props: PageProps<"/payments">) {
               ? "Clients pay into your own Stripe account; payouts go to your bank."
               : started
                 ? "Stripe needs a few more details before you can take payments."
-                : "Connect your Stripe account so clients pay you directly."}
+                : "Connect your Stripe account so clients pay you directly. Until then, your booking page can’t take paid bookings."}
           </p>
           <p className="t-caption text-stone">BLIK, card and Przelewy24. Sessio takes 0% commission; Stripe&rsquo;s own fee applies.</p>
           {live && isDemo && <p className="t-caption rounded-lg bg-sunken px-3 py-2 text-stone">Demo practice: payments go to Sessio&rsquo;s Stripe test account. Your own practice connects its own Stripe here.</p>}

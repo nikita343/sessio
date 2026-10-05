@@ -6,6 +6,7 @@ import { publicClient, SERVER_SECRET } from "@/lib/supabase/server";
 import { aiAvailable, FAST_MODEL, model } from "@/lib/ai";
 import { fmtDate, type Lang } from "@/lib/i18n";
 import { money, LANGS } from "@/lib/format";
+import { CRISIS_HELP, isCrisis } from "@/lib/crisis";
 
 const Body = z.object({
   slug: z.string(),
@@ -14,14 +15,6 @@ const Body = z.object({
   message: z.string().trim().min(2).max(2000),
   lang: z.enum(["pl", "uk", "en"]).default("en"),
 });
-
-const CRISIS = /(suicid|kill myself|end my life|samob|zabić się|не хочу жити|самогуб|self.?harm|hurt myself)/i;
-
-const HELP: Record<Lang, string> = {
-  en: "If you are in danger or thinking about ending your life, please call 112 now, or the free 24/7 support line 116 123 (adults) / 116 111 (young people). You don't have to wait for a session.",
-  pl: "Jeśli jesteś w niebezpieczeństwie lub myślisz o odebraniu sobie życia, zadzwoń teraz pod 112 albo na bezpłatny, całodobowy telefon wsparcia 116 123 (dorośli) / 116 111 (młodzież). Nie musisz czekać na sesję.",
-  uk: "Якщо ви в небезпеці або думаєте про самогубство, будь ласка, зателефонуйте 112 зараз або на безкоштовну цілодобову лінію підтримки 116 123 (дорослі) / 116 111 (молодь). Не потрібно чекати на сесію.",
-};
 
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
@@ -45,8 +38,8 @@ export async function POST(req: Request) {
   let needsReview = false;
   let summary: string;
 
-  if (CRISIS.test(message)) {
-    reply = HELP[lang] + (lang === "pl" ? ` Przekazałem Twoją wiadomość ${first}.` : lang === "uk" ? ` Я передав ваше повідомлення: ${first}.` : ` I've passed your message to ${first}.`);
+  if (isCrisis(message)) {
+    reply = CRISIS_HELP[lang] + (lang === "pl" ? ` Przekazałem Twoją wiadomość ${first}.` : lang === "uk" ? ` Я передав ваше повідомлення: ${first}.` : ` I've passed your message to ${first}.`);
     needsReview = true;
     summary = `Urgent: ${name} wrote something that may mean they are at risk. Crisis lines were shared — please read their message.`;
   } else if (aiAvailable()) {

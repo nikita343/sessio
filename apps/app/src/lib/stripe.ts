@@ -15,19 +15,25 @@ export type PaymentInfo = {
   payment_intent: string | null;
   payment_status: "unpaid" | "paid" | "refunded";
   status: string;
+  is_demo: boolean;
 };
 
 export async function paymentInfo(bookingId: string): Promise<PaymentInfo | null> {
-  const { data } = await publicClient().rpc("server_payment_info", { p_secret: SERVER_SECRET(), p_id: bookingId });
+  const { data } = await publicClient().rpc("server_payment_info2", { p_secret: SERVER_SECRET(), p_id: bookingId });
   return ((Array.isArray(data) ? data[0] : data) as PaymentInfo) ?? null;
 }
 
+export class PaymentsNotReady extends Error {}
+
 /**
- * The therapist's own connected account takes the payment (a direct charge, 0% Sessio fee).
- * Practices that haven't connected Stripe yet — like the demo — fall back to the platform account.
+ * Where a booking's money goes. Always the therapist's own connected Stripe account (a direct charge,
+ * 0% Sessio fee) — Sessio never holds client money. The only exception is the demo practice, which uses
+ * the platform's test account. A real practice that hasn't connected Stripe can't take online payment yet.
  */
-export function chargeAccount(info: PaymentInfo | null) {
-  return info?.stripe_account_id && info.charges_enabled ? info.stripe_account_id : undefined;
+export function chargeAccount(info: PaymentInfo | null): string | undefined {
+  if (info?.stripe_account_id && info.charges_enabled) return info.stripe_account_id;
+  if (info?.is_demo) return undefined;
+  throw new PaymentsNotReady("This practice hasn't connected Stripe yet.");
 }
 
 /** Refund a Stripe payment when a client cancels inside the free window. Returns true if refunded. */

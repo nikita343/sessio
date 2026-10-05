@@ -13,7 +13,7 @@ export default async function Settings() {
     ["Currency", therapist.currency],
     ["Free cancellation", `up to ${therapist.cancellation_hours} h before`],
     ["Data location", "EU (Ireland) · encrypted at rest"],
-    ["Record retention", "5 years after the last session (Psychologist Act, art. 28)"],
+    ["Record retention", "5 years from the end of the year your work with a client ended (Psychologist Act, art. 28)"],
   ];
   return (
     <div className="flex max-w-[720px] flex-col gap-6">

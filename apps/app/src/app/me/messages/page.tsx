@@ -5,6 +5,7 @@ import { Avatar } from "@/components/ui";
 import { timeAgo } from "@/lib/format";
 import { portalLang, pt, requireClient, type MyThread } from "@/lib/portal";
 import { sendMessage } from "../actions";
+import { CRISIS_HELP } from "@/lib/crisis";
 
 export const metadata: Metadata = { title: "Messages", robots: { index: false } };
 
@@ -25,6 +26,12 @@ export default async function Messages(props: PageProps<"/me/messages">) {
   return (
     <PortalShell lang={lang} profile={profile} current="messages" path={`/me/messages${active ? `?with=${active.therapist_slug}` : ""}`}>
       <h1 className="t-display-l pt-6 !text-[clamp(32px,4.5vw,44px)] md:pt-10">{d.messages}</h1>
+      {sp.crisis && (
+        <div role="alert" className="mt-6 flex flex-col gap-2 rounded-[18px] border border-warn/30 bg-[#f6e3dc] p-5 text-warn">
+          <p className="t-title-m">112 · 116 123</p>
+          <p className="t-body-m">{CRISIS_HELP[lang]}</p>
+        </div>
+      )}
       {threads.length === 0 ? (
         <p className="t-body-m mt-6 text-stone">{d.noThreads}</p>
       ) : (

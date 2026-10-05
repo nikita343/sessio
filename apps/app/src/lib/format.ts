@@ -36,7 +36,11 @@ export function shortName(name: string) {
 }
 
 export function tzLabel(tz: string) {
-  if (tz === "Europe/Warsaw") return "Warsaw (CET)";
+  if (tz === "Europe/Warsaw") {
+    // CET in winter, CEST in summer
+    const abbr = new Intl.DateTimeFormat("en-GB", { timeZone: tz, timeZoneName: "short" }).formatToParts(new Date()).find((p) => p.type === "timeZoneName")?.value;
+    return `Warsaw (${abbr === "CEST" || abbr === "GMT+2" ? "CEST" : "CET"})`;
+  }
   return tz.replace("_", " ");
 }
 

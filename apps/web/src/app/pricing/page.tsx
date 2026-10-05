@@ -11,9 +11,9 @@ const INCLUDED = [
   "BLIK, card and Przelewy24 prepayment into your own account",
   "Private video room for every online session",
   "Voice-memo notes, transcribed on your device",
-  "Art. 28-ready records and private working notes",
+  "Records structured to Art. 28, with private working notes",
   "Admin assistant and inbox",
-  "Reminders and calendar invites",
+  "Day-before email reminders and calendar invites",
   "EU data storage and a data-processing agreement",
 ];
 

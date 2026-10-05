@@ -386,7 +386,7 @@ export default function Home() {
             Nothing recorded.
           </>
         }
-        body="After the session, dictate what matters. It's transcribed on your own device, drafted into a record ready for the new Psychologist Act, and waits for you to edit and sign. The audio is deleted."
+        body="After the session, dictate what matters. It's transcribed on your own device, drafted into a record structured for the new Psychologist Act, and waits for you to edit and sign. The audio is deleted."
         link={["How the notes work", "/product#notes"]}
         splash="/splash/card-sky.webp"
       >

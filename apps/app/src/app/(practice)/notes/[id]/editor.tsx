@@ -20,7 +20,11 @@ function redact(text: string, client: string[], therapist: string[]) {
   };
   swap(client, "[client]");
   swap(therapist, "[psychologist]");
-  return out;
+  return out
+    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[email]")
+    .replace(/\b\d{11}\b/g, "[PESEL]")
+    .replace(/(\+?\d[\d\s-]{7,}\d)/g, "[phone]")
+    .replace(/\b(ul\.|ulica|al\.|aleja|os\.|osiedle|pl\.|plac|вул\.|вулиця)\s+[\p{L}\d .-]{2,40}?\d+[a-z]?(\/\d+)?/giu, "[address]");
 }
 
 function fmt(s: number) {
@@ -57,7 +61,7 @@ export function NoteEditor(p: {
   const [seconds, setSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [lang, setLang] = useState<"pl" | "uk" | "en">("en");
-  const [aiDraft, setAiDraft] = useState(false);
+  const [aiDraft, setAiDraft] = useState<false | "ai" | "template">(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState<"" | "saving" | "saved">("");
   const [pending, start] = useTransition();
@@ -161,7 +165,7 @@ export function NoteEditor(p: {
       if (!r.ok) throw new Error(j.error);
       setBody(j.record);
       if (j.working && !working) setWorking(j.working);
-      setAiDraft(true);
+      setAiDraft(j.offline ? "template" : "ai");
     } catch (e) {
       setError((e as Error).message || "Drafting failed");
     } finally {
@@ -249,7 +253,7 @@ export function NoteEditor(p: {
         </div>
         {error && <p className="t-body-s rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{error}</p>}
         <p className="t-caption text-stone">
-          Audio never leaves this device and is not saved. Names are removed before any AI step, and the transcript is discarded when you sign.
+          Audio never leaves this device and is not saved. Your client&rsquo;s and your own name, phone numbers, emails, PESEL and street addresses are removed before any AI step, and the transcript is discarded when you sign.
         </p>
       </section>
 
@@ -257,7 +261,7 @@ export function NoteEditor(p: {
       <section className="flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="t-title-m">Session record</h2>
-          {p.signed ? <Badge tone="sage">Signed · {p.signedAt}</Badge> : aiDraft ? <Badge tone="clay">AI draft · review before signing</Badge> : <Badge tone="stone">Draft</Badge>}
+          {p.signed ? <Badge tone="sage">Signed · {p.signedAt}</Badge> : aiDraft === "ai" ? <Badge tone="clay">AI draft · review before signing</Badge> : aiDraft === "template" ? <Badge tone="stone">Template draft · AI is off · review before signing</Badge> : <Badge tone="stone">Draft</Badge>}
         </div>
         <p className="t-overline text-stone">
           Formal record <span className="normal-case tracking-normal text-stone/80">· Art. 28 · visible to the client on request</span>
@@ -294,7 +298,7 @@ export function NoteEditor(p: {
           className={`${textareaCls} border-transparent !bg-clay-soft/70`}
           placeholder="Hypotheses, things to check next time…"
         />
-        <p className="t-caption text-stone">Signed records are kept for 5 years from the last session, then Sessio prepares a destruction protocol for you to confirm.</p>
+        <p className="t-caption text-stone">Signed records are kept for 5 years from the end of the year in which your work with the client ended (art. 28), then Sessio prepares a destruction protocol for you to confirm.</p>
         {!p.signed && (
           <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line pt-4">
             <span className="t-caption mr-auto text-stone">{saved === "saving" ? "Saving…" : saved === "saved" ? "Draft saved" : ""}</span>

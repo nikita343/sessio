@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { publicClient } from "@/lib/supabase/server";
-import { stripe, PAY_METHODS, type PayMethod } from "@/lib/stripe";
+import { stripe, PaymentsNotReady, PAY_METHODS, type PayMethod } from "@/lib/stripe";
 import { startCheckout } from "@/lib/checkout";
 import type { Lang } from "@/lib/i18n";
 
@@ -58,6 +58,8 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
     console.error("stripe checkout failed", e);
     // release the slot we were holding for this payment
     await sb.rpc("cancel_booking_by_client", { p_id: b.booking_id, p_token: b.manage_token });
+    if (e instanceof PaymentsNotReady)
+      return { error: lang === "pl" ? "Ten gabinet jeszcze nie przyjmuje płatności online. Napisz wiadomość na stronie — terapeuta odpowie." : lang === "uk" ? "Цей кабінет ще не приймає онлайн-оплату. Напишіть повідомлення на сторінці — терапевт відповість." : "This practice isn’t taking online payments yet. Send a message on the page and the therapist will reply." };
     const msg = e instanceof Error ? e.message : "";
     if (/payment method type|not activated|not enabled|invalid.*payment_method_types/i.test(msg))
       return { error: lang === "pl" ? "Ta metoda płatności jest chwilowo niedostępna. Wybierz inną." : lang === "uk" ? "Цей спосіб оплати тимчасово недоступний. Оберіть інший." : "That payment method isn’t available right now. Please choose another." };
