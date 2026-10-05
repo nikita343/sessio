@@ -14,5 +14,8 @@ export async function joinWaitlist(_prev: WaitlistState, form: FormData): Promis
   if (error && error.code !== "23505") {
     return { status: "error", message: "Something went wrong. Please try again." };
   }
-  return { status: "ok", message: "You're on the list. We'll write when your spot opens." };
+  return {
+    status: "ok",
+    message: source.startsWith("webinar:") ? "You're registered. The link arrives the day before." : "You're on the list. We'll write when your spot opens.",
+  };
 }

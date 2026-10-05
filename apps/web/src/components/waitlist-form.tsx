@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { joinWaitlist, type WaitlistState } from "@/app/actions";
 
-export function WaitlistForm({ source = "landing-cta" }: { source?: string }) {
+export function WaitlistForm({ source = "landing-cta", cta = "Reserve my spot" }: { source?: string; cta?: string }) {
   const [state, action, pending] = useActionState<WaitlistState, FormData>(joinWaitlist, {
     status: "idle",
   });
@@ -40,7 +40,7 @@ export function WaitlistForm({ source = "landing-cta" }: { source?: string }) {
           disabled={pending}
           className="t-label-m h-full shrink-0 rounded-full bg-sage px-5 text-white transition-colors hover:bg-sage-hover disabled:opacity-60"
         >
-          {pending ? "Saving…" : "Reserve my spot"}
+          {pending ? "Saving…" : cta}
         </button>
       </div>
       {state.status === "error" && (

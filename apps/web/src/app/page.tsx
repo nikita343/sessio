@@ -1,85 +1,9 @@
 import Image from "next/image";
-import { Logo } from "@/components/logo";
+import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist-form";
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
-
-function Splash({ src, className = "" }: { src: string; className?: string }) {
-  return (
-    <Image
-      src={src}
-      alt=""
-      aria-hidden
-      fill
-      sizes="100vw"
-      className={`pointer-events-none select-none object-cover mix-blend-multiply ${className}`}
-    />
-  );
-}
-
-function Pill({ children, tone = "outline" }: { children: React.ReactNode; tone?: "outline" | "sage" | "lavender" | "sky" }) {
-  const tones = {
-    outline: "border border-line-strong bg-surface/70 text-ink",
-    sage: "bg-sage-soft text-sage",
-    lavender: "bg-lavender-soft text-[#5b5299]",
-    sky: "bg-[#e3eef4] text-[#3d6a80]",
-  };
-  return <span className={`t-overline inline-flex rounded-full px-3 py-1.5 ${tones[tone]}`}>{children}</span>;
-}
-
-function ButtonLink({ href, children, variant = "primary" }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" }) {
-  const v =
-    variant === "primary"
-      ? "bg-sage text-white hover:bg-sage-hover"
-      : "border border-line-strong bg-surface text-ink hover:border-ink/40";
-  return (
-    <a href={href} className={`t-label-m inline-flex h-11 items-center justify-center rounded-full px-6 transition-colors ${v}`}>
-      {children}
-    </a>
-  );
-}
-
-function TextLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a href={href} className="t-label-m group inline-flex items-center gap-2 text-ink">
-      {children}
-      <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-        →
-      </span>
-    </a>
-  );
-}
-
-/* ---------------------------------- Nav ---------------------------------- */
-
-function Nav() {
-  const links = [
-    ["How it works", "#how"],
-    ["Privacy", "#privacy"],
-    ["Pricing", "#pricing"],
-    ["For clinics", "mailto:hello@usesessio.com?subject=Sessio%20for%20clinics"],
-  ];
-  return (
-    <header className="relative z-10 mx-auto flex h-[90px] max-w-[1440px] items-center justify-between px-5 md:px-16">
-      <a href="/" aria-label="Sessio home">
-        <Logo size={28} />
-      </a>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 rounded-full border border-line bg-surface/70 px-6 py-3 backdrop-blur md:flex">
-        {links.map(([label, href]) => (
-          <a key={label} href={href} className="t-label-m text-ink/80 hover:text-ink">
-            {label}
-          </a>
-        ))}
-      </nav>
-      <div className="flex items-center gap-2">
-        <a href={`${APP_URL}/login`} className="t-label-m hidden px-3 text-ink/80 hover:text-ink sm:inline">
-          Sign in
-        </a>
-        <ButtonLink href="#waitlist">Join the waitlist</ButtonLink>
-      </div>
-    </header>
-  );
-}
+import { APP_URL, ButtonLink, Footer, MobileNav, Nav, Pill, Splash, TextLink } from "@/components/site";
+import { POSTS, fmtDate } from "@/content/posts";
+import { WEBINARS, fmtWhen } from "@/content/webinars";
 
 /* ---------------------------------- Hero --------------------------------- */
 
@@ -89,6 +13,7 @@ function Hero() {
       <Splash src="/splash/hero.webp" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[254px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav />
+      <MobileNav />
       <div className="relative mx-auto flex max-w-[680px] flex-col items-center gap-6 px-5 pb-24 pt-16 text-center md:pt-[120px]">
         <Pill>For psychologists &amp; therapists</Pill>
         <h1 className="t-display-xl">
@@ -314,65 +239,99 @@ function Cta() {
   );
 }
 
-/* --------------------------------- Footer -------------------------------- */
+/* ------------------------------ Human sections --------------------------- */
 
-function Footer() {
-  const cols: [string, [string, string][]][] = [
-    [
-      "Product",
-      [
-        ["Booking page", "#how"],
-        ["Payments", "#how"],
-        ["Notes", "#privacy"],
-        ["Assistant", "#assistant"],
-      ],
-    ],
-    [
-      "Company",
-      [
-        ["Privacy", "/privacy"],
-        ["Data processing (DPA)", "/privacy#dpa"],
-        ["Contact", "mailto:hello@usesessio.com"],
-      ],
-    ],
-  ];
+function HumanIntro() {
   return (
-    <footer className="overflow-hidden bg-ink text-white">
-      <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-5 pt-16 md:flex-row md:px-16">
-        <div className="flex flex-col gap-4">
-          <Logo size={24} tone="inverse" />
-          <p className="t-body-s max-w-[240px] text-white/60">
-            Practice software for psychologists and therapists. Made in Warsaw.
+    <section className="mx-auto max-w-[1440px] px-5 pb-[140px] md:px-16">
+      <div className="grid items-center gap-10 md:grid-cols-[1.15fr_1fr] md:gap-20">
+        <div className="relative aspect-[3/2] overflow-hidden rounded-[28px]">
+          <Image src="/photos/session.webp" alt="A psychologist in her light-filled practice, sitting in a sage armchair" fill sizes="(min-width: 768px) 55vw, 100vw" className="object-cover" />
+        </div>
+        <div className="flex flex-col gap-5">
+          <Pill>Why we built it</Pill>
+          <h2 className="t-display-l">For the people who hold the room.</h2>
+          <p className="t-body-l text-stone">
+            Therapists give fifty undivided minutes, then spend the evening on transfers, reminders and notes. Marketplaces solved that by taking a share of every session — and the clients with it.
           </p>
+          <p className="t-body-l text-stone">
+            Sessio is the opposite deal: a calm tool you pay a flat fee for, that does the admin and gets out of the way. Your clients stay yours.
+          </p>
+          <TextLink href="/use-cases">See who it&rsquo;s for</TextLink>
         </div>
-        <div className="flex gap-16">
-          {cols.map(([title, links]) => (
-            <div key={title} className="flex flex-col gap-2.5">
-              <p className="t-overline text-white/50">{title}</p>
-              {links.map(([label, href]) => (
-                <a key={label} href={href} className="t-label-m text-white/90 hover:text-white">
-                  {label}
-                </a>
-              ))}
+      </div>
+    </section>
+  );
+}
+
+const CASES = [
+  ["/photos/session-2.webp", "The established psychologist", "“My calendar is full. I just want the admin to disappear.”", "/use-cases#established"],
+  ["/photos/memo.webp", "The psychotherapist behind on notes", "“I know what happened in the session. Writing it down is the hard part.”", "/use-cases#notes"],
+  ["/photos/online.webp", "The bilingual therapist online", "“Half my clients are in Kraków, half in Lviv.”", "/use-cases#online"],
+];
+
+function UseCasesTeaser() {
+  return (
+    <section className="mx-auto max-w-[1440px] px-5 pb-[140px] md:px-16">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-4">
+          <Pill>Use cases</Pill>
+          <h2 className="t-display-l max-w-[620px]">Different practices. The same quiet Monday.</h2>
+        </div>
+        <TextLink href="/use-cases">All use cases</TextLink>
+      </div>
+      <div className="mt-10 grid gap-6 md:grid-cols-3">
+        {CASES.map(([img, who, quote, href]) => (
+          <Link key={href} href={href} className="group flex flex-col gap-4">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[22px] bg-sunken">
+              <Image src={img} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
             </div>
-          ))}
+            <p className="t-overline text-stone">{who}</p>
+            <p className="t-title-m">{quote}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Resources() {
+  const posts = POSTS.slice(0, 3);
+  const next = WEBINARS[0];
+  return (
+    <section className="mx-auto max-w-[1440px] px-5 pb-[120px] md:px-16">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-4">
+          <Pill>Resources</Pill>
+          <h2 className="t-display-l max-w-[620px]">Plain answers about the new Act, money and privacy.</h2>
         </div>
+        <TextLink href="/blog">Read the blog</TextLink>
       </div>
-      <div className="mx-auto max-w-[1440px] px-5 md:px-16">
-        <p
-          aria-hidden
-          className="font-display -mb-[0.28em] mt-16 select-none bg-cover bg-clip-text font-semibold leading-none text-transparent opacity-85"
-          style={{
-            backgroundImage: "url(/splash/texture.webp), linear-gradient(90deg,#c9dfd1,#d8d3ee,#cfe2ec)",
-            backgroundBlendMode: "multiply",
-            fontSize: "clamp(120px, 23vw, 330px)",
-            letterSpacing: "-0.06em",
-          }}
-        >
-          sessio
-        </p>
+      <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_1fr_1fr_1.15fr]">
+        {posts.map((p) => (
+          <Link key={p.slug} href={`/blog/${p.slug}`} className="group flex flex-col gap-3">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] bg-sunken">
+              <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 22vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+            </div>
+            <p className="t-overline text-stone">{p.category}</p>
+            <h3 className="t-title-m group-hover:underline group-hover:underline-offset-4">{p.title}</h3>
+            <p className="t-caption text-stone">
+              {fmtDate(p.date)} · {p.readMin} min read
+            </p>
+          </Link>
+        ))}
+        <Link href={`/webinars#${next.slug}`} className="group relative flex flex-col justify-between gap-6 overflow-hidden rounded-[24px] bg-ink p-6 text-white">
+          <div className="flex flex-col gap-3">
+            <span className="t-overline text-white/60">Free webinar · {next.lang}</span>
+            <h3 className="t-heading-s">{next.title}</h3>
+            <p className="t-body-s text-white/70 first-letter:uppercase">{fmtWhen(next.date)}</p>
+          </div>
+          <span className="t-label-m inline-flex h-10 w-fit items-center rounded-full bg-white px-5 text-ink transition-transform group-hover:translate-x-0.5">
+            Save your seat →
+          </span>
+        </Link>
       </div>
-    </footer>
+    </section>
   );
 }
 
@@ -382,6 +341,7 @@ export default function Home() {
       <Hero />
       <Showcase />
       <Numbers />
+      <HumanIntro />
       <Feature
         pill="Booking & payments"
         tone="sage"
@@ -403,8 +363,8 @@ export default function Home() {
         pill="Admin assistant"
         tone="lavender"
         title={<>An assistant for everything around the session.</>}
-        body="It answers booking questions, moves sessions and chases what's missing — in Polish, Ukrainian or English. Anything unusual waits for your OK."
-        link={["What it can and can't see", "#privacy"]}
+        body="It answers booking questions, offers free times and chases what's missing — in Polish, Ukrainian or English. Anything personal waits for you."
+        link={["What it can and can't see", "/privacy#never"]}
         splash="/splash/card-lavender.webp"
         reverse
       >
@@ -422,11 +382,13 @@ export default function Home() {
           </>
         }
         body="After the session, dictate what matters. It's transcribed on your own device, drafted into a record ready for the new Psychologist Act, and waits for you to edit and sign. The audio is deleted."
-        link={["How we handle your data", "/privacy"]}
+        link={["How the notes work", "/product#notes"]}
         splash="/splash/card-sky.webp"
       >
         <MemoCard />
       </Feature>
+      <UseCasesTeaser />
+      <Resources />
       <Cta />
       <Footer />
     </main>
