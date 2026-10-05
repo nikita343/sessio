@@ -124,6 +124,16 @@ body {
   .js [data-seq] > * {
     visibility: hidden;
   }
+  /* safety net: if scripts never run, headline content still appears */
+  .js [data-split],
+  .js [data-hero-fade] {
+    animation: reveal-fallback 0s linear 4s forwards;
+  }
+}
+@keyframes reveal-fallback {
+  to {
+    visibility: visible;
+  }
 }
 .split-word {
   will-change: transform;

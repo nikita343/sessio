@@ -96,7 +96,7 @@ export function Motion() {
         });
 
         gsap.utils.toArray<HTMLElement>("[data-zoom]").forEach((el) => {
-          gsap.fromTo(el, { scale: 0.88, borderRadius: "48px" }, { scale: 1, borderRadius: "32px", ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "top 25%", scrub: 0.6 } });
+          gsap.fromTo(el, { scale: 0.9 }, { scale: 1, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "top 25%", scrub: 0.6 } });
         });
 
         gsap.utils.toArray<HTMLElement>("[data-rise]").forEach((el) => {
@@ -117,11 +117,36 @@ export function Motion() {
         });
       });
 
+      // ?fps shows a small frame-rate meter for QA on real devices
+      let meter: HTMLDivElement | null = null;
+      let meterRaf = 0;
+      if (new URLSearchParams(location.search).has("fps")) {
+        meter = document.createElement("div");
+        meter.style.cssText = "position:fixed;left:8px;bottom:8px;z-index:9999;padding:6px 10px;border-radius:999px;background:#1c2530;color:#fff;font:600 12px/1 ui-monospace,monospace;pointer-events:none";
+        document.body.appendChild(meter);
+        let frames = 0, worst = 0, last = performance.now(), start = last;
+        const tick = (now: number) => {
+          worst = Math.max(worst, now - last);
+          last = now;
+          frames++;
+          if (now - start >= 1000) {
+            meter!.textContent = `${Math.round((frames * 1000) / (now - start))} fps · worst ${Math.round(worst)} ms`;
+            frames = 0;
+            worst = 0;
+            start = now;
+          }
+          meterRaf = requestAnimationFrame(tick);
+        };
+        meterRaf = requestAnimationFrame(tick);
+      }
+
       // images and fonts change layout after first paint
       const refresh = () => ScrollTrigger.refresh();
       window.addEventListener("load", refresh);
       document.fonts?.ready.then(refresh);
       return () => {
+        cancelAnimationFrame(meterRaf);
+        meter?.remove();
         window.removeEventListener("load", refresh);
         mm.revert();
       };
