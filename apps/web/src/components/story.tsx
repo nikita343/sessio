@@ -89,7 +89,7 @@ const STOPS = [
 const stopAt = (k: number) => (k + 0.5) / STOPS.length; // 0..1 along the track
 const fillFor = (i: number) => (i === 0 ? 0 : stopAt(i - 1));
 
-// Screen position inside /story/hand.webp (2048×1152)
+// Screen position inside /story/hand-cut.webp (measured on the 2048×1152 master)
 const IMG_W = 2048;
 const IMG_H = 1152;
 const SCR = { x: 1219, y: 160, w: 344, h: 758 };
@@ -117,6 +117,7 @@ function Pinned() {
       const bgs = q("[data-bg]");
       const fill = q("[data-fill]")[0];
       const dot = q("[data-dot]")[0];
+      const dotTrack = q("[data-dot-track]")[0];
       const rail = q("[data-rail]")[0];
       const N = CHAPTERS.length;
 
@@ -131,7 +132,8 @@ function Pinned() {
       gsap.set(screens.slice(1), { autoAlpha: 0, scale: 0.96 });
       gsap.set(bgs.slice(1), { autoAlpha: 0 });
       gsap.set(fill, { scaleX: 0, transformOrigin: "left center", backgroundColor: CHAPTERS[0].accent });
-      gsap.set(dot, { left: "0%", backgroundColor: CHAPTERS[0].accent });
+      gsap.set(dot, { backgroundColor: CHAPTERS[0].accent });
+      gsap.set(dotTrack, { xPercent: 0 });
 
       const tl = gsap.timeline({
         defaults: { ease: "power2.inOut" },
@@ -145,7 +147,8 @@ function Pinned() {
           .to(texts[i + 1], { autoAlpha: 1, y: 0, duration: d }, t + 0.1)
           .to(bgs[i + 1], { autoAlpha: 1, duration: d }, t)
           .to(fill, { scaleX: fillFor(i + 1), backgroundColor: CHAPTERS[i + 1].accent, duration: d }, t)
-          .to(dot, { left: `${fillFor(i + 1) * 100}%`, backgroundColor: CHAPTERS[i + 1].accent, duration: d }, t);
+          .to(dotTrack, { xPercent: fillFor(i + 1) * 100, duration: d }, t)
+          .to(dot, { backgroundColor: CHAPTERS[i + 1].accent, duration: d }, t);
         if (screens[i]) tl.to(screens[i], { autoAlpha: 0, scale: 1.03, duration: d * 0.8 }, t);
         if (screens[i + 1]) {
           tl.to(screens[i + 1], { autoAlpha: 1, scale: 1, duration: d }, t + 0.1);
@@ -180,14 +183,14 @@ function Pinned() {
           />
         ))}
 
-        {/* photo: multiplies over the tint, so the room changes colour around the hand */}
+        {/* cut-out hand: the tinted room shows through, no blend modes needed */}
         <div
           data-float
           data-hand
-          className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 mix-blend-multiply"
+          className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 will-change-transform"
           style={{ width: `max(100vw, ${(100 * IMG_W) / IMG_H}vh)`, aspectRatio: `${IMG_W}/${IMG_H}` }}
         >
-          <Image src="/story/hand.webp" alt="" fill sizes="180vh" className="select-none object-cover" />
+          <Image src="/story/hand-cut.webp" alt="" fill sizes="180vh" className="select-none object-cover" />
         </div>
 
         {/* live screen, positioned on the phone in the photo */}
@@ -262,7 +265,9 @@ function Pinned() {
           </div>
           <div className="relative my-3 h-[2px] rounded-full bg-current/20">
             <div data-fill className="absolute inset-0 rounded-full" />
-            <span data-dot className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-4 ring-white/40" />
+            <div data-dot-track className="absolute inset-0 will-change-transform">
+              <span data-dot className="absolute left-0 top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full ring-4 ring-white/40" />
+            </div>
           </div>
           <div className="grid grid-cols-6">
             {STOPS.map(([stage, time]) => (

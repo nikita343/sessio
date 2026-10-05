@@ -18,7 +18,7 @@ function Burger({ open, onClick, className = "" }: { open: boolean; onClick: () 
       aria-label={open ? "Close menu" : "Open menu"}
       aria-expanded={open}
       aria-controls="site-menu"
-      className={`relative flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface/80 backdrop-blur transition-colors hover:border-ink/30 lg:hidden ${className}`}
+      className={`relative flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface transition-colors hover:border-ink/30 lg:hidden ${className}`}
     >
       <span className="sr-only">Menu</span>
       <span aria-hidden className="relative block h-3 w-[18px]">
@@ -98,7 +98,7 @@ export function HeaderChrome({ items, current }: { items: NavItem[]; current?: s
         aria-hidden={!bar}
       >
         <div className="mx-auto mt-2 flex h-14 max-w-[1440px] items-center justify-between gap-3 px-3 md:px-12">
-          <div className="flex h-14 w-full items-center justify-between gap-3 rounded-full border border-line bg-paper/85 pl-5 pr-1.5 shadow-[var(--shadow-card)] backdrop-blur-md">
+          <div className="flex h-14 w-full items-center justify-between gap-3 rounded-full border border-line bg-paper/95 pl-5 pr-1.5 shadow-[var(--shadow-card)]">
             <Link href="/" aria-label="Sessio home" tabIndex={bar ? 0 : -1}>
               <Logo size={24} />
             </Link>
@@ -129,7 +129,7 @@ export function HeaderChrome({ items, current }: { items: NavItem[]; current?: s
         className={`fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper transition-[opacity,visibility] duration-300 lg:hidden ${open ? "visible opacity-100" : "invisible opacity-0"}`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/splash/hero.webp" alt="" aria-hidden className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60 mix-blend-multiply" />
+        <img src="/splash/hero.webp" alt="" aria-hidden className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40 mix-blend-multiply" />
         <div className="relative flex h-[76px] shrink-0 items-center justify-between px-5">
           <Link href="/" aria-label="Sessio home" onClick={close}>
             <Logo size={28} />

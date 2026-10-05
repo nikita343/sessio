@@ -17,7 +17,6 @@ const HIDDEN = "[data-reveal], [data-split], [data-hero-fade], [data-seq] > *";
  *  data-reveal       fade-up when scrolled into view (batched, staggered)
  *  data-seq          children appear one after another (chat bubbles, rows)
  *  data-wave         waveform bars grow in
- *  data-drift        slow ambient drift (ink splashes)
  *  data-parallax=n   moves at n×100px over its scroll range
  *  data-zoom         scales up to full size as it scrolls in
  *  data-rise=n       rises n px into place while scrolling in
@@ -91,10 +90,6 @@ export function Motion() {
         });
 
         // ambient + scroll-linked
-        gsap.utils.toArray<HTMLElement>("[data-drift]").forEach((el, i) => {
-          gsap.to(el, { scale: 1.08, xPercent: i % 2 ? 2 : -2, yPercent: 1.5, rotate: i % 2 ? -1.5 : 1.5, duration: 14, ease: "sine.inOut", yoyo: true, repeat: -1 });
-        });
-
         gsap.utils.toArray<HTMLElement>("[data-parallax]").forEach((el) => {
           const n = Number(el.dataset.parallax) || 0.4;
           gsap.fromTo(el, { y: n * 100 }, { y: -n * 100, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true } });

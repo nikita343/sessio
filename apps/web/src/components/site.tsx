@@ -2,20 +2,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { HeaderChrome, type NavItem } from "@/components/header-chrome";
+import { InkCanvas } from "@/components/ink";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
-export function Splash({ src, className = "", drift = false }: { src: string; className?: string; drift?: boolean }) {
+/** Ink splash: static image first (and for reduced motion), then a living WebGL version on top. */
+export function Splash({
+  src,
+  className = "",
+  base = "#f4f3ef",
+  strength = 1,
+  interactive = false,
+}: {
+  src: string;
+  className?: string;
+  base?: string;
+  strength?: number;
+  interactive?: boolean;
+}) {
   return (
-    <Image
-      data-drift={drift ? "" : undefined}
-      src={src}
-      alt=""
-      aria-hidden
-      fill
-      sizes="100vw"
-      className={`pointer-events-none select-none object-cover mix-blend-multiply ${className}`}
-    />
+    <div aria-hidden className={`pointer-events-none absolute inset-0 select-none ${className}`}>
+      <Image src={src} alt="" fill sizes="100vw" className="object-cover mix-blend-multiply" style={{ opacity: strength }} />
+      <InkCanvas src={src} base={base} strength={strength} interactive={interactive} />
+    </div>
   );
 }
 
@@ -67,7 +76,7 @@ export function Nav({ current }: { current?: string }) {
       <Link href="/" aria-label="Sessio home">
         <Logo size={28} />
       </Link>
-      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 rounded-full border border-line bg-surface/70 px-6 py-3 backdrop-blur lg:flex">
+      <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-7 rounded-full border border-line bg-surface/85 px-6 py-3 lg:flex">
         {NAV.map(([label, href]) => (
           <Link key={label} href={href} className={`t-label-m ${current === href ? "text-ink" : "text-ink/70 hover:text-ink"}`}>
             {label}
@@ -111,7 +120,7 @@ export function PageHero({
 }) {
   return (
     <section className="relative overflow-hidden">
-      <Splash src={splash} className="opacity-80" drift />
+      <Splash src={splash} strength={0.8} />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[200px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav current={current} />
       <div className="relative mx-auto flex max-w-[760px] flex-col items-center gap-5 px-5 pb-20 pt-12 text-center md:pb-24 md:pt-20">
@@ -216,7 +225,7 @@ export function ClosingCta({ title = "Your practice, your clients.", body = "149
   return (
     <section className="px-5 pb-[80px] md:px-16">
       <div data-reveal className="relative mx-auto flex max-w-[1312px] flex-col items-center gap-5 overflow-hidden rounded-[28px] bg-surface px-5 py-20 text-center md:rounded-[32px]">
-        <Splash src="/splash/cta.webp" drift />
+        <Splash src="/splash/cta.webp" base="#ffffff" />
         <h2 className="t-display-l relative max-w-[640px]">{title}</h2>
         <p className="t-body-l relative max-w-[520px] text-stone">{body}</p>
         <div className="relative flex flex-wrap justify-center gap-2">

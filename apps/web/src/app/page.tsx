@@ -11,7 +11,7 @@ import { Story } from "@/components/story";
 function Hero() {
   return (
     <section className="relative overflow-hidden md:h-[726px]">
-      <Splash src="/splash/hero.webp" drift />
+      <Splash src="/splash/hero.webp" interactive />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[254px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav />
       <div className="relative mx-auto flex max-w-[680px] flex-col items-center gap-6 px-5 pb-24 pt-16 text-center md:pt-[120px]">
@@ -44,7 +44,7 @@ function Showcase() {
   return (
     <section id="how" className="px-5 pb-[120px] md:px-16">
       <div data-zoom className="relative mx-auto aspect-[4/5] max-w-[1312px] overflow-hidden rounded-[20px] bg-sunken sm:aspect-[1312/700] md:rounded-[32px]">
-        <Splash src="/splash/showcase.webp" drift />
+        <Splash src="/splash/showcase.webp" base="#eceae4" />
         <Image
           src="/img/dash.webp"
           alt="Sessio dashboard: today's sessions, payments and what the assistant handled"
@@ -120,7 +120,7 @@ function Feature({
           <TextLink href={link[1]}>{link[0]}</TextLink>
         </div>
         <div data-reveal className="relative flex w-full items-center justify-center overflow-hidden rounded-[28px] bg-sunken px-4 py-10 md:aspect-[620/540] md:w-[620px] md:shrink-0 md:p-0">
-          <Splash src={splash} drift />
+          <Splash src={splash} base="#eceae4" />
           <div className="relative w-full max-w-[420px] md:w-[82%]">{children}</div>
         </div>
       </div>
@@ -224,7 +224,7 @@ function Cta() {
         id="waitlist"
         className="relative mx-auto flex max-w-[1312px] scroll-mt-10 flex-col items-center overflow-hidden rounded-[28px] bg-surface px-5 py-24 text-center md:min-h-[650px] md:justify-center md:rounded-[32px]"
       >
-        <Splash src="/splash/cta.webp" drift />
+        <Splash src="/splash/cta.webp" base="#ffffff" interactive />
         <div data-reveal className="relative flex max-w-[680px] flex-col items-center gap-6">
           <Pill>Founding therapists · first 100</Pill>
           <h2 className="t-display-xl">
