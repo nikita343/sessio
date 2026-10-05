@@ -6,6 +6,9 @@ import { publicClient } from "@/lib/supabase/server";
 import { stripe, PaymentsNotReady, PAY_METHODS, type PayMethod } from "@/lib/stripe";
 import { startCheckout } from "@/lib/checkout";
 import type { Lang } from "@/lib/i18n";
+import { loadPublic } from "@/lib/public";
+import { agreementFor } from "@/lib/agreement";
+import { money } from "@/lib/format";
 
 export type BookState = { error?: string };
 
@@ -13,6 +16,8 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
   const slug = String(form.get("slug"));
   const lang = String(form.get("lang") ?? "en") as Lang;
   const method = (PAY_METHODS.includes(String(form.get("method")) as PayMethod) ? String(form.get("method")) : "blik") as PayMethod;
+  if (!form.get("agreement"))
+    return { error: lang === "pl" ? "Zaakceptuj umowę, aby kontynuować." : lang === "uk" ? "Прийміть договір, щоб продовжити." : "Please accept the agreement to continue." };
   if (!form.get("consent")) return { error: lang === "pl" ? "Zaznacz zgodę, aby kontynuować." : lang === "uk" ? "Позначте згоду, щоб продовжити." : "Please tick the box to continue." };
 
   const sb = publicClient();
@@ -34,6 +39,12 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
     return { error: m.includes("too late") ? "That time is too soon to book online." : "Something went wrong. Please try another time." };
   }
   const b = (Array.isArray(data) ? data[0] : data) as { booking_id: string; manage_token: string; price_minor: number; currency: string };
+  // store which exact version of the agreement the client accepted, and when
+  const pub = await loadPublic(slug);
+  if (pub) {
+    const ag = agreementFor(pub.therapist, pub.service, pub.therapist.currency, lang, money);
+    await sb.rpc("record_agreement", { p_id: b.booking_id, p_token: b.manage_token, p_version: ag.version });
+  }
   const app = process.env.NEXT_PUBLIC_APP_URL ?? `https://${(await headers()).get("host")}`;
   const back = `${app}/b/${b.booking_id}?t=${b.manage_token}&lang=${lang}`;
 

@@ -89,3 +89,15 @@ export async function savePractice(_: PracticeState, form: FormData): Promise<Pr
   if (form.get("from") === "onboarding") redirect("/dashboard?welcome=1");
   return { saved: true };
 }
+
+/** The therapist's own additional terms, appended to the client agreement (one term per line). */
+export async function saveAgreementNotes(form: FormData) {
+  const { supabase, user } = await requireUser();
+  if (!user) redirect("/login");
+  // the shared demo practice is public, so its agreement stays the plain template
+  if (user.email === (process.env.DEMO_EMAIL ?? "demo@usesessio.com")) redirect("/settings?saved=agreement");
+  const notes = String(form.get("agreement_notes") ?? "").trim().slice(0, 3000);
+  await supabase.from("therapists").update({ agreement_notes: notes || null }).eq("id", user.id);
+  revalidatePath("/settings");
+  redirect("/settings?saved=agreement");
+}

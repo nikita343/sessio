@@ -6,6 +6,7 @@ import { fmtDate, pickLang, t } from "@/lib/i18n";
 import { money } from "@/lib/format";
 import { PublicShell } from "@/components/public-shell";
 import { CheckoutForm } from "./checkout-form";
+import { AGREE_LABEL } from "@/lib/agreement";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Confirm your session", robots: { index: false } };
@@ -60,6 +61,7 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
           cancellationHours={th.cancellation_hours}
           summary={`${service.name} with ${th.full_name} — ${when}`}
           account={account}
+          agreementLabel={AGREE_LABEL[lang](th.full_name)}
         />
       </div>
     </PublicShell>

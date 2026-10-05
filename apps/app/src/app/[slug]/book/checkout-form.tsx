@@ -20,6 +20,8 @@ export function CheckoutForm(p: {
   summary: string;
   /** Signed-in client: name and email come from their account. */
   account?: { name: string; email: string } | null;
+  /** [before, link text, after] for the agreement checkbox. */
+  agreementLabel: [string, string, string];
 }) {
   const d = t(p.lang);
   const [state, action, pending] = useActionState<BookState, FormData>(bookAndPay, {});
@@ -111,6 +113,17 @@ export function CheckoutForm(p: {
           </label>
         ))}
       </fieldset>
+
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="agreement" required className="mt-0.5 size-4 shrink-0 accent-[#3F6B5E]" />
+        <span className="t-caption text-stone">
+          {p.agreementLabel[0]}
+          <a href={`/${p.slug}/agreement?lang=${p.lang}`} target="_blank" rel="noopener" className="text-ink underline decoration-1 underline-offset-2 hover:text-sage">
+            {p.agreementLabel[1]}
+          </a>
+          {p.agreementLabel[2]}
+        </span>
+      </label>
 
       <label className="flex cursor-pointer items-start gap-3">
         <input type="checkbox" name="consent" required className="mt-0.5 size-4 shrink-0 accent-[#3F6B5E]" />
