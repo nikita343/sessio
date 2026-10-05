@@ -11,7 +11,9 @@ import { publicClient, SERVER_SECRET } from "@/lib/supabase/server";
  */
 export async function POST(req: Request) {
   const s = stripe();
-  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET].filter(Boolean) as string[];
+  // signing secrets: from env if set, otherwise the ones /api/stripe/setup stored server-side
+  const { data: stored } = await publicClient().rpc("server_stripe_secrets", { p_secret: SERVER_SECRET() });
+  const secrets = [process.env.STRIPE_WEBHOOK_SECRET, process.env.STRIPE_CONNECT_WEBHOOK_SECRET, ...((stored as string[] | null) ?? [])].filter(Boolean) as string[];
   if (!s || secrets.length === 0) return NextResponse.json({ ok: false }, { status: 400 });
   const body = await req.text();
   const sig = req.headers.get("stripe-signature") ?? "";
