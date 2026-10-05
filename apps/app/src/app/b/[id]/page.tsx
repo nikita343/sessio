@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPublicBooking } from "@/lib/booking-public";
-import { stripe, refundBooking } from "@/lib/stripe";
+import { actualMethod, stripe, refundBooking } from "@/lib/stripe";
 import { markPaid } from "@/lib/confirm";
 import { publicClient } from "@/lib/supabase/server";
 import { fmtDate, pickLang, t } from "@/lib/i18n";
@@ -28,7 +28,7 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
       const acct = typeof sp.acct === "string" && sp.acct.startsWith("acct_") ? sp.acct : undefined;
       const session = await s.checkout.sessions.retrieve(sp.session_id, undefined, acct ? { stripeAccount: acct } : undefined);
       if (session.payment_status === "paid" && session.metadata?.booking_id === id) {
-        await markPaid(id, String(session.payment_intent ?? session.id), session.metadata?.method ?? "card");
+        await markPaid(id, String(session.payment_intent ?? session.id), await actualMethod(session.payment_intent, session.metadata?.method ?? "card", acct));
         b = (await getPublicBooking(id, token))!;
       }
     }
@@ -50,7 +50,8 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
   const signedIn = !!auth.user;
   const pd = pt(lang);
   const canCancel = b.status === "confirmed" && new Date(b.starts_at).getTime() - Date.now() > b.cancellation_hours * 3600_000;
-  const method = sp.m ? String(sp.m) : "";
+  const { data: paidVia } = await publicClient().rpc("get_booking_paid_via", { p_id: id, p_token: token });
+  const method = (paidVia as string | null) ?? (sp.m ? String(sp.m) : "");
 
   return (
     <PublicShell lang={lang} path={`/b/${id}`}>
@@ -58,6 +59,15 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
         {b.status === "cancelled" ? (
           <>
             <h1 className="t-display-l !text-[44px]">{d.cancelled}</h1>
+            {b.payment_status === "refunded" && (
+              <p className="t-body-m rounded-[16px] bg-sage-soft px-4 py-3 text-sage">
+                {lang === "pl"
+                  ? `Zwrot ${money(b.price_minor, b.currency)} jest w drodze. Na kartę trafia zwykle w 5–10 dni roboczych.`
+                  : lang === "uk"
+                    ? `Повернення ${money(b.price_minor, b.currency)} вже в дорозі. На картку воно зазвичай надходить за 5–10 робочих днів.`
+                    : `Your refund of ${money(b.price_minor, b.currency)} is on its way. It usually reaches your card in 5–10 business days.`}
+              </p>
+            )}
             <a href={`/${b.therapist_slug}?lang=${lang}`} className="t-label-m flex h-12 items-center justify-center rounded-full bg-sage text-white">
               {d.pickTime}
             </a>
@@ -103,7 +113,7 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
               )}
             </div>
             <p className="t-caption text-stone">
-              {d.receipt(money(b.price_minor, b.currency), method || "BLIK")} · #{b.id.slice(0, 8).toUpperCase()}
+              {d.receipt(money(b.price_minor, b.currency), method || "Stripe")} · #{b.id.slice(0, 8).toUpperCase()}
             </p>
             {signedIn ? (
               <a href="/me" className="t-label-m flex h-11 items-center justify-center rounded-full border border-line-strong bg-surface hover:border-ink/30">

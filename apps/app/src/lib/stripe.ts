@@ -25,6 +25,20 @@ export async function paymentInfo(bookingId: string): Promise<PaymentInfo | null
 
 export class PaymentsNotReady extends Error {}
 
+/** The method the client actually paid with (Checkout lets them switch away from what they picked on our form). */
+export async function actualMethod(paymentIntent: unknown, fallback: string, stripeAccount?: string) {
+  const s = stripe();
+  const id = typeof paymentIntent === "string" ? paymentIntent : (paymentIntent as { id?: string } | null)?.id;
+  if (!s || !id?.startsWith("pi_")) return fallback;
+  try {
+    const pi = await s.paymentIntents.retrieve(id, { expand: ["latest_charge"] }, stripeAccount ? { stripeAccount } : undefined);
+    const type = (pi.latest_charge as { payment_method_details?: { type?: string } } | null)?.payment_method_details?.type;
+    return type === "blik" ? "blik" : type === "p24" ? "p24" : type === "card" ? "card" : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 /**
  * Where a booking's money goes. Always the therapist's own connected Stripe account (a direct charge,
  * 0% Sessio fee) — Sessio never holds client money. The only exception is the demo practice, which uses

@@ -16,7 +16,7 @@ function status(s: MySession, d: ReturnType<typeof pt>) {
   if (s.payment_status === "refunded") return <Badge tone="stone">{d.refunded}</Badge>;
   if (s.payment_status !== "paid") return <Badge tone="warn">{d.awaitingPay}</Badge>;
   if (s.status === "completed") return <Badge tone="stone">{d.done}</Badge>;
-  return <Badge tone="sage">{d.paid(s.paid_via ?? "BLIK")}</Badge>;
+  return <Badge tone="sage">{d.paid(s.paid_via ?? "Stripe")}</Badge>;
 }
 
 function canChange(s: MySession) {

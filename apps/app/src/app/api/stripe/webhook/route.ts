@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
+import { actualMethod, stripe } from "@/lib/stripe";
 import { markPaid } from "@/lib/confirm";
 import { publicClient, SERVER_SECRET } from "@/lib/supabase/server";
 
@@ -33,7 +33,8 @@ export async function POST(req: Request) {
     case "checkout.session.async_payment_succeeded": {
       const session = event.data.object;
       if (session.payment_status === "paid" && session.metadata?.booking_id) {
-        await markPaid(session.metadata.booking_id, String(session.payment_intent ?? session.id), session.metadata.method ?? "card");
+        const method = await actualMethod(session.payment_intent, session.metadata.method ?? "card", event.account ?? undefined);
+        await markPaid(session.metadata.booking_id, String(session.payment_intent ?? session.id), method);
       }
       break;
     }

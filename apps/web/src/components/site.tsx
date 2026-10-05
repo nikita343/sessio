@@ -182,17 +182,25 @@ export function Footer() {
   ];
   return (
     <footer className="overflow-hidden bg-ink text-white">
-      <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-10 px-5 pt-16 md:px-16 lg:flex-row">
-        <div className="flex flex-col gap-4">
-          <Logo size={24} tone="inverse" />
-          <p className="t-body-s max-w-[260px] text-white/60">Practice software for psychologists and therapists. Made in Warsaw, hosted in the EU.</p>
+      <div className="mx-auto grid max-w-[1440px] gap-12 px-5 pt-16 md:px-16 md:pt-20 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-20">
+        <div className="flex max-w-[360px] flex-col gap-5">
+          <Logo size={26} tone="inverse" />
+          <p className="t-body-m text-white/65">Practice software for independent psychologists and therapists in Poland. Booking, payments, video and notes — 0% commission.</p>
+          <div className="flex flex-wrap gap-2">
+            <a href="/#waitlist" className="t-label-m inline-flex h-11 items-center rounded-full bg-white px-5 text-ink transition-colors hover:bg-white/90">
+              Become a founding therapist
+            </a>
+            <a href={`${APP_URL}/login`} className="t-label-m inline-flex h-11 items-center rounded-full border border-white/20 px-5 text-white transition-colors hover:border-white/50">
+              Sign in
+            </a>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-10 sm:grid-cols-4 sm:gap-12 lg:gap-16">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 lg:gap-x-14">
           {cols.map(([title, links]) => (
-            <div key={title} className="flex flex-col gap-2.5">
-              <p className="t-overline text-white/50">{title}</p>
+            <div key={title} className="flex flex-col gap-3">
+              <p className="t-overline text-white/45">{title}</p>
               {links.map(([label, href]) => (
-                <a key={label} href={href} className="t-label-m text-white/90 hover:text-white">
+                <a key={label} href={href} className="t-body-s w-fit text-white/85 transition-colors hover:text-white">
                   {label}
                 </a>
               ))}
@@ -203,17 +211,31 @@ export function Footer() {
       <div className="mx-auto max-w-[1440px] px-5 md:px-16">
         <p
           aria-hidden
-          data-rise="90"
-          className="font-display -mb-[0.28em] mt-16 select-none bg-cover bg-clip-text font-semibold leading-none text-transparent opacity-85"
+          className="font-display mt-14 select-none bg-cover bg-clip-text pb-[0.06em] font-semibold leading-[0.9] text-transparent md:mt-20"
           style={{
             backgroundImage: "url(/splash/texture.webp), linear-gradient(90deg,#c9dfd1,#d8d3ee,#cfe2ec)",
             backgroundBlendMode: "multiply",
-            fontSize: "clamp(120px, 23vw, 330px)",
-            letterSpacing: "-0.06em",
+            fontSize: "clamp(88px, 21vw, 300px)",
+            letterSpacing: "-0.065em",
           }}
         >
           sessio
         </p>
+        <div className="flex flex-col gap-3 border-t border-white/10 py-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="t-caption text-white/50">© {new Date().getFullYear()} Sessio · Made in Warsaw · Data hosted in the EU</p>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {[
+              ["Privacy", "/privacy"],
+              ["DPA", "/privacy#dpa"],
+              ["FAQ", "/faq"],
+              ["hello@usesessio.com", "mailto:hello@usesessio.com"],
+            ].map(([l, h]) => (
+              <a key={l} href={h} className="t-caption text-white/60 transition-colors hover:text-white">
+                {l}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </footer>
   );
