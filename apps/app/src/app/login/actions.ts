@@ -29,7 +29,7 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
     email,
     password,
     options: {
-      data: { full_name },
+      data: { full_name, role: "therapist" },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/onboarding`,
     },
   });

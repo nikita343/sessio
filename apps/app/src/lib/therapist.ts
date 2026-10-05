@@ -7,7 +7,7 @@ export async function getTherapist(opts: { allowUnpublished?: boolean } = {}) {
   const { supabase, user } = await requireUser();
   if (!user) redirect("/login");
   const { data } = await supabase.from("therapists").select("*").eq("id", user.id).single<Therapist>();
-  if (!data) redirect("/login");
+  if (!data) redirect("/me");
   if (!opts.allowUnpublished && !data.slug) redirect("/onboarding");
   return { supabase, user, therapist: data };
 }

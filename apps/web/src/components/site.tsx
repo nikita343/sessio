@@ -170,6 +170,7 @@ export function Footer() {
         ["Blog", "/blog"],
         ["Webinars", "/webinars"],
         ["Demo booking page", `${APP_URL}/anna-kowalska`],
+        ["Client sign-in", `${APP_URL}/me/login`],
       ],
     ],
     [

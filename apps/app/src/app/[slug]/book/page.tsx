@@ -6,6 +6,7 @@ import { fmtDate, pickLang, t } from "@/lib/i18n";
 import { money } from "@/lib/format";
 import { PublicShell } from "@/components/public-shell";
 import { CheckoutForm } from "./checkout-form";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Confirm your session", robots: { index: false } };
 
@@ -25,6 +26,11 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
   const hm = (iso: string) => fmtDate(iso, th.timezone, lang, { hour: "2-digit", minute: "2-digit", hour12: false });
   const when = `${day} · ${hm(start)}–${hm(end)}`;
   const price = money(service.price_minor, th.currency);
+  // signed-in clients don't retype their details; the booking lands in their account
+  const { data: auth } = await (await createClient()).auth.getUser();
+  const account = auth.user?.email
+    ? { name: String(auth.user.user_metadata?.full_name ?? auth.user.user_metadata?.name ?? ""), email: auth.user.email }
+    : null;
 
   return (
     <PublicShell lang={lang} path={`/${slug}/book`} back={{ href: `/${slug}?lang=${lang}`, label: d.back }}>
@@ -53,6 +59,7 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
           therapist={th.full_name}
           cancellationHours={th.cancellation_hours}
           summary={`${service.name} with ${th.full_name} — ${when}`}
+          account={account}
         />
       </div>
     </PublicShell>

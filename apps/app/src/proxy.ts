@@ -30,6 +30,20 @@ export async function proxy(request: NextRequest) {
     url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
+  const isClientArea = path === "/me" || path.startsWith("/me/");
+  if (isClientArea && path !== "/me/login" && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/me/login";
+    url.search = "";
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
+  }
+  if (user && path === "/me/login") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/me";
+    url.search = "";
+    return NextResponse.redirect(url);
+  }
   if (user && (path === "/login" || path === "/")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
@@ -40,5 +54,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/dashboard/:path*", "/calendar/:path*", "/clients/:path*", "/notes/:path*", "/payments/:path*", "/booking-page/:path*", "/settings/:path*", "/onboarding/:path*", "/inbox/:path*", "/room/:path*"],
+  matcher: ["/", "/login", "/dashboard/:path*", "/calendar/:path*", "/clients/:path*", "/notes/:path*", "/payments/:path*", "/booking-page/:path*", "/settings/:path*", "/onboarding/:path*", "/inbox/:path*", "/room/:path*", "/me", "/me/:path*"],
 };

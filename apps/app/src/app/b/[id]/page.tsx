@@ -8,6 +8,9 @@ import { fmtDate, pickLang, t } from "@/lib/i18n";
 import { money } from "@/lib/format";
 import { PublicShell } from "@/components/public-shell";
 import { JoinButton } from "./join";
+import { GoogleButton } from "@/components/google-button";
+import { createClient } from "@/lib/supabase/server";
+import { pt } from "@/lib/portal";
 
 export const metadata: Metadata = { title: "Your session", robots: { index: false } };
 
@@ -41,6 +44,9 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
     redirect(`/b/${id}?t=${token}&lang=${lang}`);
   }
 
+  const { data: auth } = await (await createClient()).auth.getUser();
+  const signedIn = !!auth.user;
+  const pd = pt(lang);
   const canCancel = b.status === "confirmed" && new Date(b.starts_at).getTime() - Date.now() > b.cancellation_hours * 3600_000;
   const method = sp.m ? String(sp.m) : "";
 
@@ -97,6 +103,17 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
             <p className="t-caption text-stone">
               {d.receipt(money(b.price_minor, b.currency), method || "BLIK")} · #{b.id.slice(0, 8).toUpperCase()}
             </p>
+            {signedIn ? (
+              <a href="/me" className="t-label-m flex h-11 items-center justify-center rounded-full border border-line-strong bg-surface hover:border-ink/30">
+                {pd.openAccount} →
+              </a>
+            ) : (
+              <div className="flex flex-col gap-3 rounded-[20px] border border-dashed border-line-strong p-5">
+                <p className="t-title-m">{pd.saveTitle}</p>
+                <p className="t-body-s text-stone">{pd.saveBody}</p>
+                <GoogleButton next="/me" label={pd.google} />
+              </div>
+            )}
           </>
         )}
       </div>

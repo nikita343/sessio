@@ -5,7 +5,29 @@ import { useRouter } from "next/navigation";
 import type { Day } from "@/lib/slots";
 import { fmtDate, t, type Lang } from "@/lib/i18n";
 
-export function Picker({ slug, days, lang, tz, tzText, price, footnote }: { slug: string; days: Day[]; lang: Lang; tz: string; tzText: string; price: string; footnote: string }) {
+export function Picker({
+  slug,
+  days,
+  lang,
+  tz,
+  tzText,
+  price,
+  footnote,
+  hrefBase,
+  ctaPrefix,
+}: {
+  slug: string;
+  days: Day[];
+  lang: Lang;
+  tz: string;
+  tzText: string;
+  price: string;
+  footnote: string;
+  /** Where a picked time goes (the ISO start is appended). Defaults to the checkout. */
+  hrefBase?: string;
+  /** Replaces the "Book … · Pay …" label, e.g. for rescheduling. */
+  ctaPrefix?: string;
+}) {
   const d = t(lang);
   const router = useRouter();
   const firstOpen = days.findIndex((x) => x.slots.some((s) => s.free));
@@ -69,10 +91,10 @@ export function Picker({ slug, days, lang, tz, tzText, price, footnote }: { slug
       <button
         type="button"
         disabled={!slot}
-        onClick={() => slot && router.push(`/${slug}/book?start=${encodeURIComponent(slot)}&lang=${lang}`)}
+        onClick={() => slot && router.push(hrefBase ? `${hrefBase}${encodeURIComponent(slot)}` : `/${slug}/book?start=${encodeURIComponent(slot)}&lang=${lang}`)}
         className="t-label-m mt-1 h-12 rounded-full bg-sage text-white transition-colors hover:bg-sage-hover disabled:bg-sage/40"
       >
-        {slot ? d.book(time(slot), price) : d.pickFirst}
+        {slot ? (ctaPrefix ? `${ctaPrefix} ${time(slot)}` : d.book(time(slot), price)) : d.pickFirst}
       </button>
       <p className="t-caption text-center text-stone">{footnote}</p>
     </div>

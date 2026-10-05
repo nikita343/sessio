@@ -17,7 +17,7 @@ export async function sendBookingEmail(row: Row) {
       <h1 style="font-size:24px;margin:0 0 8px;letter-spacing:-0.5px">You're booked</h1>
       <p style="font-size:15px;line-height:1.5;color:#667080;margin:0 0 20px">${when} with ${row.therapist_name}.</p>
       <a href="${room}" style="display:inline-block;background:#3F6B5E;color:#fff;text-decoration:none;padding:12px 22px;border-radius:999px;font-size:14px">Your private video room</a>
-      <p style="font-size:13px;line-height:1.5;color:#667080;margin:20px 0 0">The room opens 10 minutes before the session. Nothing is recorded.<br/>Need to change something? <a href="${manage}" style="color:#1C2530">Manage your booking</a>.</p>
+      <p style="font-size:13px;line-height:1.5;color:#667080;margin:20px 0 0">The room opens 10 minutes before the session. Nothing is recorded.<br/>Need to change something? <a href="${manage}" style="color:#1C2530">Manage your booking</a>, or see all your sessions at <a href="${app}/me" style="color:#1C2530">${app.replace(/^https?:\/\//, "")}/me</a>.</p>
     </div>
     <p style="font-size:12px;color:#667080;margin:20px 0 0">Sent by Sessio on behalf of ${row.therapist_name}. Paid directly to your therapist — Sessio takes no commission.</p>
   </div></body></html>`;

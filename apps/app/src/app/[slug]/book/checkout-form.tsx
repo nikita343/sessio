@@ -18,6 +18,8 @@ export function CheckoutForm(p: {
   therapist: string;
   cancellationHours: number;
   summary: string;
+  /** Signed-in client: name and email come from their account. */
+  account?: { name: string; email: string } | null;
 }) {
   const d = t(p.lang);
   const [state, action, pending] = useActionState<BookState, FormData>(bookAndPay, {});
@@ -72,10 +74,20 @@ export function CheckoutForm(p: {
       )}
 
       <Field label={d.yourName} htmlFor="name">
-        <Input id="name" name="name" required autoComplete="name" placeholder="Marta Nowak" />
+        <Input id="name" name="name" required autoComplete="name" placeholder="Marta Nowak" defaultValue={p.account?.name ?? ""} />
       </Field>
       <Field label={d.email} htmlFor="email">
-        <Input id="email" name="email" type="email" required autoComplete="email" placeholder="marta@example.com" />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="marta@example.com"
+          defaultValue={p.account?.email ?? ""}
+          readOnly={!!p.account}
+          className={p.account ? "bg-sunken! text-ink/80" : undefined}
+        />
       </Field>
       <Field label={d.phone} htmlFor="phone">
         <Input id="phone" name="phone" type="tel" autoComplete="tel" placeholder="+48 …" />

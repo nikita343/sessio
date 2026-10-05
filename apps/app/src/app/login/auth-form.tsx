@@ -8,7 +8,7 @@ import { signIn, signUp, type AuthState } from "./actions";
 export function AuthForm({ mode, next }: { mode: "signin" | "signup"; next: string }) {
   const [state, action, pending] = useActionState<AuthState, FormData>(mode === "signup" ? signUp : signIn, {});
   return (
-    <form action={action} className="mt-6 flex flex-col gap-4">
+    <form action={action} className="mt-4 flex flex-col gap-4">
       <input type="hidden" name="next" value={next} />
       {mode === "signup" && (
         <Field label="Your name" htmlFor="full_name">

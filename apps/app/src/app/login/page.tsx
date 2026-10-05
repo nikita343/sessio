@@ -1,7 +1,9 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Logo } from "@/components/logo";
 import { AuthForm } from "./auth-form";
+import { GoogleButton } from "@/components/google-button";
 import { signInDemo } from "./actions";
 
 export const metadata: Metadata = { title: "Sign in" };
@@ -27,6 +29,15 @@ export default async function LoginPage(props: PageProps<"/login">) {
           {sp.error === "demo" && (
             <p className="t-body-s mt-4 rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">The demo practice is resting. Try again in a minute.</p>
           )}
+          {sp.error === "auth" && <p className="t-body-s mt-4 rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">Sign-in didn&rsquo;t finish. Please try again.</p>}
+          <div className="mt-6">
+            <GoogleButton next={mode === "signup" ? "/start" : next === "/dashboard" ? "/start" : next} label="Continue with Google" />
+          </div>
+          <div className="mt-5 flex items-center gap-3 text-stone">
+            <span className="h-px flex-1 bg-line" />
+            <span className="t-caption">or with email</span>
+            <span className="h-px flex-1 bg-line" />
+          </div>
           <AuthForm mode={mode} next={next} />
           <div className="my-5 flex items-center gap-3 text-stone">
             <span className="h-px flex-1 bg-line" />
@@ -39,6 +50,12 @@ export default async function LoginPage(props: PageProps<"/login">) {
             </button>
           </form>
           <p className="t-caption mt-3 text-center text-stone">Anna Kowalska&rsquo;s practice with sample clients. Nothing real.</p>
+          <p className="t-body-s mt-6 border-t border-line pt-4 text-center text-stone">
+            Booked a session as a client?{" "}
+            <Link href="/me/login" className="text-ink underline underline-offset-2">
+              See your sessions
+            </Link>
+          </p>
         </div>
       </div>
     </main>

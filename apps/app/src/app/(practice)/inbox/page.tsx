@@ -26,7 +26,7 @@ async function reply(form: FormData) {
           from: process.env.EMAIL_FROM ?? "Sessio <bookings@usesessio.com>",
           to: [c.email],
           subject: `Reply from ${th?.full_name ?? "your therapist"}`,
-          text: body,
+          text: `${body}\n\n—\nReply or see your sessions: ${process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com"}/me/messages`,
         }),
       }).catch(() => {});
     }
