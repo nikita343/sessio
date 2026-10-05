@@ -31,7 +31,7 @@ async function reply(form: FormData) {
       }).catch(() => {});
     }
   }
-  await supabase.from("activity").update({ needs_review: false }).eq("ref_id", clientId).eq("needs_review", true);
+  await supabase.from("activity").update({ needs_review: false, urgent: false }).eq("ref_id", clientId).eq("needs_review", true);
   await supabase.from("messages").update({ needs_review: false }).eq("client_id", clientId);
   revalidatePath("/", "layout");
 }
@@ -40,9 +40,10 @@ export default async function Inbox(props: PageProps<"/inbox">) {
   const sp = await props.searchParams;
   const { supabase } = await getTherapist();
   const { data } = await supabase.from("messages").select("*, client:clients(id, full_name, email)").order("created_at", { ascending: true }).limit(400);
-  const { data: flagged } = await supabase.from("activity").select("ref_id").eq("needs_review", true);
+  const { data: flagged } = await supabase.from("activity").select("ref_id, urgent").eq("needs_review", true);
   const flaggedIds = new Set((flagged ?? []).map((f) => f.ref_id));
-  type M = { id: string; author: string; body: string; created_at: string; client: { id: string; full_name: string; email: string } | null };
+  const urgentIds = new Set((flagged ?? []).filter((f) => f.urgent).map((f) => f.ref_id));
+  type M = { id: string; author: string; body: string; created_at: string; urgent?: boolean; client: { id: string; full_name: string; email: string } | null };
   const threads = new Map<string, { client: NonNullable<M["client"]>; msgs: M[] }>();
   for (const m of (data ?? []) as M[]) {
     if (!m.client) continue;
@@ -51,6 +52,9 @@ export default async function Inbox(props: PageProps<"/inbox">) {
     threads.set(m.client.id, t);
   }
   const list = [...threads.values()].sort((a, b) => {
+    const ua = urgentIds.has(a.client.id) ? 1 : 0;
+    const ub = urgentIds.has(b.client.id) ? 1 : 0;
+    if (ua !== ub) return ub - ua;
     const fa = flaggedIds.has(a.client.id) ? 1 : 0;
     const fb = flaggedIds.has(b.client.id) ? 1 : 0;
     if (fa !== fb) return fb - fa;
@@ -72,7 +76,10 @@ export default async function Inbox(props: PageProps<"/inbox">) {
                 const on = t.client.id === active?.client.id;
                 return (
                   <li key={t.client.id}>
-                    <Link href={`/inbox?c=${t.client.id}`} className={`flex gap-3 px-4 py-3 ${on ? "bg-sage-soft/60" : "hover:bg-paper"}`}>
+                    <Link
+                      href={`/inbox?c=${t.client.id}`}
+                      className={`flex gap-3 px-4 py-3 ${urgentIds.has(t.client.id) ? "border-l-4 border-warn bg-[#f6e3dc]/70" : ""} ${on ? "bg-sage-soft/60" : "hover:bg-paper"}`}
+                    >
                       <Avatar name={t.client.full_name} size={32} tone="lavender" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
@@ -80,7 +87,11 @@ export default async function Inbox(props: PageProps<"/inbox">) {
                           <span className="t-caption shrink-0 text-stone">{timeAgo(last.created_at)}</span>
                         </div>
                         <p className="t-caption truncate text-stone">{last.body}</p>
-                        {flaggedIds.has(t.client.id) && <Badge tone="clay" className="mt-1">Needs you</Badge>}
+                        {urgentIds.has(t.client.id) ? (
+                          <span className="t-overline mt-1 inline-flex rounded-full bg-warn px-2 py-0.5 text-white">Urgent · read now</span>
+                        ) : (
+                          flaggedIds.has(t.client.id) && <Badge tone="clay" className="mt-1">Needs you</Badge>
+                        )}
                       </div>
                     </Link>
                   </li>
@@ -90,6 +101,12 @@ export default async function Inbox(props: PageProps<"/inbox">) {
           </Card>
           {active && (
             <Card className="flex flex-col gap-3 p-5">
+              {urgentIds.has(active.client.id) && (
+                <div role="alert" className="flex flex-col gap-1 rounded-[14px] border border-warn/30 bg-[#f6e3dc] px-4 py-3 text-warn">
+                  <p className="t-label-m">This client may be at risk.</p>
+                  <p className="t-body-s">Crisis lines (112, 116 123) were shared automatically. Please read their message and contact them as soon as you can.</p>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <Link href={`/clients/${active.client.id}`} className="t-title-m hover:underline">
                   {active.client.full_name}
@@ -98,7 +115,7 @@ export default async function Inbox(props: PageProps<"/inbox">) {
               </div>
               <div className="flex flex-col gap-2">
                 {active.msgs.map((m) => (
-                  <div key={m.id} className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${m.author === "client" ? "self-start rounded-bl-md bg-paper" : m.author === "assistant" ? "self-end rounded-br-md bg-lavender-soft" : "self-end rounded-br-md bg-ink text-white"}`}>
+                  <div key={m.id} className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${m.urgent && m.author === "client" ? "ring-2 ring-warn/50 " : ""}${m.author === "client" ? "self-start rounded-bl-md bg-paper" : m.author === "assistant" ? "self-end rounded-br-md bg-lavender-soft" : "self-end rounded-br-md bg-ink text-white"}`}>
                     <p className={`t-caption ${m.author === "therapist" ? "text-white/60" : "text-stone"}`}>
                       {m.author === "client" ? active.client.full_name.split(" ")[0] : m.author === "assistant" ? "Assistant" : "You"} · {timeAgo(m.created_at)}
                     </p>

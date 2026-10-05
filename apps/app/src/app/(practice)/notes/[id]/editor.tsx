@@ -7,24 +7,43 @@ import { Badge, Button, textareaCls } from "@/components/ui";
 
 type Phase = "idle" | "recording" | "loading-model" | "transcribing" | "drafting";
 
-/** Replace the client's and therapist's names before any text leaves the device. */
+const ESC = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const VOWEL_END = /[aeiouyąęóаеєиіїоуюяй]+$/iu;
+
+/** Stems that catch Polish/Ukrainian inflections: Marek → Mark(iem), Ewa → Ew(ą), Олена → Олен(ою). */
+function stems(name: string) {
+  const out = new Set<string>([name]);
+  const bare = name.replace(VOWEL_END, "");
+  if (bare.length >= 2) out.add(bare);
+  // fleeting "e" before the last consonant: Marek → Mark-, Wojciech stays
+  const m = name.match(/^(.*\p{L})[eе](\p{L})$/u);
+  if (m && name.length >= 4) out.add(m[1] + m[2]);
+  // -ski/-cki adjectives: Wiśniewski → Wiśniewsk-
+  if (/(sk|ck|dzk)[iy]$/iu.test(name)) out.add(name.slice(0, -1));
+  const min = name.length <= 4 ? 2 : 3;
+  return [...out].filter((x) => x.length >= min).sort((a2, b2) => b2.length - a2.length);
+}
+
+/** Replace contact details, then the client's and therapist's names, before any text leaves the device. */
 function redact(text: string, client: string[], therapist: string[]) {
-  let out = text;
+  // identifiers first, so names inside emails don't leave a half-redacted address
+  let out = text
+    .replace(/[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}/gu, "[email]")
+    .replace(/(?<!\d)\d{11}(?!\d)/g, "[PESEL]")
+    .replace(/(\+?\d[\d\s-]{7,}\d)/g, "[phone]")
+    .replace(/(?<![\p{L}])(ul\.|ulica|al\.|aleja|os\.|osiedle|pl\.|plac|вул\.|вулиця)\s+[\p{L}\d .-]{2,40}?\d+[a-z]?(\/\d+)?/giu, "[address]");
   const swap = (names: string[], label: string) => {
     for (const n of names) {
-      if (n.length < 2) continue;
-      // match the name and common Polish/Ukrainian inflections (Marek → Markiem, Marka…)
-      const stem = n.length > 4 ? n.slice(0, -1) : n;
-      out = out.replace(new RegExp(`\\b${stem.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\p{L}{0,4}\\b`, "giu"), label);
+      if (n.trim().length < 2) continue;
+      const alts = stems(n.trim()).map(ESC).join("|");
+      if (!alts) continue;
+      // Unicode-aware word edges: JavaScript's \b only knows ASCII letters (Ł, Ż, Олена…)
+      out = out.replace(new RegExp(`(?<![\\p{L}\\p{N}])(?:${alts})\\p{L}{0,5}(?![\\p{L}\\p{N}])`, "giu"), label);
     }
   };
   swap(client, "[client]");
   swap(therapist, "[psychologist]");
-  return out
-    .replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[email]")
-    .replace(/\b\d{11}\b/g, "[PESEL]")
-    .replace(/(\+?\d[\d\s-]{7,}\d)/g, "[phone]")
-    .replace(/\b(ul\.|ulica|al\.|aleja|os\.|osiedle|pl\.|plac|вул\.|вулиця)\s+[\p{L}\d .-]{2,40}?\d+[a-z]?(\/\d+)?/giu, "[address]");
+  return out;
 }
 
 function fmt(s: number) {
@@ -60,7 +79,7 @@ export function NoteEditor(p: {
   const [progress, setProgress] = useState(0);
   const [seconds, setSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [lang, setLang] = useState<"pl" | "uk" | "en">("en");
+  const [lang, setLang] = useState<"pl" | "uk" | "en">("pl");
   const [aiDraft, setAiDraft] = useState<false | "ai" | "template">(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState<"" | "saving" | "saved">("");

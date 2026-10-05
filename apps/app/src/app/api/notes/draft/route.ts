@@ -53,7 +53,7 @@ Rules:
 - Use ONLY facts in the memo. Never add diagnoses, ICD codes, risk judgements, interpretations or recommendations that the psychologist did not say.
 - Names are already replaced with [client] / [psychologist]; keep those placeholders or say "the client". Never invent names.
 - Structure (as flowing text, no headings): type and number of session; what was worked on; methods used; the client's reported progress or state; agreed homework and plan for next time.
-- Move the psychologist's private hypotheses or self-reminders into "working", not into the record.
+- The record states what happened. The psychologist's own thinking goes into "working", never into the record: hypotheses ("I wonder whether…", "maybe it's…", "zastanawiam się…", "może…", "hipoteza"), reminders to self ("check next time…", "ask about…", "next time I should…", "sprawdzić następnym razem…", "zapytać o…"), and impressions of the therapeutic relationship. Move each such sentence to "working", in ${LANG_NAME[lang]}.
 - If the memo mentions risk (self-harm, harm to others), include it factually as stated.`,
       prompt: `Session number: ${sessionNumber}\nForm: ${form}\n\nMemo:\n"""${transcript}"""`,
     });

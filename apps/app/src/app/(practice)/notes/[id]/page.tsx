@@ -48,7 +48,7 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
           client: `${first} ${last ? `${last[0]}.` : ""} · ${clientCode}`,
           date: note.booking ? `${inTz(note.booking.starts_at, tz, "d MMM yyyy · HH:mm")}–${inTz(note.booking.ends_at, tz, "HH:mm")}` : "—",
           form: `Psychological help · ${note.booking?.format === "in_person" ? "in person" : "online"}`,
-          psychologist: `${th.full_name} · Reg. no. —`,
+          psychologist: `${th.full_name} · Reg. no. ${th.register_number || "— (add in Booking page → Your profile)"}`,
         }}
         sessionNumber={note.session_number ?? 1}
         therapistNames={th.full_name.split(/\s+/).filter((p) => p.length > 1)}

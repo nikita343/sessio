@@ -62,7 +62,7 @@ const FEATURES: { icon: IconName; title: string; points: string[]; href: string 
   {
     icon: "mic",
     title: "Notes from a voice memo",
-    points: ["Two minutes of dictation after the session", "Transcribed on your device; audio discarded", "Names removed before any AI step", "You read, edit and sign every record"],
+    points: ["Two minutes of dictation after the session", "Transcribed on your device; audio discarded", "Names and contact details removed on your device first", "You read, edit and sign every record"],
     href: "/guides/voice-memo-to-signed-record",
   },
   {

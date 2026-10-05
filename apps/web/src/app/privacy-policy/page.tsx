@@ -42,7 +42,7 @@ const BLOCKS: Block[] = [
       "We never record therapy sessions. Video, audio and in-session chat travel directly between the two participants' browsers, encrypted, and are not stored anywhere.",
       "We never upload voice memos. They are transcribed in the therapist's browser and discarded.",
       "We never sell personal data, never use it for advertising, and never use clients' records to train AI models.",
-      "Our AI never diagnoses, assesses risk or recommends treatment. Before any text is sent for formatting, names and contact details are replaced on the therapist's device.",
+      "Our AI never diagnoses or recommends treatment. Before a therapist's dictation is sent for formatting, names and contact details are replaced on their device. The booking assistant receives only the text a client types, never their name or email.",
     ],
   },
   {
@@ -55,6 +55,7 @@ const BLOCKS: Block[] = [
       ["Stripe (payments)", "Processes client payments directly into the therapist's own account. Card and bank details are entered only on Stripe's pages.", "EU entity; Stripe's own privacy policy applies to payment data"],
       ["Resend (email)", "Sends booking confirmations, reminders and replies.", "Sends from the EU (Ireland) region"],
       ["Anthropic (AI formatting)", "Formats a therapist's de-identified dictation into a draft record, when the therapist uses that feature.", "Provider in the USA, under Standard Contractual Clauses; inputs are not used to train models"],
+      ["Anthropic (booking assistant)", "Answers practical questions typed on a therapist's booking page or in the client portal — prices, free times, how sessions work. Only the message text and the therapist's public page details are sent; never the client's name or email.", "Provider in the USA, under Standard Contractual Clauses; inputs are not used to train models"],
       ["Google (sign-in, connection setup)", "“Continue with Google” sign-in, and public STUN servers that help two browsers find a direct route for video.", "Google sign-in sees your Google account email; STUN servers see only network addresses"],
     ],
   },

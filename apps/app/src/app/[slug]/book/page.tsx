@@ -9,7 +9,11 @@ import { CheckoutForm } from "./checkout-form";
 import { AGREE_LABEL } from "@/lib/agreement";
 import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Confirm your session", robots: { index: false } };
+export async function generateMetadata(props: PageProps<"/[slug]/book">): Promise<Metadata> {
+  const sp = await props.searchParams;
+  const lang = pickLang(sp.lang, (await cookies()).get("sessio_lang")?.value);
+  return { title: lang === "pl" ? "Potwierdź sesję" : lang === "uk" ? "Підтвердіть сесію" : "Confirm your session", robots: { index: false } };
+}
 
 export default async function Book(props: PageProps<"/[slug]/book">) {
   const { slug } = await props.params;
@@ -59,7 +63,7 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
           price={price}
           therapist={th.full_name}
           cancellationHours={th.cancellation_hours}
-          summary={`${service.name} with ${th.full_name} — ${when}`}
+          summary={lang === "pl" ? `Sesja ${service.duration_min} min — ${th.full_name}, ${when}` : lang === "uk" ? `Сесія ${service.duration_min} хв — ${th.full_name}, ${when}` : `${service.duration_min}-minute session with ${th.full_name} — ${when}`}
           account={account}
           agreementLabel={AGREE_LABEL[lang](th.full_name)}
         />

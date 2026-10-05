@@ -77,4 +77,4 @@ export type Note = {
   updated_at: string;
 };
 
-export type Activity = { id: string; kind: string; summary: string; needs_review: boolean; ref_id: string | null; created_at: string };
+export type Activity = { id: string; kind: string; summary: string; needs_review: boolean; urgent?: boolean; ref_id: string | null; created_at: string };

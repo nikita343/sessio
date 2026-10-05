@@ -44,8 +44,15 @@ export function tzLabel(tz: string) {
   return tz.replace("_", " ");
 }
 
-export function timeAgo(iso: string) {
+export function timeAgo(iso: string, lang: "pl" | "uk" | "en" = "en") {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (lang !== "en") {
+    const rtf = new Intl.RelativeTimeFormat(lang === "pl" ? "pl" : "uk", { numeric: "auto" });
+    if (s < 60) return lang === "pl" ? "przed chwilą" : "щойно";
+    if (s < 3600) return rtf.format(-Math.floor(s / 60), "minute");
+    if (s < 86400) return rtf.format(-Math.floor(s / 3600), "hour");
+    return rtf.format(-Math.floor(s / 86400), "day");
+  }
   if (s < 60) return "just now";
   if (s < 3600) return `${Math.floor(s / 60)} min ago`;
   if (s < 86400) return `${Math.floor(s / 3600)} h ago`;

@@ -15,6 +15,12 @@ import { pt } from "@/lib/portal";
 
 export const metadata: Metadata = { title: "Your session", robots: { index: false } };
 
+const PAST = {
+  pl: { title: "Sesja odbyła się", receipt: "Potwierdzenie płatności", service: "Usługa", therapist: "Terapeuta", amount: "Kwota", method: "Metoda", number: "Numer", invoice: "Rachunek lub fakturę wystawia terapeuta — napisz do niego przez stronę lub portal klienta.", again: "Zarezerwuj kolejną sesję" },
+  en: { title: "Session held", receipt: "Payment confirmation", service: "Service", therapist: "Therapist", amount: "Amount", method: "Method", number: "Number", invoice: "Your therapist issues receipts and invoices — ask them through their page or your client portal.", again: "Book another session" },
+  uk: { title: "Сесія відбулася", receipt: "Підтвердження оплати", service: "Послуга", therapist: "Терапевт", amount: "Сума", method: "Спосіб", number: "Номер", invoice: "Рахунок або фактуру видає терапевт — напишіть йому через сторінку або портал клієнта.", again: "Забронювати наступну сесію" },
+} as const;
+
 export default async function BookingStatus(props: PageProps<"/b/[id]">) {
   const { id } = await props.params;
   const sp = await props.searchParams;
@@ -52,6 +58,7 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
   const pd = pt(lang);
   const canCancel = b.status === "confirmed" && new Date(b.starts_at).getTime() - Date.now() > b.cancellation_hours * 3600_000;
   const { data: paidVia } = await publicClient().rpc("get_booking_paid_via", { p_id: id, p_token: token });
+  const past = b.status === "completed" || new Date(b.ends_at).getTime() < Date.now();
   const method = (paidVia as string | null) ?? (sp.m ? String(sp.m) : "");
 
   return (
@@ -79,6 +86,34 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
             <p className="t-body-m text-stone">{d.pendingBody}</p>
             <a href={`/pay/${id}?t=${token}&m=blik&lang=${lang}`} className="t-label-m flex h-12 items-center justify-center rounded-full bg-sage text-white">
               {d.finishPay}
+            </a>
+          </>
+        ) : past ? (
+          <>
+            <h1 className="t-display-l !text-[44px]">{PAST[lang].title}</h1>
+            <p className="t-body-l text-stone">
+              <span className="inline-block first-letter:uppercase">{whenLong}</span> · {b.therapist_name}
+            </p>
+            <div className="flex flex-col gap-3 rounded-[20px] bg-surface p-5 shadow-[var(--shadow-card)]">
+              <p className="t-overline text-stone">{PAST[lang].receipt}</p>
+              <dl className="flex flex-col divide-y divide-line">
+                {[
+                  [PAST[lang].service, b.service_name ?? "—"],
+                  [PAST[lang].therapist, b.therapist_name],
+                  [PAST[lang].amount, money(b.price_minor, b.currency)],
+                  [PAST[lang].method, method || "Stripe"],
+                  [PAST[lang].number, `#${b.id.slice(0, 8).toUpperCase()}`],
+                ].map(([k, v]) => (
+                  <div key={k} className="flex justify-between gap-4 py-2.5">
+                    <dt className="t-body-s text-stone">{k}</dt>
+                    <dd className="t-label-m text-right">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <p className="t-caption text-stone">{PAST[lang].invoice}</p>
+            </div>
+            <a href={`/${b.therapist_slug}?lang=${lang}`} className="t-label-m flex h-12 items-center justify-center rounded-full bg-sage text-white">
+              {PAST[lang].again}
             </a>
           </>
         ) : (

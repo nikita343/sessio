@@ -29,7 +29,7 @@ export default async function Messages(props: PageProps<"/me/messages">) {
       {sp.crisis && (
         <div role="alert" className="mt-6 flex flex-col gap-2 rounded-[18px] border border-warn/30 bg-[#f6e3dc] p-5 text-warn">
           <p className="t-title-m">112 · 116 123</p>
-          <p className="t-body-m">{CRISIS_HELP[lang]}</p>
+          <p className="t-body-m">{CRISIS_HELP[sp.crisis === "pl" || sp.crisis === "uk" || sp.crisis === "en" ? sp.crisis : lang]}</p>
         </div>
       )}
       {threads.length === 0 ? (
@@ -47,7 +47,7 @@ export default async function Messages(props: PageProps<"/me/messages">) {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
                           <span className="t-label-m truncate">{t.therapist_name}</span>
-                          {t.last_at && <span className="t-caption shrink-0 text-stone">{timeAgo(t.last_at)}</span>}
+                          {t.last_at && <span className="t-caption shrink-0 text-stone">{timeAgo(t.last_at, lang)}</span>}
                         </div>
                         <p className="t-caption truncate text-stone">{t.last_body ?? ""}</p>
                       </div>
@@ -77,7 +77,7 @@ export default async function Messages(props: PageProps<"/me/messages">) {
                     className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${m.author === "client" ? "self-end rounded-br-md bg-ink text-white" : m.author === "assistant" ? "self-start rounded-bl-md bg-lavender-soft" : "self-start rounded-bl-md bg-paper"}`}
                   >
                     <p className={`t-caption ${m.author === "client" ? "text-white/60" : "text-stone"}`}>
-                      {m.author === "client" ? d.you : m.author === "assistant" ? d.assistant : active.therapist_name} · {timeAgo(m.created_at)}
+                      {m.author === "client" ? d.you : m.author === "assistant" ? d.assistant : active.therapist_name} · {timeAgo(m.created_at, lang)}
                     </p>
                     <p className="t-body-s whitespace-pre-line">{m.body}</p>
                   </div>

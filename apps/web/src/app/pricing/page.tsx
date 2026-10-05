@@ -89,7 +89,7 @@ export default function Pricing() {
             ["Do you take a share of my sessions?", "No. Clients pay you directly through your own Stripe account. Sessio charges only the monthly plan."],
             ["Do you bring me clients?", "No — and that is deliberate. Sessio runs the practice you already have. Your clients stay yours, with no ban on sharing your own contacts."],
             ["What happens to my data if I leave?", "You can export everything. We keep nothing after the retention period you choose and the law requires."],
-            ["Is the AI optional?", "Yes. You can write records yourself. When you use voice notes, the audio stays on your device and names are removed before any AI step."],
+            ["Is the AI optional?", "Yes. You can write records yourself. When you use voice notes, the audio stays on your device, and your client's and your own name, emails, phone numbers, PESEL and street addresses are removed before the text is formatted."],
             ["Can a clinic use Sessio?", "Not yet. Multi-therapist practices are next on the roadmap — write to us and we will let you know."],
           ].map(([q, a]) => (
             <details key={q} className="group py-4">

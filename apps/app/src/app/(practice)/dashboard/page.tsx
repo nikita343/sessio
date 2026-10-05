@@ -53,7 +53,8 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
   const online = today.filter((b) => b.format === "online").length;
   const paidSum = (paidMonth ?? []).reduce((s, b) => s + b.price_minor, 0);
   const acts = (activity ?? []) as Activity[];
-  const review = acts.filter((a) => a.needs_review);
+  // urgent (possible risk) first, then everything else that needs the therapist
+  const review = acts.filter((a) => a.needs_review).sort((a, b) => Number(Boolean(b.urgent)) - Number(Boolean(a.urgent)));
   const handled = acts.filter((a) => !a.needs_review).slice(0, 4);
   const app = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
@@ -172,10 +173,10 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
             ))}
           </ul>
           {review.slice(0, 2).map((a) => (
-            <div key={a.id} className="flex flex-col gap-3 rounded-[14px] bg-clay-soft p-4 text-ink">
-              <p className="t-overline text-clay">Needs your OK</p>
+            <div key={a.id} className={`flex flex-col gap-3 rounded-[14px] p-4 text-ink ${a.urgent ? "bg-[#f6e3dc] ring-2 ring-warn/60" : "bg-clay-soft"}`}>
+              <p className={`t-overline ${a.urgent ? "text-warn" : "text-clay"}`}>{a.urgent ? "Urgent · possible risk" : "Needs your OK"}</p>
               <p className="t-body-s">{a.summary}</p>
-              <LinkButton href="/inbox" className="self-start">
+              <LinkButton href={a.ref_id ? `/inbox?c=${a.ref_id}` : "/inbox"} className="self-start">
                 Review &amp; reply
               </LinkButton>
             </div>

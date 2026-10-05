@@ -165,7 +165,7 @@ const pl: PortalDict = {
   freeUntil: (when) => `Bezpłatna zmiana do ${when}`,
   lockedChange: (h) => `Zostało mniej niż ${h} h — napisz do terapeuty, aby to zmienić.`,
   receipt: "Szczegóły",
-  privacy: "Sesje nigdy nie są nagrywane, a wideo płynie bezpośrednio między Tobą a terapeutą. Notatki terapeuty są tylko dla niego.",
+  privacy: "Sesje nigdy nie są nagrywane, a wideo płynie bezpośrednio między Tobą a terapeutą. Robocze notatki terapeuty nie są nikomu udostępniane.",
   moveTitle: "Wybierz nowy termin",
   moveBody: (n) => `Płatność przechodzi na nowy termin. ${n} od razu widzi zmianę.`,
   moveCta: (t) => `Przenieś na ${t}`,

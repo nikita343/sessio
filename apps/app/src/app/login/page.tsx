@@ -49,7 +49,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
               Explore the demo practice
             </button>
           </form>
-          <p className="t-caption mt-3 text-center text-stone">Anna Kowalska&rsquo;s practice with sample clients. Nothing real.</p>
+          <p className="t-caption mt-3 text-center text-stone">Anna Kowalska&rsquo;s practice with sample clients. Nothing real. Sample data refreshes about every hour, so test messages may disappear.</p>
           <p className="t-body-s mt-6 border-t border-line pt-4 text-center text-stone">
             Booked a session as a client?{" "}
             <Link href="/me/login" className="text-ink underline underline-offset-2">
