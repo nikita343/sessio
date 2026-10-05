@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { loadPublic } from "@/lib/public";
 import { fmtDate, pickLang, t } from "@/lib/i18n";
 import { money } from "@/lib/format";
@@ -18,7 +18,7 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
   const { therapist: th, service } = data;
   const start = typeof sp.start === "string" ? sp.start : "";
   const valid = data.days.some((d) => d.slots.some((s) => s.start === start && s.free));
-  const lang = pickLang(sp.lang, (await headers()).get("accept-language"), th.languages);
+  const lang = pickLang(sp.lang, (await cookies()).get("sessio_lang")?.value);
   if (!valid) redirect(`/${slug}?lang=${lang}&taken=1`);
   const d = t(lang);
   const end = new Date(new Date(start).getTime() + service.duration_min * 60_000).toISOString();

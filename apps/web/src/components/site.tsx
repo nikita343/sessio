@@ -5,6 +5,7 @@ import { HeaderChrome } from "@/components/header-chrome";
 import { DesktopMenu } from "@/components/nav-menu";
 import { NAV } from "@/components/nav-data";
 import { InkCanvas } from "@/components/ink";
+import { FooterBar, FooterWordmark } from "@/components/footer-interactive";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
@@ -209,31 +210,20 @@ export function Footer() {
         </div>
       </div>
       <div className="mx-auto max-w-[1440px] px-5 md:px-16">
-        <p
-          aria-hidden
-          className="font-display mt-14 select-none bg-cover bg-clip-text pb-[0.06em] font-semibold leading-[0.9] text-transparent md:mt-20"
-          style={{
-            backgroundImage: "url(/splash/texture.webp), linear-gradient(90deg,#c9dfd1,#d8d3ee,#cfe2ec)",
-            backgroundBlendMode: "multiply",
-            fontSize: "clamp(88px, 21vw, 300px)",
-            letterSpacing: "-0.065em",
-          }}
-        >
-          sessio
-        </p>
+        <FooterWordmark />
         <div className="flex flex-col gap-3 border-t border-white/10 py-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="t-caption text-white/50">© {new Date().getFullYear()} Sessio · Made in Warsaw · Data hosted in the EU</p>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
             {[
               ["Privacy", "/privacy"],
               ["DPA", "/privacy#dpa"],
               ["FAQ", "/faq"],
-              ["hello@usesessio.com", "mailto:hello@usesessio.com"],
             ].map(([l, h]) => (
               <a key={l} href={h} className="t-caption text-white/60 transition-colors hover:text-white">
                 {l}
               </a>
             ))}
+            <FooterBar />
           </div>
         </div>
       </div>

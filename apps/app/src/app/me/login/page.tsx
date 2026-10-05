@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { GoogleButton } from "@/components/google-button";
-import { LANG_ORDER, LANG_SHORT } from "@/lib/i18n";
+import { LangSwitcher } from "@/components/lang-switcher";
 import { portalLang, pt } from "@/lib/portal";
-import { setLang, signInDemoClient } from "../actions";
+import { signInDemoClient } from "../actions";
 
 export const metadata: Metadata = { title: "Sign in — your sessions" };
 
@@ -21,14 +21,7 @@ export default async function ClientLogin(props: PageProps<"/me/login">) {
         <a href="https://usesessio.com">
           <Logo size={26} />
         </a>
-        <form action={setLang} className="t-label-m flex gap-1 text-stone">
-          <input type="hidden" name="back" value="/me/login" />
-          {LANG_ORDER.map((l) => (
-            <button key={l} name="lang" value={l} className={`rounded-full px-2 py-1 ${l === lang ? "text-ink" : "hover:text-ink"}`}>
-              {LANG_SHORT[l]}
-            </button>
-          ))}
-        </form>
+        <LangSwitcher lang={lang} />
       </header>
       <div className="relative flex flex-1 items-center justify-center px-5 pb-20">
         <div className="w-full max-w-[420px] rounded-[24px] border border-line bg-surface/95 p-7 shadow-[var(--shadow-float)]">

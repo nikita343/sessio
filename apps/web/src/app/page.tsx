@@ -277,7 +277,7 @@ const CASES = [
 
 function UseCasesTeaser() {
   return (
-    <section className="mx-auto max-w-[1440px] px-5 pb-[140px] md:px-16">
+    <section className="mx-auto max-w-[1440px] px-5 pb-[140px] pt-[100px] md:px-16 md:pt-[140px]">
       <div data-reveal className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-col gap-4">
           <Pill>Use cases</Pill>

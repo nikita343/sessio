@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPublicBooking } from "@/lib/booking-public";
@@ -34,7 +35,7 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
     }
   }
 
-  const lang = pickLang(sp.lang, null, ["pl"]);
+  const lang = pickLang(sp.lang, (await cookies()).get("sessio_lang")?.value);
   const d = t(lang);
   const whenLong = fmtDate(b.starts_at, b.timezone, lang, { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit", hour12: false });
   const app = process.env.NEXT_PUBLIC_APP_URL ?? "";

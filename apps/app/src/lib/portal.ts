@@ -50,7 +50,7 @@ export async function portalLang(param?: unknown): Promise<Lang> {
   const jar = await cookies();
   const fromParam = typeof param === "string" && ["pl", "uk", "en"].includes(param) ? (param as Lang) : null;
   const saved = jar.get("sessio_lang")?.value;
-  return fromParam ?? (saved && ["pl", "uk", "en"].includes(saved) ? (saved as Lang) : pickLang(undefined, (await headers()).get("accept-language"), ["pl", "uk", "en"]));
+  return fromParam ?? pickLang(undefined, saved);
 }
 
 /** Signed-in client (anyone with a verified email), or bounce to the client sign-in. */

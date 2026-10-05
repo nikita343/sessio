@@ -1,6 +1,7 @@
 export type Lang = "pl" | "uk" | "en";
-export const LANG_ORDER: Lang[] = ["pl", "uk", "en"];
+export const LANG_ORDER: Lang[] = ["pl", "en", "uk"];
 export const LANG_SHORT: Record<Lang, string> = { pl: "PL", uk: "UA", en: "EN" };
+export const LANG_NAME: Record<Lang, string> = { pl: "Polski", en: "English", uk: "Українська" };
 
 const dict = {
   en: {
@@ -157,13 +158,11 @@ export function t(lang: Lang): Dict {
   return dict[lang] as Dict;
 }
 
-export function pickLang(param: unknown, accept: string | null, therapistLangs: string[] = []): Lang {
+/** Language for public pages: an explicit ?lang=, then the visitor's saved choice, then Polish. */
+export function pickLang(param: unknown, saved?: string | null): Lang {
   if (param === "pl" || param === "uk" || param === "en") return param;
-  const a = (accept ?? "").toLowerCase();
-  if (a.startsWith("uk") || a.startsWith("ru")) return "uk";
-  if (a.startsWith("pl")) return "pl";
-  if (a.startsWith("en")) return "en";
-  return therapistLangs.includes("pl") ? "pl" : "en";
+  if (saved === "pl" || saved === "uk" || saved === "en") return saved;
+  return "pl";
 }
 
 export const DATE_LOCALE: Record<Lang, string> = { pl: "pl-PL", uk: "uk-UA", en: "en-GB" };

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createHmac } from "node:crypto";
+import { createClient, SERVER_SECRET } from "@/lib/supabase/server";
 import { Logo } from "@/components/logo";
 import { RoomClient } from "./room-client";
 
@@ -24,9 +25,13 @@ export default async function Room(props: PageProps<"/room/[room]">) {
       </main>
     );
 
+  // The signalling channel name is a server-signed secret handed out only after the access check,
+  // so knowing the room link's name alone is not enough to listen in on call setup.
+  const topic = createHmac("sha256", SERVER_SECRET()).update(`room:${room}:${access.booking_id}`).digest("hex").slice(0, 40);
+
   return (
     <RoomClient
-      room={room}
+      topic={topic}
       role={access.role}
       me={access.display_name}
       other={access.other_name}

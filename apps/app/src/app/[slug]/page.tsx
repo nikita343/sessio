@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { loadPublic } from "@/lib/public";
 import { pickLang, t } from "@/lib/i18n";
 import { money, LANGS, tzLabel } from "@/lib/format";
@@ -25,7 +25,7 @@ export default async function BookingPage(props: PageProps<"/[slug]">) {
   const data = await loadPublic(slug);
   if (!data) notFound();
   const { therapist: th, service, days } = data;
-  const lang = pickLang(sp.lang, (await headers()).get("accept-language"), th.languages);
+  const lang = pickLang(sp.lang, (await cookies()).get("sessio_lang")?.value);
   const d = t(lang);
   const formats = th.formats.length > 1 ? d.onlineAndInPerson : d[th.formats[0] ?? "online"];
   const langs = th.languages.map((l) => LANGS[l] ?? l).join(" · ");
