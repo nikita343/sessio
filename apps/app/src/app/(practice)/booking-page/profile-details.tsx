@@ -49,6 +49,13 @@ export function ProfileDetails({ therapist: t, saved, lang }: { therapist: Thera
             </span>
             <Input name="register_number" defaultValue={t.register_number ?? ""} placeholder={c.registerPlaceholder} />
           </label>
+          <label className="flex items-start gap-3 rounded-[14px] border border-line bg-paper p-4 sm:col-span-2">
+            <input type="checkbox" name="listed" defaultChecked={!!t.listed} className="mt-1 size-4 accent-[var(--color-sage)]" />
+            <span className="flex flex-col gap-0.5">
+              <span className="t-label-m">{c.listed}</span>
+              <span className="t-caption text-stone">{c.listedHint}</span>
+            </span>
+          </label>
           <label className="flex flex-col gap-1.5 sm:col-span-2">
             <span className="t-label-m">
               {c.practiceName} <span className="t-caption text-stone">{c.practiceNameHint}</span>

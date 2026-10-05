@@ -275,7 +275,7 @@ export default async function BookingPage(props: PageProps<"/[slug]">) {
             </Block>
           )}
 
-          <div className="border-t border-line pt-6">
+          <div id="ask" className="scroll-mt-6 border-t border-line pt-6">
             <AskBox slug={slug} lang={lang} />
           </div>
         </div>

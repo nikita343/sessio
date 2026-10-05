@@ -140,6 +140,7 @@ export async function saveProfileDetails(form: FormData) {
       memberships: text("memberships", 1000),
       register_number: text("register_number", 40),
       practice_name: text("practice_name", 160),
+      listed: form.get("listed") === "on",
       practising_since: since >= 1960 && since <= new Date().getFullYear() ? since : null,
       profile_i18n: i18n,
     })

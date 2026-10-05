@@ -5,7 +5,8 @@ import { HeaderChrome } from "@/components/header-chrome";
 import { DesktopMenu } from "@/components/nav-menu";
 import { NAV } from "@/components/nav-data";
 import { InkCanvas } from "@/components/ink";
-import { FooterBar, FooterWordmark } from "@/components/footer-interactive";
+import { FooterBar } from "@/components/footer-interactive";
+import { FooterDots } from "@/components/footer-dots";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
@@ -141,7 +142,7 @@ export function Photo({ src, alt, ratio = "aspect-[3/2]", className = "", priori
 }
 
 export function Footer() {
-  const cols: [string, [string, string][]][] = [
+  const groups: [string, [string, string][]][] = [
     [
       "Product",
       [
@@ -149,6 +150,11 @@ export function Footer() {
         ["Payments", "/product/payments"],
         ["Private video", "/product/video"],
         ["Voice-memo notes", "/product/notes"],
+      ],
+    ],
+    [
+      "Features",
+      [
         ["Admin assistant", "/product/assistant"],
         ["Client portal", "/product/client-portal"],
         ["Client agreements", "/product/agreements"],
@@ -161,74 +167,101 @@ export function Footer() {
         ["For therapists", "/for-therapists"],
         ["For clients", "/for-clients"],
         ["Use cases", "/use-cases"],
-        ["Demo booking page", `${APP_URL}/anna-kowalska`],
-        ["Client sign-in", `${APP_URL}/me/login`],
       ],
     ],
     [
-      "Resources",
+      "Get started",
       [
-        ["Blog", "/blog"],
-        ["Guides", "/guides"],
-        ["Webinars", "/webinars"],
-        ["FAQ", "/faq"],
+        ["Become a founding therapist", "/#waitlist"],
+        ["Explore the demo", `${APP_URL}/login`],
+        ["Find a therapist", `${APP_URL}/find`],
+        ["Client sign-in", `${APP_URL}/me/login`],
       ],
     ],
     [
       "Company",
       [
         ["About", "/about"],
+        ["Contact", "mailto:hello@usesessio.com"],
+      ],
+    ],
+    [
+      "Learn",
+      [
+        ["Blog", "/blog"],
+        ["Guides", "/guides"],
+        ["FAQ", "/faq"],
+      ],
+    ],
+    ["Connect", [["Webinars", "/webinars"], ["Demo booking page", `${APP_URL}/anna-kowalska`]]],
+    [
+      "Trust",
+      [
         ["Privacy", "/privacy"],
         ["Privacy policy", "/privacy-policy"],
         ["Data processing (DPA)", "/privacy#dpa"],
-        ["Contact", "mailto:hello@usesessio.com"],
       ],
     ],
   ];
   return (
-    <footer className="overflow-hidden bg-ink text-white">
-      <div className="mx-auto grid max-w-[1440px] gap-12 px-5 pt-16 md:px-16 md:pt-20 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-20">
-        <div className="flex max-w-[360px] flex-col gap-5">
-          <Logo size={26} tone="inverse" />
-          <p className="t-body-m text-white/65">Practice software for independent psychologists and therapists in Poland. Booking, payments, video and notes — 0% commission.</p>
-          <div className="flex flex-wrap gap-2">
-            <a href="/#waitlist" className="t-label-m inline-flex h-11 items-center rounded-full bg-white px-5 text-ink transition-colors hover:bg-white/90">
-              Become a founding therapist
-            </a>
-            <a href={`${APP_URL}/login`} className="t-label-m inline-flex h-11 items-center rounded-full border border-white/20 px-5 text-white transition-colors hover:border-white/50">
-              Sign in
-            </a>
+    <footer className="overflow-hidden border-t border-line bg-surface text-ink">
+      <div className="mx-auto max-w-[1440px] px-5 md:px-16">
+        <div className="grid gap-12 pt-16 md:pt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] lg:gap-16">
+          <div className="flex max-w-[340px] flex-col gap-5">
+            <Logo size={26} />
+            <p className="t-body-s text-stone">
+              Practice software for independent psychologists and therapists in Poland. Booking, payments, video and notes — 0% commission.
+            </p>
+            <address className="t-body-s not-italic text-stone">
+              Warsaw, Poland
+              <br />
+              <a href="mailto:hello@usesessio.com" className="text-ink underline underline-offset-2 hover:text-sage">
+                hello@usesessio.com
+              </a>
+            </address>
+            <div className="flex items-center gap-3">
+              <span className="relative grid size-14 shrink-0 place-items-center rounded-full border-2 border-sage/25 text-center">
+                <span className="absolute inset-0 rounded-full border-2 border-transparent border-b-sage" aria-hidden />
+                <span className="font-display text-[11px] font-semibold leading-[1.05] tracking-[-0.01em] text-sage">
+                  GDPR
+                  <br />
+                  EU
+                </span>
+              </span>
+              <p className="t-caption text-stone">
+                Data hosted in the EU (Ireland). Data processing agreement under Art. 28 GDPR for every practice.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:gap-x-10">
+            {groups.map(([title, links]) => (
+              <div key={title} className="flex flex-col gap-2.5">
+                <p className="t-body-s text-stone">{title}</p>
+                {links.map(([label, href]) => (
+                  <a key={label} href={href} className="t-label-m w-fit text-ink/85 transition-colors hover:text-sage">
+                    {label}
+                  </a>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 lg:gap-x-14">
-          {cols.map(([title, links]) => (
-            <div key={title} className="flex flex-col gap-3">
-              <p className="t-overline text-white/45">{title}</p>
-              {links.map(([label, href]) => (
-                <a key={label} href={href} className="t-body-s w-fit text-white/85 transition-colors hover:text-white">
-                  {label}
-                </a>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="mx-auto max-w-[1440px] px-5 md:px-16">
-        <FooterWordmark />
-        <div className="flex flex-col gap-3 border-t border-white/10 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="t-caption text-white/50">© {new Date().getFullYear()} Sessio · Made in Warsaw · Data hosted in the EU</p>
+        <div className="mt-12 flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between md:mt-14">
+          <p className="t-caption text-stone">© {new Date().getFullYear()} Sessio · Made in Warsaw</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
             {[
-              ["Privacy policy", "/privacy-policy"],
+              ["Privacy", "/privacy-policy"],
               ["DPA", "/privacy#dpa"],
-              ["FAQ", "/faq"],
             ].map(([l, h]) => (
-              <a key={l} href={h} className="t-caption text-white/60 transition-colors hover:text-white">
+              <a key={l} href={h} className="t-label-m text-ink/80 transition-colors hover:text-sage">
                 {l}
               </a>
             ))}
-            <FooterBar />
+            <FooterBar tone="light" />
           </div>
+        </div>
+        <div className="pb-6 pt-2 md:pb-10">
+          <FooterDots />
         </div>
       </div>
     </footer>

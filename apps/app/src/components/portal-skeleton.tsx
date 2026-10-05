@@ -14,8 +14,8 @@ export function PortalSkeletonShell({ current, children }: { current: "sessions"
       <header className="relative z-10 mx-auto flex h-16 max-w-[1040px] items-center justify-between gap-3 px-5" aria-hidden="true">
         <Logo size={24} />
         <div className="flex items-center gap-1 rounded-full border border-line bg-surface/90 p-1">
-          {(["sessions", "messages"] as const).map((k) => (
-            <div key={k} className={`h-8 w-[84px] rounded-full sm:w-[96px] ${current === k ? "bg-ink" : ""}`} />
+          {(["sessions", "messages", "find", "details"] as const).map((k) => (
+            <div key={k} className={`h-8 w-[52px] rounded-full sm:w-[88px] ${current === k ? "bg-ink" : ""}`} />
           ))}
         </div>
         <SkeletonAvatar size={34} />

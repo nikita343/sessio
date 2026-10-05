@@ -218,6 +218,8 @@ export const PROFILE_T: Record<
     optional: string;
     registerPlaceholder: string;
     practiceName: string;
+    listed: string;
+    listedHint: string;
     practiceNameHint: string;
     practiceNamePlaceholder: string;
     helps: string;
@@ -256,6 +258,8 @@ export const PROFILE_T: Record<
     optional: "(opcjonalnie)",
     registerPlaceholder: "Od 2028 r.: Rejestr Psychologów",
     practiceName: "Nazwa praktyki do dokumentacji",
+    listed: "Pokaż mój profil w wyszukiwarce Sessio",
+    listedHint: "Klienci, którzy wypełnią krótką ankietę na usesessio.com, zobaczą Cię, jeśli pasujesz do ich potrzeb. Bez prowizji i opłat za pozycję.",
     practiceNameHint: "(art. 28 — widoczna we wpisach)",
     practiceNamePlaceholder: "np. Gabinet Psychologiczny Anna Kowalska, NIP 000-000-00-00",
     helps: "W czym pomagasz",
@@ -292,6 +296,8 @@ export const PROFILE_T: Record<
     optional: "(optional)",
     registerPlaceholder: "From 2028: Register of Psychologists",
     practiceName: "Practice name for records",
+    listed: "Show my profile in Sessio’s therapist finder",
+    listedHint: "Clients who answer the short questionnaire on usesessio.com will see you when you fit their needs. No commission, no paid placement.",
     practiceNameHint: "(Art. 28 — shown on records)",
     practiceNamePlaceholder: "e.g. Anna Kowalska Psychology Practice, tax ID 000-000-00-00",
     helps: "What you help with",
@@ -328,6 +334,8 @@ export const PROFILE_T: Record<
     optional: "(необов’язково)",
     registerPlaceholder: "З 2028 р.: Реєстр психологів",
     practiceName: "Назва практики для документації",
+    listed: "Показувати мій профіль у пошуку Sessio",
+    listedHint: "Клієнти, які заповнять коротку анкету на usesessio.com, побачать вас, якщо ви їм підходите. Без комісії та платних позицій.",
     practiceNameHint: "(ст. 28 — видно в записах)",
     practiceNamePlaceholder: "напр. Психологічний кабінет Анни Ковальської",
     helps: "З чим ви допомагаєте",

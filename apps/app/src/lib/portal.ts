@@ -53,6 +53,17 @@ export async function portalLang(param?: unknown): Promise<Lang> {
   return fromParam ?? pickLang(undefined, saved);
 }
 
+/** The signed-in person's portal profile, or null for visitors (pages that work either way). */
+export async function optionalClient(): Promise<MyProfile | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data } = await supabase.rpc("my_profile");
+  return ((Array.isArray(data) ? data[0] : data) as MyProfile | null) ?? { email: user.email ?? "", full_name: "", avatar_url: null, is_therapist: false };
+}
+
 /** Signed-in client (anyone with a verified email), or bounce to the client sign-in. */
 export async function requireClient(next = "/me") {
   const supabase = await createClient();

@@ -125,7 +125,8 @@ export function FooterWordmark() {
 }
 
 /** Small live details for the footer bar: Warsaw time, copy-to-clipboard email, back to top. */
-export function FooterBar() {
+export function FooterBar({ tone = "dark" }: { tone?: "dark" | "light" }) {
+  const muted = tone === "light" ? "text-stone hover:text-ink" : "text-white/60 hover:text-white";
   const [time, setTime] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -149,20 +150,20 @@ export function FooterBar() {
 
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <span className="t-caption inline-flex items-center gap-2 text-white/60">
+      <span className={`t-caption inline-flex items-center gap-2 ${tone === "light" ? "text-stone" : "text-white/60"}`}>
         <span className="relative flex size-2">
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#9fd3b6] opacity-60" />
-          <span className="relative inline-flex size-2 rounded-full bg-[#9fd3b6]" />
+          <span className={`absolute inline-flex size-full animate-ping rounded-full opacity-60 ${tone === "light" ? "bg-sage" : "bg-[#9fd3b6]"}`} />
+          <span className={`relative inline-flex size-2 rounded-full ${tone === "light" ? "bg-sage" : "bg-[#9fd3b6]"}`} />
         </span>
         Warsaw {time ?? "--:--"}
       </span>
-      <button type="button" onClick={copy} className="t-caption text-white/60 transition-colors hover:text-white">
+      <button type="button" onClick={copy} className={`t-caption transition-colors ${muted}`}>
         {copied ? "Copied ✓" : "hello@usesessio.com"}
       </button>
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
-        className="t-caption group inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-white/70 transition-colors hover:border-white/40 hover:text-white"
+        className={`t-caption group inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 transition-colors ${tone === "light" ? "border-line-strong text-ink/75 hover:border-ink/40 hover:text-ink" : "border-white/15 text-white/70 hover:border-white/40 hover:text-white"}`}
       >
         Back to top
         <span aria-hidden className="transition-transform group-hover:-translate-y-0.5">

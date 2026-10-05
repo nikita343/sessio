@@ -30,6 +30,7 @@ export type Therapist = {
   stripe_account_id: string | null;
   stripe_charges_enabled?: boolean;
   published: boolean;
+  listed?: boolean;
 };
 
 export type Service = {
