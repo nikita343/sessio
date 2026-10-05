@@ -54,7 +54,7 @@ export default async function PostPage(props: PageProps<"/blog/[slug]">) {
         </Link>
         <div className="mt-6 flex flex-col gap-4">
           <Pill tone="sage">{post.category}</Pill>
-          <h1 className="t-display-l !text-[clamp(34px,4.4vw,52px)]">{post.title}</h1>
+          <h1 data-split className="t-display-l !text-[clamp(34px,4.4vw,52px)]">{post.title}</h1>
           <p className="t-body-l text-stone">{post.dek}</p>
           <p className="t-caption text-stone">
             {post.author} · {fmtDate(post.date)} · {post.readMin} min read
@@ -62,7 +62,7 @@ export default async function PostPage(props: PageProps<"/blog/[slug]">) {
         </div>
       </article>
       <div className="mx-auto max-w-[1100px] px-5">
-        <div className="relative aspect-[16/8] overflow-hidden rounded-[28px]">
+        <div data-reveal className="relative aspect-[4/3] overflow-hidden rounded-[22px] sm:aspect-[16/8] sm:rounded-[28px]">
           <Image src={post.image} alt="" fill priority sizes="100vw" className="object-cover" />
         </div>
       </div>

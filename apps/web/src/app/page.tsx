@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { WaitlistForm } from "@/components/waitlist-form";
-import { APP_URL, ButtonLink, Footer, MobileNav, Nav, Pill, Splash, TextLink } from "@/components/site";
+import { APP_URL, ButtonLink, Footer, Nav, Pill, Splash, TextLink } from "@/components/site";
 import { POSTS, fmtDate } from "@/content/posts";
 import { WEBINARS, fmtWhen } from "@/content/webinars";
 import { Story } from "@/components/story";
@@ -14,7 +14,6 @@ function Hero() {
       <Splash src="/splash/hero.webp" drift />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[254px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav />
-      <MobileNav />
       <div className="relative mx-auto flex max-w-[680px] flex-col items-center gap-6 px-5 pb-24 pt-16 text-center md:pt-[120px]">
         <span data-hero-fade>
           <Pill>For psychologists &amp; therapists</Pill>
@@ -44,7 +43,7 @@ function Hero() {
 function Showcase() {
   return (
     <section id="how" className="px-5 pb-[120px] md:px-16">
-      <div data-zoom className="relative mx-auto aspect-[1312/700] max-w-[1312px] overflow-hidden rounded-[20px] bg-sunken md:rounded-[32px]">
+      <div data-zoom className="relative mx-auto aspect-[4/5] max-w-[1312px] overflow-hidden rounded-[20px] bg-sunken sm:aspect-[1312/700] md:rounded-[32px]">
         <Splash src="/splash/showcase.webp" drift />
         <Image
           src="/img/dash.webp"
@@ -52,8 +51,7 @@ function Showcase() {
           width={2256}
           height={1500}
           priority
-          className="absolute"
-          style={{ left: "0.915%", top: "1.714%", width: "85.98%", height: "auto" }}
+          className="absolute left-[5%] top-[7%] h-auto w-[165%] max-w-none rounded-[10px] sm:left-[0.915%] sm:top-[1.714%] sm:w-[85.98%] sm:rounded-none"
         />
         <Image
           src="/img/mobile.webp"
@@ -61,8 +59,7 @@ function Showcase() {
           width={849}
           height={1449}
           data-rise="140"
-          className="absolute"
-          style={{ left: "66.77%", top: "8.571%", width: "32.36%", height: "auto" }}
+          className="absolute left-[40%] top-[20%] h-auto w-[56%] sm:left-[66.77%] sm:top-[8.571%] sm:w-[32.36%]"
         />
       </div>
     </section>
@@ -122,9 +119,9 @@ function Feature({
           <p className="t-body-l max-w-[612px] text-stone">{body}</p>
           <TextLink href={link[1]}>{link[0]}</TextLink>
         </div>
-        <div data-reveal className="relative flex aspect-[620/540] w-full items-center justify-center overflow-hidden rounded-[28px] bg-sunken md:w-[620px] md:shrink-0">
+        <div data-reveal className="relative flex w-full items-center justify-center overflow-hidden rounded-[28px] bg-sunken px-4 py-10 md:aspect-[620/540] md:w-[620px] md:shrink-0 md:p-0">
           <Splash src={splash} drift />
-          <div className="relative w-[82%] max-w-[420px]">{children}</div>
+          <div className="relative w-full max-w-[420px] md:w-[82%]">{children}</div>
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { HeaderChrome, type NavItem } from "@/components/header-chrome";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.usesessio.com";
 
@@ -52,17 +53,17 @@ export function TextLink({ href, children }: { href: string; children: React.Rea
   );
 }
 
-const NAV: [string, string][] = [
-  ["Product", "/product"],
-  ["Use cases", "/use-cases"],
-  ["Pricing", "/pricing"],
-  ["Blog", "/blog"],
-  ["Webinars", "/webinars"],
+const NAV: NavItem[] = [
+  ["Product", "/product", "Booking, video, notes and the assistant"],
+  ["Use cases", "/use-cases", "Who Sessio is for"],
+  ["Pricing", "/pricing", "149 zł a month, all-in"],
+  ["Blog", "/blog", "The new Act, money and privacy"],
+  ["Webinars", "/webinars", "Free live sessions"],
 ];
 
 export function Nav({ current }: { current?: string }) {
   return (
-    <header className="relative z-10 mx-auto flex h-[90px] max-w-[1440px] items-center justify-between px-5 md:px-16">
+    <header className="relative z-10 mx-auto flex h-[76px] max-w-[1440px] items-center justify-between gap-3 px-5 md:h-[90px] md:px-16">
       <Link href="/" aria-label="Sessio home">
         <Logo size={28} />
       </Link>
@@ -73,26 +74,23 @@ export function Nav({ current }: { current?: string }) {
           </Link>
         ))}
       </nav>
-      <div className="flex items-center gap-2">
-        <a href={`${APP_URL}/login`} className="t-label-m hidden px-3 text-ink/80 hover:text-ink sm:inline">
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <a href={`${APP_URL}/login`} className="t-label-m hidden px-3 text-ink/80 hover:text-ink lg:inline">
           Sign in
         </a>
-        <ButtonLink href="/#waitlist">Join the waitlist</ButtonLink>
+        <Link href="/#waitlist" className="t-label-m inline-flex h-11 items-center justify-center rounded-full bg-sage px-5 text-white transition-colors hover:bg-sage-hover sm:px-6">
+          <span className="sm:hidden">Join</span>
+          <span className="hidden sm:inline">Join the waitlist</span>
+        </Link>
+        <HeaderChrome items={NAV} current={current} />
       </div>
     </header>
   );
 }
 
+/** Kept for older imports; the mobile menu now lives in <Nav />. */
 export function MobileNav() {
-  return (
-    <nav className="mx-auto flex max-w-[1440px] gap-1 overflow-x-auto px-5 pb-2 lg:hidden" aria-label="Sections">
-      {NAV.map(([label, href]) => (
-        <Link key={label} href={href} className="t-label-m shrink-0 rounded-full border border-line bg-surface/70 px-3 py-1.5 text-ink/80">
-          {label}
-        </Link>
-      ))}
-    </nav>
-  );
+  return null;
 }
 
 /** Standard top of an inner page: splash, nav and a centred title block. */
@@ -116,7 +114,6 @@ export function PageHero({
       <Splash src={splash} className="opacity-80" drift />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[200px] bg-gradient-to-b from-paper/0 to-paper" />
       <Nav current={current} />
-      <MobileNav />
       <div className="relative mx-auto flex max-w-[760px] flex-col items-center gap-5 px-5 pb-20 pt-12 text-center md:pb-24 md:pt-20">
         {pill && (
           <span data-hero-fade>

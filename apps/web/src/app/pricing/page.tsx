@@ -41,7 +41,7 @@ export default function Pricing() {
       />
       <section className="mx-auto grid max-w-[1120px] gap-6 px-5 pb-[110px] md:grid-cols-[1.1fr_1fr]">
         <div data-reveal className="flex flex-col gap-6 rounded-[28px] bg-surface p-8 shadow-[var(--shadow-card)] md:p-10">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="t-title-m">Sessio</p>
             <Pill tone="sage">Founding price, locked for life</Pill>
           </div>
