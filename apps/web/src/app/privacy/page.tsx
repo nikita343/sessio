@@ -57,7 +57,7 @@ const SECTIONS: [string, string, string[]][] = [
 export default function Privacy() {
   return (
     <main>
-      <PageHero pill="Privacy" title="Privacy, in plain words." body="Therapy data is some of the most sensitive there is. Here is exactly what we do with it — and what we never do." />
+      <PageHero current="/privacy" pill="Privacy" title="Privacy, in plain words." body="Therapy data is some of the most sensitive there is. Here is exactly what we do with it — and what we never do." />
       <div className="mx-auto flex max-w-[720px] flex-col gap-10 px-5 pb-[110px]">
         {SECTIONS.map(([id, title, items]) => (
           <section key={id} id={id} className="scroll-mt-10">
@@ -72,7 +72,14 @@ export default function Privacy() {
             </ul>
           </section>
         ))}
-        <p className="t-caption text-stone">Last updated 5 October 2026. Sessio is in early access; this page will be replaced by a full privacy policy before general availability.</p>
+        <div className="flex flex-col gap-3 rounded-[20px] bg-surface p-6">
+          <p className="t-title-m">The full privacy policy</p>
+          <p className="t-body-s text-stone">Legal bases, every provider we use and where, how long we keep data, cookies and how to use your GDPR rights.</p>
+          <a href="/privacy-policy" className="t-label-m w-fit text-sage hover:underline">
+            Read the privacy policy →
+          </a>
+        </div>
+        <p className="t-caption text-stone">Last updated 5 October 2026.</p>
       </div>
       <Footer />
     </main>

@@ -145,10 +145,13 @@ export function Footer() {
     [
       "Product",
       [
-        ["Booking & payments", "/product#booking"],
-        ["Private video", "/product#video"],
-        ["Voice-memo notes", "/product#notes"],
-        ["Admin assistant", "/product#assistant"],
+        ["Booking page", "/product/booking"],
+        ["Payments", "/product/payments"],
+        ["Private video", "/product/video"],
+        ["Voice-memo notes", "/product/notes"],
+        ["Admin assistant", "/product/assistant"],
+        ["Client portal", "/product/client-portal"],
+        ["Client agreements", "/product/agreements"],
         ["Pricing", "/pricing"],
       ],
     ],
@@ -176,6 +179,7 @@ export function Footer() {
       [
         ["About", "/about"],
         ["Privacy", "/privacy"],
+        ["Privacy policy", "/privacy-policy"],
         ["Data processing (DPA)", "/privacy#dpa"],
         ["Contact", "mailto:hello@usesessio.com"],
       ],
@@ -215,7 +219,7 @@ export function Footer() {
           <p className="t-caption text-white/50">© {new Date().getFullYear()} Sessio · Made in Warsaw · Data hosted in the EU</p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
             {[
-              ["Privacy", "/privacy"],
+              ["Privacy policy", "/privacy-policy"],
               ["DPA", "/privacy#dpa"],
               ["FAQ", "/faq"],
             ].map(([l, h]) => (

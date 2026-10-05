@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Icon } from "@/components/icons";
+import { PRODUCTS } from "@/content/products";
 import { APP_URL, ClosingCta, Footer, PageHero, Photo, Pill, TextLink } from "@/components/site";
 
 export const metadata: Metadata = {
@@ -85,13 +88,36 @@ export default function ProductPage() {
         body="Booking, prepayment, private video and documentation used to mean four tools and a spreadsheet. Sessio is one — built for therapists who already have clients."
       >
         <div className="flex flex-wrap justify-center gap-2">
-          {SECTIONS.map((s) => (
-            <a key={s.id} href={`#${s.id}`} className="t-label-m rounded-full border border-line-strong bg-surface/80 px-4 py-2 hover:border-ink/30">
-              {s.pill}
-            </a>
+          {PRODUCTS.map((p) => (
+            <Link key={p.slug} href={`/product/${p.slug}`} className="t-label-m rounded-full border border-line-strong bg-surface/80 px-4 py-2 hover:border-ink/30">
+              {p.name}
+            </Link>
           ))}
         </div>
       </PageHero>
+
+      <section className="mx-auto max-w-[1312px] px-5 pb-[110px] md:px-8 lg:px-0">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PRODUCTS.map((p) => (
+            <Link key={p.slug} href={`/product/${p.slug}`} data-reveal className="group flex flex-col gap-4 rounded-[24px] bg-surface p-6 transition-shadow hover:shadow-[var(--shadow-card)]">
+              <span className="flex size-11 items-center justify-center rounded-[14px] bg-sage-soft text-sage">
+                <Icon name={p.icon} />
+              </span>
+              <h2 className="t-title-m">{p.name}</h2>
+              <p className="t-body-s flex-1 text-stone">{p.hint}</p>
+              <span className="t-label-m text-sage">
+                Learn more <span aria-hidden className="inline-block transition-transform group-hover:translate-x-0.5">→</span>
+              </span>
+            </Link>
+          ))}
+          <Link href="/pricing" data-reveal className="group flex flex-col justify-between gap-4 rounded-[24px] bg-ink p-6 text-white">
+            <span className="t-overline text-white/60">All of it</span>
+            <span className="font-display text-[44px] font-medium leading-none tracking-[-0.05em]">149 zł</span>
+            <span className="t-body-s text-white/70">a month, everything included, 0% commission</span>
+            <span className="t-label-m">See pricing →</span>
+          </Link>
+        </div>
+      </section>
 
       {SECTIONS.map((s, i) => (
         <section key={s.id} id={s.id} className="mx-auto max-w-[1440px] scroll-mt-10 px-5 pb-[110px] md:px-16">
@@ -108,6 +134,7 @@ export default function ProductPage() {
                   </li>
                 ))}
               </ul>
+              <TextLink href={`/product/${s.id}`}>More about {s.pill.toLowerCase()}</TextLink>
             </div>
             <Photo src={s.photo} alt={s.alt} className="w-full md:w-[620px] md:shrink-0" priority={i === 0} />
           </div>

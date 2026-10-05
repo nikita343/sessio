@@ -57,7 +57,7 @@ const FEATURES: { icon: IconName; title: string; points: string[]; href: string 
     icon: "video",
     title: "A private video room",
     points: ["One room per session, link sent automatically", "Opens 10 minutes before the start", "Peer-to-peer and encrypted; never recorded", "Works in the browser — nothing to install"],
-    href: "/product#video",
+    href: "/product/video",
   },
   {
     icon: "mic",
@@ -81,13 +81,13 @@ const FEATURES: { icon: IconName; title: string; points: string[]; href: string 
     icon: "chat",
     title: "Assistant and inbox",
     points: ["Answers price, time and “how does it work” questions", "Uses only your settings, in the client's language", "Anything personal waits for you", "Never gives clinical advice"],
-    href: "/product#assistant",
+    href: "/product/assistant",
   },
   {
     icon: "spark",
     title: "Reminders that send themselves",
     points: ["Confirmation with a calendar invite", "Reminder with the video link the day before", "Notice when a client moves or cancels", "Your Today screen shows what happened"],
-    href: "/product#booking",
+    href: "/product/booking",
   },
 ];
 
