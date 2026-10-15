@@ -207,12 +207,16 @@ export function PracticeForm({
           </div>
           {!perDay ? (
             <div className="flex flex-wrap items-end gap-4">
-              <Field label={o.from} htmlFor="start_all">
-                <input id="start_all" type="time" step={1800} value={shared.start} onChange={(e) => setAll("start", e.target.value)} className={`${inputCls} w-[140px]`} />
-              </Field>
-              <Field label={o.to} htmlFor="end_all">
-                <input id="end_all" type="time" step={1800} value={shared.end} onChange={(e) => setAll("end", e.target.value)} className={`${inputCls} w-[140px]`} />
-              </Field>
+              <div className="w-[150px]">
+                <Field label={o.from} htmlFor="start_all">
+                  <input id="start_all" type="time" step={1800} value={shared.start} onChange={(e) => setAll("start", e.target.value)} className={inputCls} />
+                </Field>
+              </div>
+              <div className="w-[150px]">
+                <Field label={o.to} htmlFor="end_all">
+                  <input id="end_all" type="time" step={1800} value={shared.end} onChange={(e) => setAll("end", e.target.value)} className={inputCls} />
+                </Field>
+              </div>
               <button type="button" onClick={() => setPerDay(true)} className="t-label-m mb-3 text-sage hover:underline">
                 {o.perDay}
               </button>
@@ -224,11 +228,17 @@ export function PracticeForm({
                 const h = hours.find((x) => x.weekday === d);
                 if (!h) return null;
                 return (
-                  <div key={d} className="flex min-h-12 flex-wrap items-center gap-3 py-2">
-                    <span className="t-label-m w-12">{label}</span>
-                    <input type="time" step={1800} value={h.start} onChange={(e) => setTime(d, "start", e.target.value)} className={`${inputCls} h-9 w-[110px]`} aria-label={t.dayStart(label)} />
-                    <span className="text-stone">–</span>
-                    <input type="time" step={1800} value={h.end} onChange={(e) => setTime(d, "end", e.target.value)} className={`${inputCls} h-9 w-[110px]`} aria-label={t.dayEnd(label)} />
+                  <div key={d} className="flex min-h-12 items-center gap-3 py-2">
+                    <span className="t-label-m w-12 shrink-0">{label}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-[120px] shrink-0">
+                        <input type="time" step={1800} value={h.start} onChange={(e) => setTime(d, "start", e.target.value)} className={`${inputCls} h-9`} aria-label={t.dayStart(label)} />
+                      </div>
+                      <span className="text-stone">–</span>
+                      <div className="w-[120px] shrink-0">
+                        <input type="time" step={1800} value={h.end} onChange={(e) => setTime(d, "end", e.target.value)} className={`${inputCls} h-9`} aria-label={t.dayEnd(label)} />
+                      </div>
+                    </div>
                   </div>
                 );
               })}
