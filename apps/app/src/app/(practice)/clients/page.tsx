@@ -4,7 +4,8 @@ import { getTherapist } from "@/lib/therapist";
 import { uiLang, pick } from "@/lib/ui-lang";
 import { CLIENTS_T, uiDate } from "@/lib/ui/clients";
 import { langLabel } from "@/lib/ui/booking";
-import { Avatar, Card, Empty, PageHeader } from "@/components/ui";
+import { Avatar, Card, Empty, LinkButton, PageHeader } from "@/components/ui";
+import { ONB_T } from "@/lib/ui/onboarding";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: pick(CLIENTS_T, await uiLang()).metaTitle };
@@ -16,7 +17,7 @@ export default async function Clients(props: PageProps<"/clients">) {
   const { supabase, therapist: th } = await getTherapist();
   const lang = await uiLang();
   const t = pick(CLIENTS_T, lang);
-  let query = supabase.from("clients").select("*, bookings(starts_at, status)").order("full_name");
+  let query = supabase.from("clients").select("*, bookings(starts_at, status)").eq("sample", false).order("full_name");
   if (q) query = query.or(`full_name.ilike.%${q.replace(/[%,()]/g, "")}%,email.ilike.%${q.replace(/[%,()]/g, "")}%`);
   const { data } = await query;
   const now = Date.now();
@@ -34,7 +35,17 @@ export default async function Clients(props: PageProps<"/clients">) {
         <input name="q" defaultValue={q} placeholder={t.search} className="h-10 w-full rounded-full border border-line-strong bg-surface px-4 text-sm outline-none focus:border-sage" />
       </form>
       {rows.length === 0 ? (
-        <Empty title={q ? t.noMatch : t.noClients} body={t.emptyBody} />
+        <Empty
+          title={q ? t.noMatch : t.noClients}
+          body={t.emptyBody}
+          action={
+            q ? undefined : (
+              <LinkButton href="/onboarding/clients" size="sm">
+                {pick(ONB_T, lang).emptyAddClients}
+              </LinkButton>
+            )
+          }
+        />
       ) : (
         <Card className="overflow-hidden">
           <div className="t-overline hidden grid-cols-[1.4fr_1fr_0.6fr_0.8fr_0.8fr] gap-4 border-b border-line px-6 py-3 text-stone md:grid">

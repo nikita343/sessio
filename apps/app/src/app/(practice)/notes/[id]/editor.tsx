@@ -73,6 +73,11 @@ export function NoteEditor(p: {
   therapistNames: string[];
   meta: { client: string; date: string; form: string; psychologist: string };
   sessionNumber: number;
+  /** onboarding practice note: a ready-made memo the therapist can drop in with one click */
+  sampleTranscript?: string;
+  sampleLabel?: string;
+  /** where to go after signing (default: stay on the signed record) */
+  afterSignHref?: string;
 }) {
   const router = useRouter();
   const t = NOTES_T[p.lang] ?? NOTES_T.pl;
@@ -269,9 +274,16 @@ export function NoteEditor(p: {
             placeholder={p.signed ? t.transcriptDeleted : t.transcriptPlaceholder}
           />
           {!p.signed && (
-            <Button variant="dark" onClick={draft} disabled={!transcript.trim() || busy}>
-              {phase === "drafting" ? t.drafting : t.draftRecord}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="dark" onClick={draft} disabled={!transcript.trim() || busy}>
+                {phase === "drafting" ? t.drafting : t.draftRecord}
+              </Button>
+              {p.sampleTranscript && !transcript.trim() && (
+                <Button variant="ghost" type="button" onClick={() => setTranscript(p.sampleTranscript!)}>
+                  {p.sampleLabel}
+                </Button>
+              )}
+            </div>
           )}
         </div>
         {error && <p className="t-body-s rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{error}</p>}
@@ -336,7 +348,8 @@ export function NoteEditor(p: {
                   if (!r.ok) setError(r.error ?? t.signFailed);
                   else {
                     setTranscript("");
-                    router.refresh();
+                    if (p.afterSignHref) router.push(p.afterSignHref);
+                    else router.refresh();
                   }
                 })
               }

@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { Logo } from "./logo";
 import { Avatar } from "./ui";
 import { LangSwitcher } from "./lang-switcher";
 import { SoundToggle } from "./ui-sounds";
 import { NAV_T } from "@/lib/ui/nav";
+import { ONB_T } from "@/lib/ui/onboarding";
 import type { Lang } from "@/lib/i18n";
 
 const NAV = [
@@ -20,9 +22,23 @@ const NAV = [
   ["settings", "/settings"],
 ] as const;
 
-export function Sidebar({ name, slug, photo, inboxCount, host, lang }: { name: string; slug: string; photo: string | null; inboxCount: number; host: string; lang: Lang }) {
+/** Until the first-steps checklist is done, the sidebar shows the five core items and folds the rest under "More". */
+const CORE = new Set(["today", "calendar", "clients", "notes", "settings"]);
+
+export function Sidebar({ name, slug, photo, inboxCount, host, lang, folded = false }: { name: string; slug: string; photo: string | null; inboxCount: number; host: string; lang: Lang; folded?: boolean }) {
   const path = usePathname();
   const t = NAV_T[lang];
+  const o = ONB_T[lang] ?? ONB_T.pl;
+  const onFolded = NAV.some(([key, href]) => !CORE.has(key) && (path === href || path.startsWith(href + "/")));
+  const [open, setOpen] = useState(onFolded);
+  const expanded = !folded || open || onFolded;
+  const items = NAV.filter(([key]) => expanded || CORE.has(key));
+  const more = folded && (
+    <button type="button" onClick={() => setOpen((v) => !v)} className="t-label-m flex h-9 items-center justify-between rounded-[9px] px-3 text-stone transition-colors hover:bg-sunken hover:text-ink" aria-expanded={expanded}>
+      {expanded ? o.less : o.more}
+      <span aria-hidden className={`text-[11px] transition-transform ${expanded ? "rotate-180" : ""}`}>⌄</span>
+    </button>
+  );
   return (
     <>
       {/* desktop */}
@@ -31,7 +47,7 @@ export function Sidebar({ name, slug, photo, inboxCount, host, lang }: { name: s
           <Logo size={24} />
         </Link>
         <nav className="mt-8 flex flex-col gap-0.5">
-          {NAV.map(([key, href]) => {
+          {items.map(([key, href]) => {
             const on = path === href || path.startsWith(href + "/");
             return (
               <Link
@@ -44,6 +60,14 @@ export function Sidebar({ name, slug, photo, inboxCount, host, lang }: { name: s
               </Link>
             );
           })}
+          {more}
+          {folded && !expanded && (
+            <p className="t-caption px-3 pt-1 text-stone">
+              {NAV.filter(([key]) => !CORE.has(key))
+                .map(([key]) => t[key])
+                .join(" · ")}
+            </p>
+          )}
         </nav>
         <div className="mt-auto flex flex-col gap-3">
           <div className="flex items-center justify-between gap-2 px-1">
@@ -73,7 +97,7 @@ export function Sidebar({ name, slug, photo, inboxCount, host, lang }: { name: s
           </div>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-3 pb-2">
-          {NAV.map(([key, href]) => {
+          {items.map(([key, href]) => {
             const on = path === href || path.startsWith(href + "/");
             return (
               <Link key={href} href={href} className={`t-label-m shrink-0 rounded-full px-3 py-1.5 ${on ? "bg-sage-soft text-sage" : "text-ink/70"}`}>
@@ -82,6 +106,11 @@ export function Sidebar({ name, slug, photo, inboxCount, host, lang }: { name: s
               </Link>
             );
           })}
+          {folded && (
+            <button type="button" onClick={() => setOpen((v) => !v)} className="t-label-m shrink-0 rounded-full px-3 py-1.5 text-stone" aria-expanded={expanded}>
+              {expanded ? o.less : o.more} ⌄
+            </button>
+          )}
         </nav>
       </div>
     </>

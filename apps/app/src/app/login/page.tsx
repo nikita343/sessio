@@ -58,6 +58,17 @@ export default async function LoginPage(props: PageProps<"/login">) {
             </button>
           </form>
           <p className="t-caption mt-3 text-center text-stone">{t.demoNote}</p>
+          <div className="mt-4 rounded-[14px] bg-paper px-4 py-3">
+            <p className="t-overline text-sage">{t.tryTitle}</p>
+            <ol className="mt-2 flex flex-col gap-1.5">
+              {t.trySteps.map((s, i) => (
+                <li key={s} className="t-caption flex gap-2 text-stone">
+                  <span className="font-medium text-ink">{i + 1}.</span>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
           <p className="t-body-s mt-6 border-t border-line pt-4 text-center text-stone">
             {t.clientQ}{" "}
             <Link href="/me/login" className="text-ink underline underline-offset-2">

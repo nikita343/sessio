@@ -13,6 +13,8 @@ type LoginDict = {
   or: string;
   demo: string;
   demoNote: string;
+  tryTitle: string;
+  trySteps: string[];
   clientQ: string;
   clientLink: string;
   // form
@@ -46,6 +48,8 @@ export const LOGIN_T: Record<Lang, LoginDict> = {
     or: "lub",
     demo: "Zobacz gabinet demo",
     demoNote: "Gabinet Anny Kowalskiej z przykładowymi klientami. Nic tu nie jest prawdziwe. Dane odświeżają się mniej więcej co godzinę, więc wiadomości testowe mogą znikać.",
+    tryTitle: "Wypróbuj w 3 minuty",
+    trySteps: ["Na pulpicie otwórz „Pierwsze kroki” i wklej listę klientów — albo wrzuć plik .ics.", "Podyktuj 30 sekund notatki ćwiczebnej i podpisz szkic dokumentacji.", "Otwórz stronę Anny jako klient i zarezerwuj sesję — pojawi się na pulpicie."],
     clientQ: "Masz sesję jako klient?",
     clientLink: "Zobacz swoje sesje",
     yourName: "Imię i nazwisko",
@@ -75,6 +79,8 @@ export const LOGIN_T: Record<Lang, LoginDict> = {
     or: "or",
     demo: "Explore the demo practice",
     demoNote: "Anna Kowalska’s practice with sample clients. Nothing real. Sample data refreshes about every hour, so test messages may disappear.",
+    tryTitle: "Try it in 3 minutes",
+    trySteps: ["On the dashboard open “First steps” and paste a client list — or drop an .ics file.", "Dictate a 30-second practice memo and sign the drafted record.", "Open Anna’s page as a client and book a session — it lands on the dashboard."],
     clientQ: "Booked a session as a client?",
     clientLink: "See your sessions",
     yourName: "Your name",
@@ -104,6 +110,8 @@ export const LOGIN_T: Record<Lang, LoginDict> = {
     or: "або",
     demo: "Переглянути демопрактику",
     demoNote: "Практика Анни Ковальської з тестовими клієнтами. Нічого справжнього. Дані оновлюються приблизно щогодини, тож тестові повідомлення можуть зникати.",
+    tryTitle: "Спробуйте за 3 хвилини",
+    trySteps: ["На панелі відкрийте «Перші кроки» і вставте список клієнтів — або додайте файл .ics.", "Надиктуйте 30 секунд тренувальної нотатки і підпишіть чернетку документації.", "Відкрийте сторінку Анни як клієнт і забронюйте сесію — вона з'явиться на панелі."],
     clientQ: "Записалися на сесію як клієнт?",
     clientLink: "Переглянути свої сесії",
     yourName: "Ім’я та прізвище",
