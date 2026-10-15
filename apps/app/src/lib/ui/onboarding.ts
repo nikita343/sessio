@@ -2,6 +2,14 @@ import type { Lang } from "../i18n";
 
 type OnbDict = {
   stepOf: (n: number) => string;
+  moreAbout: string;
+  lessAbout: string;
+  sessionOneBody: string;
+  from: string;
+  to: string;
+  perDay: string;
+  sameHours: string;
+  nothingFinal: string;
   // step 1
   s1Overline: string;
   s1Title: string;
@@ -48,7 +56,9 @@ type OnbDict = {
   startNote: string;
   skipForNow: string;
   practiceBanner: string;
+  practiceTitle: string;
   useSample: string;
+  useSampleHint: string;
   practiceClient: string;
   // checklist
   clTitle: string;
@@ -85,6 +95,14 @@ type OnbDict = {
 export const ONB_T: Record<Lang, OnbDict> = {
   pl: {
     stepOf: (n) => `Krok ${n} z 3`,
+    moreAbout: "Więcej o Tobie — tytuł, miasto, opis, języki (opcjonalnie)",
+    lessAbout: "Zwiń dodatkowe pola",
+    sessionOneBody: "Jedna usługa na start — kolejne dodasz później na stronie rezerwacji.",
+    from: "Od",
+    to: "Do",
+    perDay: "Różne godziny w różne dni",
+    sameHours: "Te same godziny każdego dnia",
+    nothingFinal: "Nic nie jest ostateczne — wszystko zmienisz później w Ustawieniach.",
     s1Overline: "KROK 1 Z 3",
     s1Title: "Twoja strona rezerwacji",
     s1Body: "Imię, cena i godziny — to wszystko, czego potrzebuje klient, żeby się umówić. Po zapisaniu strona jest od razu online; zmienisz ją później w Ustawieniach.",
@@ -109,7 +127,7 @@ export const ONB_T: Record<Lang, OnbDict> = {
     dedupeNote: "Duplikaty łączymy po e-mailu — nic nie dodamy dwa razy.",
     remindersNote: "Dzień przed każdą sesją klient dostanie e-mail z przypomnieniem i linkiem do wideo.",
     nothingFound: "Nie znaleźliśmy żadnej osoby z adresem e-mail. Sprawdź format: imię i nazwisko, przecinek, e-mail.",
-    addBtn: (n) => `Dodaj ${n} ${n === 1 ? "klienta" : "klientów"} →`,
+    addBtn: (n) => (n ? `Dodaj ${n} ${n === 1 ? "klienta" : "klientów"} →` : "Dodaj klientów →"),
     addSessionsBtn: (clients, sessions) => `Dodaj ${clients} ${clients === 1 ? "klienta" : "klientów"} i ${sessions} ${sessions === 1 ? "sesję" : sessions >= 2 && sessions <= 4 ? "sesje" : "sesji"} →`,
     changeBtn: "Zmień listę",
     nextBtn: "Dalej →",
@@ -127,8 +145,10 @@ export const ONB_T: Record<Lang, OnbDict> = {
     s3Card3Body: "Czytasz, poprawiasz, podpisujesz. Dopiero wtedy wpis trafia do dokumentacji.",
     startNote: "Zacznij notatkę ćwiczebną",
     skipForNow: "Pomiń na razie",
-    practiceBanner: "To notatka ćwiczebna z przykładowym klientem — nie jest przypisana do żadnej prawdziwej sesji. Po podpisaniu wrócisz na pulpit.",
+    practiceTitle: "Notatka ćwiczebna",
+    practiceBanner: "Przykładowy klient, żadnej prawdziwej sesji. Nagraj albo wklej notatkę, przygotuj wpis i podpisz — tak samo będzie z prawdziwym klientem. Po podpisaniu wrócisz na pulpit.",
     useSample: "Użyj przykładowej notatki",
+    useSampleHint: "Sesja 12, katastrofizowanie przed spotkaniami, zadanie domowe — 30 sekund mówienia, gotowe do szkicu.",
     practiceClient: "Klient ćwiczebny",
     clTitle: "Pierwsze kroki",
     clProgress: (done, total) => `${done} z ${total}`,
@@ -160,6 +180,14 @@ export const ONB_T: Record<Lang, OnbDict> = {
   },
   en: {
     stepOf: (n) => `Step ${n} of 3`,
+    moreAbout: "More about you — title, city, bio, languages (optional)",
+    lessAbout: "Hide the extra fields",
+    sessionOneBody: "One service to start — add more later on the Booking page.",
+    from: "From",
+    to: "To",
+    perDay: "Different hours on different days",
+    sameHours: "Same hours every day",
+    nothingFinal: "Nothing is final — you can change all of this later in Settings.",
     s1Overline: "STEP 1 OF 3",
     s1Title: "Your booking page",
     s1Body: "Name, price and hours — everything a client needs to book. The page goes live when you save; you can change it later in Settings.",
@@ -184,7 +212,7 @@ export const ONB_T: Record<Lang, OnbDict> = {
     dedupeNote: "Duplicates are merged by email — nothing is added twice.",
     remindersNote: "The day before each session the client gets a reminder email with the video link.",
     nothingFound: "No person with an email address found. Check the format: full name, comma, email.",
-    addBtn: (n) => `Add ${n} client${n === 1 ? "" : "s"} →`,
+    addBtn: (n) => (n ? `Add ${n} client${n === 1 ? "" : "s"} →` : "Add clients →"),
     addSessionsBtn: (clients, sessions) => `Add ${clients} client${clients === 1 ? "" : "s"} and ${sessions} session${sessions === 1 ? "" : "s"} →`,
     changeBtn: "Change the list",
     nextBtn: "Next →",
@@ -202,8 +230,10 @@ export const ONB_T: Record<Lang, OnbDict> = {
     s3Card3Body: "Read, edit, sign. Only then does the entry go into the documentation.",
     startNote: "Start a practice note",
     skipForNow: "Skip for now",
-    practiceBanner: "This is a practice note with a sample client — it is not attached to any real session. You'll return to the dashboard after signing.",
+    practiceTitle: "Practice note",
+    practiceBanner: "A sample client, no real session. Record or paste a memo, draft the record and sign — exactly as with a real client. You'll return to the dashboard after signing.",
     useSample: "Use the sample memo",
+    useSampleHint: "Session 12, catastrophising before meetings, homework — 30 seconds of speech, ready to draft.",
     practiceClient: "Practice client",
     clTitle: "First steps",
     clProgress: (done, total) => `${done} of ${total}`,
@@ -235,6 +265,14 @@ export const ONB_T: Record<Lang, OnbDict> = {
   },
   uk: {
     stepOf: (n) => `Крок ${n} з 3`,
+    moreAbout: "Більше про вас — посада, місто, опис, мови (необов'язково)",
+    lessAbout: "Сховати додаткові поля",
+    sessionOneBody: "Одна послуга на старт — інші додасте пізніше на сторінці бронювання.",
+    from: "Від",
+    to: "До",
+    perDay: "Різні години в різні дні",
+    sameHours: "Однакові години щодня",
+    nothingFinal: "Нічого не остаточне — усе можна змінити пізніше в Налаштуваннях.",
     s1Overline: "КРОК 1 З 3",
     s1Title: "Ваша сторінка бронювання",
     s1Body: "Ім'я, ціна та години — усе, що потрібно клієнту, щоб записатися. Після збереження сторінка одразу онлайн; змінити її можна пізніше в Налаштуваннях.",
@@ -259,7 +297,7 @@ export const ONB_T: Record<Lang, OnbDict> = {
     dedupeNote: "Дублікати об'єднуємо за e-mail — нічого не додамо двічі.",
     remindersNote: "За день до кожної сесії клієнт отримає нагадування з посиланням на відео.",
     nothingFound: "Не знайдено жодної особи з e-mail. Перевірте формат: ім'я та прізвище, кома, e-mail.",
-    addBtn: (n) => `Додати ${n} ${n === 1 ? "клієнта" : "клієнтів"} →`,
+    addBtn: (n) => (n ? `Додати ${n} ${n === 1 ? "клієнта" : "клієнтів"} →` : "Додати клієнтів →"),
     addSessionsBtn: (clients, sessions) => `Додати ${clients} ${clients === 1 ? "клієнта" : "клієнтів"} і ${sessions} ${sessions === 1 ? "сесію" : sessions >= 2 && sessions <= 4 ? "сесії" : "сесій"} →`,
     changeBtn: "Змінити список",
     nextBtn: "Далі →",
@@ -277,8 +315,10 @@ export const ONB_T: Record<Lang, OnbDict> = {
     s3Card3Body: "Читаєте, правите, підписуєте. Лише тоді запис потрапляє до документації.",
     startNote: "Почати тренувальну нотатку",
     skipForNow: "Пропустити поки що",
-    practiceBanner: "Це тренувальна нотатка з прикладовим клієнтом — вона не прив'язана до жодної справжньої сесії. Після підпису ви повернетеся на панель.",
+    practiceTitle: "Тренувальна нотатка",
+    practiceBanner: "Прикладовий клієнт, жодної справжньої сесії. Запишіть або вставте нотатку, підготуйте запис і підпишіть — так само буде зі справжнім клієнтом. Після підпису ви повернетеся на панель.",
     useSample: "Використати приклад нотатки",
+    useSampleHint: "Сесія 12, катастрофізація перед зустрічами, домашнє завдання — 30 секунд мовлення, готово до чернетки.",
     practiceClient: "Тренувальний клієнт",
     clTitle: "Перші кроки",
     clProgress: (done, total) => `${done} з ${total}`,

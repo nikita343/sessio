@@ -30,7 +30,7 @@ export function FirstSteps({ c, lang, link, noteJustSigned }: { c: Checklist; la
   // the first open step gets the primary button
   const firstOpen = steps.findIndex((s) => !s.done);
   return (
-    <section className="flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-5 md:p-6" aria-label={t.clTitle}>
+    <section className="onb-rise flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-5 md:p-6" aria-label={t.clTitle}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <h2 className="t-title-m">{t.clTitle}</h2>

@@ -26,7 +26,7 @@ export default async function OnboardingNote(props: PageProps<"/onboarding/note"
     <OnboardingShell step={3} lang={lang}>
       <div className="flex flex-col gap-8">
         <StepIntro overline={t.s3Overline} title={t.s3Title} body={t.s3Body} />
-        <ol className="grid gap-3 md:grid-cols-3">
+        <ol className="onb-rise onb-rise-1 grid gap-3 md:grid-cols-3">
           {cards.map(([title, body], i) => (
             <li key={title} className="flex flex-col gap-2 rounded-[20px] border border-line bg-surface p-5">
               <span className="flex size-7 items-center justify-center rounded-full bg-sage-soft font-display text-[13px] font-medium text-sage">{i + 1}</span>
@@ -36,7 +36,7 @@ export default async function OnboardingNote(props: PageProps<"/onboarding/note"
           ))}
         </ol>
         {sp.error && <p className="t-body-s rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{t.importError}</p>}
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="onb-rise onb-rise-2 flex flex-wrap items-center justify-between gap-3">
           <Link href="/dashboard" className={btn("ghost")}>
             {t.skipForNow}
           </Link>

@@ -76,6 +76,7 @@ export function NoteEditor(p: {
   /** onboarding practice note: a ready-made memo the therapist can drop in with one click */
   sampleTranscript?: string;
   sampleLabel?: string;
+  sampleHint?: string;
   /** where to go after signing (default: stay on the signed record) */
   afterSignHref?: string;
 }) {
@@ -206,7 +207,7 @@ export function NoteEditor(p: {
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[420px_1fr]">
       {/* voice memo */}
-      <section className="flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
+      <section className="onb-rise onb-rise-1 flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
         <span className="t-caption inline-flex w-fit items-center gap-1.5 rounded-full bg-sage-soft px-3 py-1.5 text-sage">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
             <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2" />
@@ -214,6 +215,23 @@ export function NoteEditor(p: {
           </svg>
           {t.privacyMode}
         </span>
+        {p.sampleTranscript && !transcript.trim() && !p.signed && (
+          <button
+            type="button"
+            onClick={() => setTranscript(p.sampleTranscript!)}
+            className="group flex items-start gap-3 rounded-[14px] border border-sage/40 bg-sage-soft/50 p-4 text-left transition-colors hover:border-sage hover:bg-sage-soft"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sage text-white">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span>
+              <span className="t-label-m block text-sage">{p.sampleLabel}</span>
+              <span className="t-caption block text-stone">{p.sampleHint}</span>
+            </span>
+          </button>
+        )}
         <div className="flex items-center justify-between">
           <h2 className="t-title-m">{t.yourMemo}</h2>
           {!p.signed && (
@@ -274,16 +292,9 @@ export function NoteEditor(p: {
             placeholder={p.signed ? t.transcriptDeleted : t.transcriptPlaceholder}
           />
           {!p.signed && (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="dark" onClick={draft} disabled={!transcript.trim() || busy}>
-                {phase === "drafting" ? t.drafting : t.draftRecord}
-              </Button>
-              {p.sampleTranscript && !transcript.trim() && (
-                <Button variant="ghost" type="button" onClick={() => setTranscript(p.sampleTranscript!)}>
-                  {p.sampleLabel}
-                </Button>
-              )}
-            </div>
+            <Button variant="dark" onClick={draft} disabled={!transcript.trim() || busy}>
+              {phase === "drafting" ? t.drafting : t.draftRecord}
+            </Button>
           )}
         </div>
         {error && <p className="t-body-s rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{error}</p>}
@@ -293,7 +304,7 @@ export function NoteEditor(p: {
       </section>
 
       {/* record */}
-      <section className="flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
+      <section className="onb-rise onb-rise-2 flex flex-col gap-4 rounded-[20px] border border-line bg-surface p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="t-title-m">{t.recordTitle}</h2>
           {p.signed ? <Badge tone="sage">{t.signedBadge(p.signedAt)}</Badge> : aiDraft === "ai" ? <Badge tone="clay">{t.aiDraft}</Badge> : aiDraft === "template" ? <Badge tone="stone">{t.templateDraft}</Badge> : <Badge tone="stone">{t.draft}</Badge>}

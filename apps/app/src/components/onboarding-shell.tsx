@@ -14,7 +14,10 @@ export function OnboardingShell({ step, lang, wide = false, children }: { step: 
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5" aria-hidden>
             {[1, 2, 3].map((i) => (
-              <span key={i} className={`h-1.5 w-7 rounded-full md:w-10 ${i <= step ? "bg-sage" : "bg-line-strong"}`} />
+              <span key={i} className="h-1.5 w-7 overflow-hidden rounded-full bg-line-strong md:w-10">
+                {i < step && <span className="block h-full w-full rounded-full bg-sage" />}
+                {i === step && <span className="onb-fill block h-full w-full rounded-full bg-sage" />}
+              </span>
             ))}
           </div>
           <span className="t-caption text-stone">{t.stepOf(step)}</span>
@@ -28,7 +31,7 @@ export function OnboardingShell({ step, lang, wide = false, children }: { step: 
 
 export function StepIntro({ overline, title, body }: { overline: string; title: string; body: string }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="onb-rise flex flex-col gap-2">
       <p className="t-overline text-sage">{overline}</p>
       <h1 className="t-heading-m">{title}</h1>
       <p className="t-body-m max-w-[640px] text-stone">{body}</p>

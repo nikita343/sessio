@@ -37,30 +37,36 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
 
   return (
     <div className="flex flex-col gap-6">
-      {practice && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[16px] bg-sage px-5 py-4 text-white">
-          <p className="t-body-m">{o.practiceBanner}</p>
-          <Link href="/dashboard" className="t-label-m rounded-full bg-white px-4 py-2 text-sage">
+      {practice ? (
+        <div className="onb-rise flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="t-overline text-sage">{o.s3Overline}</p>
+            <h1 className="t-heading-m !text-[36px]">{o.practiceTitle}</h1>
+            <p className="t-body-m mt-1 max-w-[640px] text-stone">{o.practiceBanner}</p>
+          </div>
+          <Link href="/dashboard" className="t-label-m rounded-full border border-line-strong bg-surface px-4 py-2 text-ink hover:border-ink/30">
             {o.skipForNow}
           </Link>
         </div>
-      )}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="t-caption text-stone">
-            <Link href="/notes" className="hover:text-ink">
-              {t.title}
-            </Link>{" "}
-            /{" "}
-            <Link href={`/clients/${note.client.id}`} className="hover:text-ink">
-              {first} {last ? `${last[0]}.` : ""}
-            </Link>
-          </p>
-          <h1 className="t-heading-m !text-[36px]">
-            {t.session(note.session_number ?? "—")} · {when}
-          </h1>
+      ) : (
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="t-caption text-stone">
+              <Link href="/notes" className="hover:text-ink">
+                {t.title}
+              </Link>{" "}
+              /{" "}
+              <Link href={`/clients/${note.client.id}`} className="hover:text-ink">
+                {first} {last ? `${last[0]}.` : ""}
+              </Link>
+            </p>
+            <h1 className="t-heading-m !text-[36px]">
+              {t.session(note.session_number ?? "—")} · {when}
+            </h1>
+          </div>
         </div>
-      </div>
+      )}
+      {!practice && (
       <section aria-label={a.title} className="grid gap-px overflow-hidden rounded-[20px] border border-line bg-line md:grid-cols-[1fr_1fr_auto]">
         <dl className="flex flex-col gap-1.5 bg-surface px-5 py-4">
           <p className="t-overline text-stone">{a.title}</p>
@@ -105,6 +111,7 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
           )}
         </div>
       </section>
+      )}
       <NoteEditor
         id={note.id}
         lang={lang}
@@ -123,6 +130,7 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
         therapistNames={th.full_name.split(/\s+/).filter((p) => p.length > 1)}
         sampleTranscript={practice ? o.sampleMemo : undefined}
         sampleLabel={o.useSample}
+        sampleHint={o.useSampleHint}
         afterSignHref={practice ? "/dashboard?done=note" : undefined}
       />
     </div>
