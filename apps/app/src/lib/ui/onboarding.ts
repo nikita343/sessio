@@ -31,6 +31,7 @@ type OnbDict = {
   addBtn: (n: number) => string;
   addSessionsBtn: (clients: number, sessions: number) => string;
   changeBtn: string;
+  nextBtn: string;
   back: string;
   skipNoList: string;
   importError: string;
@@ -111,6 +112,7 @@ export const ONB_T: Record<Lang, OnbDict> = {
     addBtn: (n) => `Dodaj ${n} ${n === 1 ? "klienta" : "klientów"} →`,
     addSessionsBtn: (clients, sessions) => `Dodaj ${clients} ${clients === 1 ? "klienta" : "klientów"} i ${sessions} ${sessions === 1 ? "sesję" : sessions >= 2 && sessions <= 4 ? "sesje" : "sesji"} →`,
     changeBtn: "Zmień listę",
+    nextBtn: "Dalej →",
     back: "← Wstecz",
     skipNoList: "Pomiń — nie mam listy",
     importError: "Nie udało się zapisać. Spróbuj ponownie.",
@@ -185,6 +187,7 @@ export const ONB_T: Record<Lang, OnbDict> = {
     addBtn: (n) => `Add ${n} client${n === 1 ? "" : "s"} →`,
     addSessionsBtn: (clients, sessions) => `Add ${clients} client${clients === 1 ? "" : "s"} and ${sessions} session${sessions === 1 ? "" : "s"} →`,
     changeBtn: "Change the list",
+    nextBtn: "Next →",
     back: "← Back",
     skipNoList: "Skip — I don't have a list",
     importError: "Could not save. Please try again.",
@@ -259,6 +262,7 @@ export const ONB_T: Record<Lang, OnbDict> = {
     addBtn: (n) => `Додати ${n} ${n === 1 ? "клієнта" : "клієнтів"} →`,
     addSessionsBtn: (clients, sessions) => `Додати ${clients} ${clients === 1 ? "клієнта" : "клієнтів"} і ${sessions} ${sessions === 1 ? "сесію" : sessions >= 2 && sessions <= 4 ? "сесії" : "сесій"} →`,
     changeBtn: "Змінити список",
+    nextBtn: "Далі →",
     back: "← Назад",
     skipNoList: "Пропустити — немає списку",
     importError: "Не вдалося зберегти. Спробуйте ще раз.",

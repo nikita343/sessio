@@ -42,29 +42,35 @@ function normLang(v: string | null | undefined): "pl" | "uk" | "en" {
 }
 
 /** "Marta Nowak, marta@wp.pl, 600 123 456, UA" → one person. Order of the fields does not matter. */
-function parseLine(line: string) {
+function parseLine(raw: string) {
+  let line = raw;
+  let email: string | null = null;
+  // "Name <email>" — take the address out first so the rest is the name
+  const angle = line.match(/<\s*([^>\s]+@[^>\s]+)\s*>/);
+  if (angle) {
+    email = angle[1].toLowerCase();
+    line = line.replace(angle[0], " ");
+  }
   const parts = line
     .split(/[,;\t]/)
     .map((p) => p.trim())
     .filter(Boolean);
-  if (!parts.length) return null;
-  let email: string | null = null;
+  if (!parts.length && !email) return null;
   let phone: string | null = null;
   let lang: string | null = null;
   const nameParts: string[] = [];
   for (const p of parts) {
     const low = p.toLowerCase();
-    if (!email && p.includes("@")) email = low.replace(/^<|>$/g, "");
-    else if (!phone && /^[+\d][\d\s().-]{6,}$/.test(p)) phone = p.replace(/\s+/g, " ");
+    if (!email && p.includes("@")) {
+      // "Marta Nowak marta@wp.pl" — the address may share a field with the name
+      const tokens = p.split(/\s+/);
+      email = tokens.find((t) => t.includes("@"))!.toLowerCase().replace(/^<|>$/g, "");
+      nameParts.push(...tokens.filter((t) => !t.includes("@")));
+    } else if (!phone && /^[+\d][\d\s().-]{6,}$/.test(p)) phone = p.replace(/\s+/g, " ");
     else if (!lang && LANGS.has(low)) lang = low;
     else nameParts.push(p);
   }
-  // "Name <email>" without a comma
-  if (!email) {
-    const m = line.match(/<([^>]+@[^>]+)>/);
-    if (m) email = m[1].toLowerCase();
-  }
-  const name = nameParts.join(" ").replace(/<[^>]*>/g, "").trim();
+  const name = nameParts.join(" ").replace(/\s+/g, " ").trim();
   if (!email && !name) return null;
   return { name: name || (email ? email.split("@")[0] : ""), email: email ?? "", phone, language: normLang(lang), valid: Boolean(email && EMAIL.test(email)) };
 }

@@ -124,7 +124,7 @@ export const PRACTICE_T: Record<
     saved: "Zapisano. Twoja strona jest aktualna.",
     goesLive: "Strona zostanie opublikowana po zapisaniu.",
     saving: "Zapisywanie…",
-    publish: "Opublikuj moją stronę",
+    publish: "Zapisz i dalej →",
     saveChanges: "Zapisz zmiany",
   },
   en: {
@@ -162,7 +162,7 @@ export const PRACTICE_T: Record<
     saved: "Saved. Your page is up to date.",
     goesLive: "Your page goes live when you save.",
     saving: "Saving…",
-    publish: "Publish my page",
+    publish: "Save and continue →",
     saveChanges: "Save changes",
   },
   uk: {
@@ -201,7 +201,7 @@ export const PRACTICE_T: Record<
     saved: "Збережено. Ваша сторінка актуальна.",
     goesLive: "Сторінка стане доступною після збереження.",
     saving: "Збереження…",
-    publish: "Опублікувати мою сторінку",
+    publish: "Зберегти і далі →",
     saveChanges: "Зберегти зміни",
   },
 };

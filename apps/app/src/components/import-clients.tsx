@@ -11,6 +11,7 @@ export function ImportClients({ lang, backHref, skipHref }: { lang: Lang; backHr
   const t = ONB_T[lang] ?? ONB_T.pl;
   const [tab, setTab] = useState<"list" | "ics">("list");
   const [ics, setIcs] = useState("");
+  const [text, setText] = useState("");
   const [fileName, setFileName] = useState("");
   const [preview, previewAction, previewing] = useActionState<ImportState, FormData>(previewImport, {});
   const [commit, commitAction, committing] = useActionState<ImportState, FormData>(commitImport, {});
@@ -60,7 +61,18 @@ export function ImportClients({ lang, backHref, skipHref }: { lang: Lang; backHr
             <label htmlFor="text" className={`t-label-m text-ink ${tab === "list" ? "" : "hidden"}`}>
               {t.pasteLabel}
             </label>
-            <textarea id="text" name="text" rows={7} placeholder={t.pastePlaceholder} className={`${textareaCls} font-mono text-[14px] ${tab === "list" ? "" : "hidden"}`} onChange={hidePreview} />
+            <textarea
+              id="text"
+              name="text"
+              rows={7}
+              value={text}
+              placeholder={t.pastePlaceholder}
+              className={`${textareaCls} font-mono text-[14px] ${tab === "list" ? "" : "hidden"}`}
+              onChange={(e) => {
+                setText(e.target.value);
+                hidePreview();
+              }}
+            />
             <label
               className={`flex cursor-pointer items-center gap-3 rounded-[12px] border border-dashed border-line-strong hover:border-ink/30 ${tab === "list" ? "px-4 py-3" : "flex-col px-6 py-10 text-center"}`}
             >
@@ -117,14 +129,23 @@ export function ImportClients({ lang, backHref, skipHref }: { lang: Lang; backHr
           <Link href={backHref} className={btn("secondary")}>
             {t.back}
           </Link>
-          {showPreview && addable > 0 ? (
+          {showPreview && (fresh > 0 || sessions > 0) ? (
             <>
               <Button type="button" variant="ghost" onClick={hidePreview}>
                 {t.changeBtn}
               </Button>
               <Button formAction={commitAction} disabled={committing}>
-                {sessions > 0 ? t.addSessionsBtn(addable, sessions) : t.addBtn(addable)}
+                {sessions > 0 ? t.addSessionsBtn(fresh, sessions) : t.addBtn(fresh)}
               </Button>
+            </>
+          ) : showPreview && addable > 0 ? (
+            <>
+              <Button type="button" variant="ghost" onClick={hidePreview}>
+                {t.changeBtn}
+              </Button>
+              <Link href={skipHref} className={btn("primary")}>
+                {t.nextBtn}
+              </Link>
             </>
           ) : (
             <Button disabled={previewing}>{t.previewBtn}</Button>
