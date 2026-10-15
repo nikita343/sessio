@@ -31,6 +31,7 @@ export type Therapist = {
   stripe_charges_enabled?: boolean;
   published: boolean;
   listed?: boolean;
+  onboarding?: { dismissed_at?: string | null } | null;
 };
 
 export type Service = {
@@ -45,7 +46,7 @@ export type Service = {
 
 export type Availability = { id?: string; weekday: number; start_time: string; end_time: string };
 
-export type Client = { id: string; full_name: string; email: string; phone: string | null; language: string; created_at: string };
+export type Client = { id: string; full_name: string; email: string; phone: string | null; language: string; created_at: string; sample?: boolean };
 
 export type Booking = {
   id: string;

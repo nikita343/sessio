@@ -11,6 +11,9 @@ import type { Activity, Availability } from "@/lib/types";
 import { pick, uiLang } from "@/lib/ui-lang";
 import { DASHBOARD_T } from "@/lib/ui/dashboard";
 import { activityText } from "@/lib/ui/activity";
+import { getChecklist } from "@/lib/onboarding";
+import { FirstSteps } from "@/components/first-steps";
+import { ONB_T } from "@/lib/ui/onboarding";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: pick(DASHBOARD_T, await uiLang()).title };
@@ -29,7 +32,7 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
   const weekEnd = new TZDate(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 7, tz);
   const monthStart = new TZDate(now.getFullYear(), now.getMonth(), 1, tz);
 
-  const [week, upcoming, { data: paidMonth }, { count: noShows }, { data: activity }, { data: avail }, { data: svc }, { data: notes }] = await Promise.all([
+  const [week, upcoming, { data: paidMonth }, { count: noShows }, { data: activity }, { data: avail }, { data: svc }, { data: notes }, checklist] = await Promise.all([
     bookingsBetween(supabase, weekStart, weekEnd),
     bookingsBetween(supabase, dayEnd, new Date(dayEnd.getTime() + 14 * 86400_000), ["confirmed"]),
     supabase.from("bookings").select("price_minor").eq("payment_status", "paid").gte("starts_at", monthStart.toISOString()).neq("status", "cancelled"),
@@ -38,7 +41,9 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
     supabase.from("availability").select("*"),
     supabase.from("services").select("duration_min").eq("active", true).limit(1),
     supabase.from("notes").select("booking_id, status"),
+    getChecklist(supabase, th),
   ]);
+  const o = pick(ONB_T, lang);
   const today = week.filter((b) => new Date(b.starts_at) >= dayStart && new Date(b.starts_at) < dayEnd);
   const list: BookingRow[] = today.length ? today : upcoming.slice(0, 5);
   const nums = await sessionNumbers(supabase, [...new Set(list.map((b) => b.client_id))]);
@@ -71,14 +76,6 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
 
   return (
     <div className="flex flex-col gap-6">
-      {sp.welcome && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[16px] bg-sage px-5 py-4 text-white">
-          <p className="t-body-m">{t.welcome}</p>
-          <a href={`/${th.slug}`} target="_blank" className="t-label-m rounded-full bg-white px-4 py-2 text-sage">
-            {t.openMyPage}
-          </a>
-        </div>
-      )}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="t-caption text-stone">{dateLine.charAt(0).toUpperCase() + dateLine.slice(1)}</p>
@@ -91,6 +88,8 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
           <LinkButton href="/calendar?new=1">{t.addSession}</LinkButton>
         </div>
       </div>
+
+      {(checklist.show || sp.done === "note") && <FirstSteps c={checklist} lang={lang} link={`${app.replace(/^https?:\/\//, "")}/${th.slug}`} noteJustSigned={sp.done === "note"} />}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         {stats.map(([k, v, s]) => (
@@ -114,6 +113,16 @@ export default async function Dashboard(props: PageProps<"/dashboard">) {
             <div className="px-6 py-10 text-center">
               <p className="t-title-m">{t.emptyTitle}</p>
               <p className="t-body-s mx-auto mt-1 max-w-sm text-stone">{t.emptyBody}</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {!checklist.clients && (
+                  <LinkButton href="/onboarding/clients" variant="secondary" size="sm">
+                    {o.emptyAddClients}
+                  </LinkButton>
+                )}
+                <LinkButton href="/calendar?new=1" variant={checklist.clients ? "secondary" : "ghost"} size="sm">
+                  {o.emptyAddSession}
+                </LinkButton>
+              </div>
             </div>
           ) : (
             <ul className="divide-y divide-line">

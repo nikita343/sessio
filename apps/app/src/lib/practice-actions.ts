@@ -63,6 +63,8 @@ export async function savePractice(_: PracticeState, form: FormData): Promise<Pr
   if (RESERVED.has(v.slug)) return { error: t.reserved };
   if (!v.hours.length) return { error: t.noDays };
   for (const h of v.hours) if (h.end <= h.start) return { error: t.endAfterStart };
+  // the demo practice keeps its page as seeded; in onboarding the step simply moves on
+  if (form.get("from") === "onboarding" && user.email === (process.env.DEMO_EMAIL ?? "demo@usesessio.com")) redirect("/onboarding/clients");
 
   const { error: tErr } = await supabase
     .from("therapists")
@@ -91,7 +93,7 @@ export async function savePractice(_: PracticeState, form: FormData): Promise<Pr
     .insert(v.hours.map((h) => ({ therapist_id: user.id, weekday: h.weekday, start_time: h.start, end_time: h.end })));
 
   revalidatePath("/", "layout");
-  if (form.get("from") === "onboarding") redirect("/dashboard?welcome=1");
+  if (form.get("from") === "onboarding") redirect("/onboarding/clients");
   return { saved: true };
 }
 

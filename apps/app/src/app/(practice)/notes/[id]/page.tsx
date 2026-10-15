@@ -8,6 +8,7 @@ import { NoteEditor } from "./editor";
 import { ageOn, maskPesel, missingArt28, type Identity } from "@/lib/art28";
 import { ART28_T } from "@/lib/ui/art28";
 import type { Note } from "@/lib/types";
+import { ONB_T } from "@/lib/ui/onboarding";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: pick(NOTES_T, await uiLang()).recordTitle };
@@ -18,10 +19,10 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
   const { supabase, therapist: th } = await getTherapist();
   const lang = await uiLang();
   const t = pick(NOTES_T, lang);
-  const { data } = await supabase.from("notes").select("*, client:clients(id, full_name, birth_date, pesel, id_document, address, guardian_name, guardian_contact), booking:bookings(starts_at, ends_at, format, agreement_accepted_at, agreement_version)").eq("id", id).maybeSingle();
+  const { data } = await supabase.from("notes").select("*, client:clients(id, full_name, sample, birth_date, pesel, id_document, address, guardian_name, guardian_contact), booking:bookings(starts_at, ends_at, format, agreement_accepted_at, agreement_version)").eq("id", id).maybeSingle();
   if (!data) notFound();
   const note = data as Note & {
-    client: Identity & { id: string };
+    client: Identity & { id: string; sample?: boolean };
     booking: { starts_at: string; ends_at: string; format: string; agreement_accepted_at: string | null; agreement_version: string | null } | null;
   };
   const a = ART28_T[lang];
@@ -31,9 +32,19 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
   const when = note.booking ? noteDate(note.booking.starts_at, tz, lang, D_SHORT) : noteDate(note.created_at, tz, lang, D_DAY);
   const clientCode = `#C-${note.client.id.slice(0, 4).toUpperCase()}`;
   const [first, last] = note.client.full_name.split(/\s+/);
+  const practice = Boolean(note.client.sample);
+  const o = ONB_T[lang] ?? ONB_T.pl;
 
   return (
     <div className="flex flex-col gap-6">
+      {practice && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[16px] bg-sage px-5 py-4 text-white">
+          <p className="t-body-m">{o.practiceBanner}</p>
+          <Link href="/dashboard" className="t-label-m rounded-full bg-white px-4 py-2 text-sage">
+            {o.skipForNow}
+          </Link>
+        </div>
+      )}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="t-caption text-stone">
@@ -110,6 +121,9 @@ export default async function NotePage(props: PageProps<"/notes/[id]">) {
         }}
         sessionNumber={note.session_number ?? 1}
         therapistNames={th.full_name.split(/\s+/).filter((p) => p.length > 1)}
+        sampleTranscript={practice ? o.sampleMemo : undefined}
+        sampleLabel={o.useSample}
+        afterSignHref={practice ? "/dashboard?done=note" : undefined}
       />
     </div>
   );

@@ -15,7 +15,7 @@ export default async function Notes() {
   const lang = await uiLang();
   const t = pick(NOTES_T, lang);
   const [{ data: notes }, { data: past }] = await Promise.all([
-    supabase.from("notes").select("id, status, session_number, signed_at, updated_at, client:clients(id, full_name), booking:bookings(starts_at)").order("updated_at", { ascending: false }).limit(100),
+    supabase.from("notes").select("id, status, session_number, signed_at, updated_at, client:clients(id, full_name, sample), booking:bookings(starts_at)").order("updated_at", { ascending: false }).limit(100),
     supabase
       .from("bookings")
       .select("id, starts_at, client:clients(full_name), notes(id)")
@@ -24,7 +24,9 @@ export default async function Notes() {
       .order("starts_at", { ascending: false })
       .limit(30),
   ]);
-  type N = { id: string; status: string; session_number: number | null; signed_at: string | null; updated_at: string; client: { id: string; full_name: string } | null; booking: { starts_at: string } | null };
+  type N = { id: string; status: string; session_number: number | null; signed_at: string | null; updated_at: string; client: { id: string; full_name: string; sample?: boolean } | null; booking: { starts_at: string } | null };
+  // practice notes from onboarding live on a hidden sample client
+  const visible = ((notes ?? []) as unknown as N[]).filter((n) => !n.client?.sample);
   const todo = ((past ?? []) as unknown as { id: string; starts_at: string; client: { full_name: string } | null; notes: { id: string }[] }[]).filter((b) => !b.notes?.length);
 
   return (
@@ -47,12 +49,12 @@ export default async function Notes() {
           </ul>
         </Card>
       )}
-      {(notes ?? []).length === 0 ? (
+      {visible.length === 0 ? (
         <Empty title={t.emptyTitle} body={t.emptyBody} />
       ) : (
         <Card className="overflow-hidden">
           <ul className="divide-y divide-line">
-            {((notes ?? []) as unknown as N[]).map((n) => (
+            {visible.map((n) => (
               <li key={n.id}>
                 <Link href={`/notes/${n.id}`} className="flex flex-wrap items-center gap-4 px-6 py-3.5 hover:bg-paper">
                   <div className="min-w-[180px] flex-1">
