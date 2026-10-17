@@ -11,7 +11,7 @@ import { TZDate } from "@date-fns/tz";
 import { loadPublic } from "@/lib/public";
 import { CONT_T } from "@/lib/ui/continuity";
 
-export const metadata: Metadata = { title: "Your sessions", robots: { index: false } };
+export const metadata: Metadata = { title: "Мої сесії", robots: { index: false } };
 
 function status(s: MySession, d: ReturnType<typeof pt>) {
   if (s.status === "cancelled") return <Badge tone="stone">{d.cancelled}</Badge>;

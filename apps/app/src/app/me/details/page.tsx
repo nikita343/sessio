@@ -5,13 +5,13 @@ import { portalLang, pt, requireClient, type MyThread } from "@/lib/portal";
 import { updateMyIdentity } from "../actions";
 import type { Lang } from "@/lib/i18n";
 
-export const metadata: Metadata = { title: "Moje dane", robots: { index: false } };
+export const metadata: Metadata = { title: "Мої дані", robots: { index: false } };
 
 type Ident = { birth_date: string | null; pesel_last4: string | null; has_pesel: boolean; id_document: string | null; address: string | null; guardian_name: string | null; guardian_contact: string | null };
 
 const T: Record<Lang, Record<string, string>> = {
   pl: {
-    title: "Moje dane",
+    title: "Мої дані",
     lead: "Psycholog ma obowiązek prowadzić dokumentację z Twoimi podstawowymi danymi (ustawa o zawodzie psychologa, art. 28). Możesz je podać tutaj zamiast na sesji. Widzi je tylko Twój terapeuta; dane są przechowywane w UE i nie trafiają do żadnej AI.",
     birth: "Data urodzenia",
     pesel: "PESEL",

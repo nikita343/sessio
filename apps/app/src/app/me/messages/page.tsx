@@ -7,7 +7,7 @@ import { portalLang, pt, requireClient, type MyThread } from "@/lib/portal";
 import { sendMessage } from "../actions";
 import { CRISIS_HELP } from "@/lib/crisis";
 
-export const metadata: Metadata = { title: "Messages", robots: { index: false } };
+export const metadata: Metadata = { title: "Повідомлення", robots: { index: false } };
 
 type Msg = { id: string; author: "client" | "therapist" | "assistant"; body: string; created_at: string };
 

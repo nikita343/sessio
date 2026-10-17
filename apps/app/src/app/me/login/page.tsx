@@ -8,7 +8,7 @@ import { LangSwitcher } from "@/components/lang-switcher";
 import { portalLang, pt } from "@/lib/portal";
 import { signInDemoClient } from "../actions";
 
-export const metadata: Metadata = { title: "Moje sesje — Sessio" };
+export const metadata: Metadata = { title: "Мої сесії — Sessio" };
 
 const ERR = {
   pl: { demo: "Demo właśnie się odświeża. Spróbuj za minutę.", auth: "Logowanie nie zostało dokończone. Spróbuj ponownie." },

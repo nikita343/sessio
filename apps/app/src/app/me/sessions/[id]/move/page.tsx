@@ -10,7 +10,7 @@ import { money, tzLabel } from "@/lib/format";
 import { portalLang, pt, requireClient, type MySession } from "@/lib/portal";
 import { moveSession } from "@/app/me/actions";
 
-export const metadata: Metadata = { title: "Change time", robots: { index: false } };
+export const metadata: Metadata = { title: "Змінити час", robots: { index: false } };
 
 export default async function MoveSession(props: PageProps<"/me/sessions/[id]/move">) {
   const { id } = await props.params;
