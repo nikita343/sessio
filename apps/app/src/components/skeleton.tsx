@@ -113,10 +113,10 @@ export function SkeletonHeader({
 }
 
 /**
- * Accessible wrapper for a loading screen: announces a single "Ładowanie…" to screen
+ * Accessible wrapper for a loading screen: announces a single "Завантаження…" to screen
  * readers and marks the region busy; every placeholder inside is aria-hidden.
  */
-export function SkeletonScreen({ children, className = "", label = "Ładowanie…" }: { children: ReactNode; className?: string; label?: string }) {
+export function SkeletonScreen({ children, className = "", label = "Завантаження…" }: { children: ReactNode; className?: string; label?: string }) {
   return (
     <div role="status" aria-busy="true" aria-live="polite" className={className}>
       <span className="sr-only">{label}</span>
