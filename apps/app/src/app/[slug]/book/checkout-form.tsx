@@ -6,6 +6,8 @@ import { bookAndPay, type BookState } from "./actions";
 import { t, type Lang } from "@/lib/i18n";
 import { Field, Input, Textarea } from "@/components/ui";
 import type { SessionFormat } from "@/lib/types";
+import { money } from "@/lib/format";
+import { PACKAGES, PKG_T, packagePrice, type PackageSize } from "@/lib/packages";
 
 export function CheckoutForm(p: {
   slug: string;
@@ -15,6 +17,10 @@ export function CheckoutForm(p: {
   formats: SessionFormat[];
   address: string | null;
   price: string;
+  priceMinor: number;
+  currency: string;
+  /** Prepaid package sessions the signed-in client has left with this therapist. */
+  credits?: number;
   therapist: string;
   cancellationHours: number;
   summary: string;
@@ -26,6 +32,10 @@ export function CheckoutForm(p: {
   const d = t(p.lang);
   const [state, action, pending] = useActionState<BookState, FormData>(bookAndPay, {});
   const [method, setMethod] = useState("blik");
+  const pt = PKG_T[p.lang];
+  const [useCredit, setUseCredit] = useState((p.credits ?? 0) > 0);
+  const [size, setSize] = useState<PackageSize>(1);
+  const total = money(packagePrice(p.priceMinor, size), p.currency);
   const [format, setFormat] = useState<SessionFormat>(p.formats.includes("online") ? "online" : "in_person");
 
   if (state.error === "taken")
@@ -53,6 +63,7 @@ export function CheckoutForm(p: {
       <input type="hidden" name="summary" value={p.summary} />
       <input type="hidden" name="format" value={format} />
       <input type="hidden" name="method" value={method} />
+      <input type="hidden" name="package" value={useCredit ? "credit" : String(size)} />
 
       {p.formats.length > 1 && (
         <Field label={d.where}>
@@ -98,6 +109,42 @@ export function CheckoutForm(p: {
         <Textarea id="note" name="note" rows={2} />
       </Field>
 
+      {useCredit ? (
+        <div className="flex flex-col gap-2 rounded-[16px] border border-sage bg-sage-soft px-4 py-4">
+          <p className="t-label-m text-sage">{pt.credits(p.credits ?? 0)}</p>
+          <p className="t-caption text-stone">{pt.creditsHint}</p>
+          <button type="button" onClick={() => setUseCredit(false)} className="t-caption self-start text-ink underline decoration-1 underline-offset-2">
+            {pt.payInstead}
+          </button>
+        </div>
+      ) : (
+        <>
+      <fieldset className="flex flex-col gap-2">
+        <legend className="t-overline mb-2 text-stone">{pt.title}</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {([1, ...PACKAGES.map((x) => x.size)] as PackageSize[]).map((n) => {
+            const on = size === n;
+            const disc = n === 1 ? 0 : PACKAGES.find((x) => x.size === n)!.discount;
+            return (
+              <button
+                type="button"
+                key={n}
+                onClick={() => setSize(n)}
+                className={`flex flex-col items-start gap-0.5 rounded-[14px] border px-4 py-3 text-left transition-colors ${on ? "border-sage bg-sage-soft" : "border-line bg-surface"}`}
+              >
+                <span className="flex w-full items-center justify-between gap-2">
+                  <span className="t-label-m">{n === 1 ? pt.single : pt.pack(n)}</span>
+                  {disc > 0 && <span className="t-caption rounded-full bg-sage px-2 py-0.5 text-white">{pt.save(disc)}</span>}
+                </span>
+                <span className="t-body-s">{money(packagePrice(p.priceMinor, n), p.currency)}</span>
+                {n > 1 && <span className="t-caption text-stone">{pt.perSession(money(Math.round(packagePrice(p.priceMinor, n) / n), p.currency))}</span>}
+              </button>
+            );
+          })}
+        </div>
+        {size > 1 && <p className="t-caption text-stone">{pt.hint}</p>}
+      </fieldset>
+
       <fieldset className="flex flex-col gap-2">
         <legend className="t-overline mb-2 text-stone">{d.payment}</legend>
         {methods.map(([id, [label, hint]]) => (
@@ -113,6 +160,8 @@ export function CheckoutForm(p: {
           </label>
         ))}
       </fieldset>
+        </>
+      )}
 
       <label className="flex cursor-pointer items-start gap-3">
         <input type="checkbox" name="agreement" required className="mt-0.5 size-4 shrink-0 accent-[#3F6B5E]" />
@@ -133,7 +182,7 @@ export function CheckoutForm(p: {
       {state.error && <p className="t-body-s rounded-lg bg-[#f6e3dc] px-3 py-2 text-warn">{state.error}</p>}
 
       <button disabled={pending} className="t-label-m h-12 rounded-full bg-sage text-white transition-colors hover:bg-sage-hover disabled:opacity-60">
-        {pending ? "…" : d.pay(p.price)}
+        {pending ? "…" : useCredit ? pt.useCredit : d.pay(total)}
       </button>
       <p className="t-caption text-center text-stone">{d.paidDirect(p.therapist)}</p>
     </form>
