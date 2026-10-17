@@ -66,10 +66,20 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
     await markPaid(b.booking_id, `credit_${credit}`, "package");
     redirect(back);
   }
+  const membership = pkgRaw === "m";
   const size = ([1, 4, 8, 12].includes(Number(pkgRaw)) ? Number(pkgRaw) : 1) as PackageSize;
   let priceMinor = b.price_minor;
   let summary = String(form.get("summary") ?? "Session");
-  if (size > 1) {
+  if (membership) {
+    const { data: q, error: qe } = await sb.rpc("server_membership_quote", { p_secret: SERVER_SECRET(), p_booking: b.booking_id });
+    const row = (Array.isArray(q) ? q[0] : q) as { price_minor: number } | null;
+    if (qe || !row) {
+      await sb.rpc("cancel_booking_by_client", { p_id: b.booking_id, p_token: b.manage_token });
+      return { error: lang === "pl" ? "Nie udało się przygotować abonamentu. Spróbuj ponownie." : lang === "uk" ? "Не вдалося підготувати абонемент. Спробуйте ще раз." : "Couldn’t prepare the membership. Please try again." };
+    }
+    priceMinor = row.price_minor;
+    summary = `${PKG_T[lang].membershipSummary} · ${summary}`;
+  } else if (size > 1) {
     const { data: q, error: qe } = await sb.rpc("server_package_quote", { p_secret: SERVER_SECRET(), p_booking: b.booking_id, p_size: size });
     const row = (Array.isArray(q) ? q[0] : q) as { price_minor: number } | null;
     if (qe || !row) {
@@ -88,11 +98,12 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
     url = await startCheckout({
       bookingId: b.booking_id,
       token: b.manage_token,
-      method,
+      method: membership ? "card" : method,
       lang,
       email: String(form.get("email")),
       summary,
       priceMinor,
+      recurring: membership,
       currency: b.currency,
       slug,
       app,
