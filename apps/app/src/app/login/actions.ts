@@ -40,14 +40,17 @@ export async function signUp(_: AuthState, form: FormData): Promise<AuthState> {
   redirect("/onboarding");
 }
 
+/** Public credentials of the synthetic demo practice — safe to share, the data resets every hour. */
+const DEMO_THERAPIST_PASSWORD = "SessioDemo2026";
+
 export async function signInDemo() {
   // Refresh the sample practice so "today" always has sessions (at most every 3 hours).
   await publicClient().rpc("server_reset_demo", { p_secret: SERVER_SECRET(), p_force: false });
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: process.env.DEMO_EMAIL ?? "demo@usesessio.com",
-    password: process.env.DEMO_PASSWORD ?? "",
-  });
+  const email = process.env.DEMO_EMAIL ?? "demo@usesessio.com";
+  // public demo password (shared with the jury), then the older env one as a fallback
+  let { error } = await supabase.auth.signInWithPassword({ email, password: DEMO_THERAPIST_PASSWORD });
+  if (error) ({ error } = await supabase.auth.signInWithPassword({ email, password: process.env.DEMO_PASSWORD ?? "" }));
   if (error) redirect("/login?error=demo");
   redirect("/dashboard");
 }

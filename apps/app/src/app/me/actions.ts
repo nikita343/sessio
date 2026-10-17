@@ -29,7 +29,9 @@ export async function signInDemoClient() {
   // keep the sample practice fresh so "today" always has Marta's live session
   await publicClient().rpc("server_reset_demo", { p_secret: SERVER_SECRET(), p_force: false });
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email: DEMO_CLIENT_EMAIL, password: demoClientPassword(SERVER_SECRET()) });
+  // public demo password (shared with the jury), then the older derived one as a fallback
+  let { error } = await supabase.auth.signInWithPassword({ email: DEMO_CLIENT_EMAIL, password: "SessioKlient2026" });
+  if (error) ({ error } = await supabase.auth.signInWithPassword({ email: DEMO_CLIENT_EMAIL, password: demoClientPassword(SERVER_SECRET()) }));
   if (error) redirect("/me/login?error=demo");
   redirect("/me");
 }
