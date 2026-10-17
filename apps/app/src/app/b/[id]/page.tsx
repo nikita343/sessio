@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPublicBooking } from "@/lib/booking-public";
-import { actualMethod, stripe, refundBooking } from "@/lib/stripe";
+import { actualMethod, paymentInfo, stripe, refundBooking } from "@/lib/stripe";
 import { attachMembership, markPaid } from "@/lib/confirm";
 import { publicClient } from "@/lib/supabase/server";
 import { fmtDate, pickLang, t } from "@/lib/i18n";
@@ -30,12 +30,13 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
 
   // Returning from Stripe Checkout: confirm straight away instead of waiting for the webhook.
   if (b.payment_status !== "paid" && typeof sp.session_id === "string") {
-    const s = stripe();
+    const demo = Boolean((await paymentInfo(id))?.is_demo);
+    const s = stripe({ test: demo });
     if (s) {
       const acct = typeof sp.acct === "string" && sp.acct.startsWith("acct_") ? sp.acct : undefined;
       const session = await s.checkout.sessions.retrieve(sp.session_id, undefined, acct ? { stripeAccount: acct } : undefined);
       if (session.payment_status === "paid" && session.metadata?.booking_id === id) {
-        await markPaid(id, String(session.payment_intent ?? session.id), await actualMethod(session.payment_intent, session.metadata?.method ?? "card", acct));
+        await markPaid(id, String(session.payment_intent ?? session.id), await actualMethod(session.payment_intent, session.metadata?.method ?? "card", acct, demo));
         if (session.mode === "subscription") await attachMembership(id, session.subscription);
         b = (await getPublicBooking(id, token))!;
       }

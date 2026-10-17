@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     case "checkout.session.async_payment_succeeded": {
       const session = event.data.object;
       if (session.payment_status === "paid" && session.metadata?.booking_id) {
-        const method = await actualMethod(session.payment_intent, session.metadata.method ?? "card", event.account ?? undefined);
+        const method = await actualMethod(session.payment_intent, session.metadata.method ?? "card", event.account ?? undefined, !event.livemode);
         await markPaid(session.metadata.booking_id, String(session.payment_intent ?? session.id), method);
         if (session.mode === "subscription") await attachMembership(session.metadata.booking_id, session.subscription);
       }

@@ -1,7 +1,15 @@
 import Stripe from "stripe";
 import { publicClient, SERVER_SECRET } from "./supabase/server";
 
-export function stripe() {
+/**
+ * Stripe client. Real practices use STRIPE_SECRET_KEY (live once Sessio goes live); the demo practice
+ * always uses STRIPE_TEST_SECRET_KEY so nobody trying the demo is ever charged real money.
+ */
+export function stripe(opts?: { test?: boolean }) {
+  if (opts?.test) {
+    const testKey = process.env.STRIPE_TEST_SECRET_KEY ?? (process.env.STRIPE_SECRET_KEY?.startsWith("sk_test_") ? process.env.STRIPE_SECRET_KEY : undefined);
+    return testKey ? new Stripe(testKey) : null;
+  }
   const key = process.env.STRIPE_SECRET_KEY;
   return key ? new Stripe(key) : null;
 }
@@ -26,8 +34,8 @@ export async function paymentInfo(bookingId: string): Promise<PaymentInfo | null
 export class PaymentsNotReady extends Error {}
 
 /** The method the client actually paid with (Checkout lets them switch away from what they picked on our form). */
-export async function actualMethod(paymentIntent: unknown, fallback: string, stripeAccount?: string) {
-  const s = stripe();
+export async function actualMethod(paymentIntent: unknown, fallback: string, stripeAccount?: string, test?: boolean) {
+  const s = stripe({ test });
   const id = typeof paymentIntent === "string" ? paymentIntent : (paymentIntent as { id?: string } | null)?.id;
   if (!s || !id?.startsWith("pi_")) return fallback;
   try {
@@ -52,8 +60,8 @@ export function chargeAccount(info: PaymentInfo | null): string | undefined {
 
 /** Refund a Stripe payment when a client cancels inside the free window. Returns true if refunded. */
 export async function refundBooking(bookingId: string) {
-  const s = stripe();
   const info = await paymentInfo(bookingId);
+  const s = stripe({ test: info?.is_demo });
   if (!s || !info || info.payment_status !== "paid" || !info.payment_intent?.startsWith("pi_")) return false;
   try {
     await s.refunds.create(

@@ -1,5 +1,5 @@
 import { publicClient, SERVER_SECRET } from "./supabase/server";
-import { stripe, chargeAccount, paymentInfo, type PayMethod } from "./stripe";
+import { stripe, chargeAccount, paymentInfo, PaymentsNotReady, type PayMethod } from "./stripe";
 import type { Lang } from "./i18n";
 
 /**
@@ -21,9 +21,14 @@ export async function startCheckout(o: {
   /** Monthly membership: a card subscription instead of a one-off payment. */
   recurring?: boolean;
 }) {
-  const s = stripe();
-  if (!s) return null;
-  const account = chargeAccount(await paymentInfo(o.bookingId));
+  const info = await paymentInfo(o.bookingId);
+  const account = chargeAccount(info);
+  // the demo practice never touches live money: no test key configured → no online payment for the demo
+  const s = stripe({ test: Boolean(info?.is_demo) });
+  if (!s) {
+    if (info?.is_demo) throw new PaymentsNotReady("Demo payments need STRIPE_TEST_SECRET_KEY.");
+    return null;
+  }
   const back = `${o.app}/b/${o.bookingId}?t=${o.token}&lang=${o.lang}`;
   const session = await s.checkout.sessions.create(
     {
