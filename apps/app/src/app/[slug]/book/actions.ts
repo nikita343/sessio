@@ -2,13 +2,15 @@
 
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { publicClient } from "@/lib/supabase/server";
 import { stripe, PaymentsNotReady, PAY_METHODS, type PayMethod } from "@/lib/stripe";
 import { startCheckout } from "@/lib/checkout";
 import type { Lang } from "@/lib/i18n";
 import { loadPublic } from "@/lib/public";
 import { agreementFor } from "@/lib/agreement";
 import { money } from "@/lib/format";
+import { createClient, publicClient, SERVER_SECRET } from "@/lib/supabase/server";
+import { markPaid } from "@/lib/confirm";
+import { PKG_T, discountFor, type PackageSize } from "@/lib/packages";
 
 export type BookState = { error?: string };
 
@@ -48,6 +50,36 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
   const app = process.env.NEXT_PUBLIC_APP_URL ?? `https://${(await headers()).get("host")}`;
   const back = `${app}/b/${b.booking_id}?t=${b.manage_token}&lang=${lang}`;
 
+  // Package: "credit" books from a prepaid package (signed-in client only); 4/8/12 buys a package.
+  const pkgRaw = String(form.get("package") ?? "1");
+  if (pkgRaw === "credit") {
+    const { data: auth } = await (await createClient()).auth.getUser();
+    const email = String(form.get("email") ?? "").toLowerCase();
+    const credit =
+      auth.user?.email && auth.user.email.toLowerCase() === email
+        ? (await sb.rpc("server_redeem_credit", { p_secret: SERVER_SECRET(), p_booking: b.booking_id })).data
+        : null;
+    if (!credit) {
+      await sb.rpc("cancel_booking_by_client", { p_id: b.booking_id, p_token: b.manage_token });
+      return { error: PKG_T[lang].noCredit };
+    }
+    await markPaid(b.booking_id, `credit_${credit}`, "package");
+    redirect(back);
+  }
+  const size = ([1, 4, 8, 12].includes(Number(pkgRaw)) ? Number(pkgRaw) : 1) as PackageSize;
+  let priceMinor = b.price_minor;
+  let summary = String(form.get("summary") ?? "Session");
+  if (size > 1) {
+    const { data: q, error: qe } = await sb.rpc("server_package_quote", { p_secret: SERVER_SECRET(), p_booking: b.booking_id, p_size: size });
+    const row = (Array.isArray(q) ? q[0] : q) as { price_minor: number } | null;
+    if (qe || !row) {
+      await sb.rpc("cancel_booking_by_client", { p_id: b.booking_id, p_token: b.manage_token });
+      return { error: lang === "pl" ? "Nie udało się przygotować pakietu. Spróbuj ponownie." : lang === "uk" ? "Не вдалося підготувати пакет. Спробуйте ще раз." : "Couldn’t prepare the package. Please try again." };
+    }
+    priceMinor = row.price_minor;
+    summary = `${PKG_T[lang].summary(size, discountFor(size))} · ${summary}`;
+  }
+
   const s = stripe();
   if (!s) redirect(`/pay/${b.booking_id}?t=${b.manage_token}&m=${method}&lang=${lang}`);
 
@@ -59,8 +91,8 @@ export async function bookAndPay(_: BookState, form: FormData): Promise<BookStat
       method,
       lang,
       email: String(form.get("email")),
-      summary: String(form.get("summary") ?? "Session"),
-      priceMinor: b.price_minor,
+      summary,
+      priceMinor,
       currency: b.currency,
       slug,
       app,

@@ -7,7 +7,7 @@ import { money } from "@/lib/format";
 import { PublicShell } from "@/components/public-shell";
 import { CheckoutForm } from "./checkout-form";
 import { AGREE_LABEL } from "@/lib/agreement";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, publicClient, SERVER_SECRET } from "@/lib/supabase/server";
 
 export async function generateMetadata(props: PageProps<"/[slug]/book">): Promise<Metadata> {
   const sp = await props.searchParams;
@@ -36,6 +36,13 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
   const account = auth.user?.email
     ? { name: String(auth.user.user_metadata?.full_name ?? auth.user.user_metadata?.name ?? ""), email: auth.user.email }
     : null;
+  // prepaid package sessions left for this signed-in client with this therapist
+  let credits = 0;
+  if (account) {
+    const { data: cr } = await publicClient().rpc("server_client_credits", { p_secret: SERVER_SECRET(), p_slug: slug, p_email: account.email });
+    const row = (Array.isArray(cr) ? cr[0] : cr) as { remaining: number } | null;
+    credits = row?.remaining ?? 0;
+  }
 
   return (
     <PublicShell lang={lang} path={`/${slug}/book`} back={{ href: `/${slug}?lang=${lang}`, label: d.back }}>
@@ -61,6 +68,9 @@ export default async function Book(props: PageProps<"/[slug]/book">) {
           formats={th.formats}
           address={th.address}
           price={price}
+          priceMinor={service.price_minor}
+          currency={th.currency}
+          credits={credits}
           therapist={th.full_name}
           cancellationHours={th.cancellation_hours}
           summary={lang === "pl" ? `Sesja ${service.duration_min} min — ${th.full_name}, ${when}` : lang === "uk" ? `Сесія ${service.duration_min} хв — ${th.full_name}, ${when}` : `${service.duration_min}-minute session with ${th.full_name} — ${when}`}
