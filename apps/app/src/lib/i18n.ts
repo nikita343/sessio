@@ -162,7 +162,7 @@ export function t(lang: Lang): Dict {
 export function pickLang(param: unknown, saved?: string | null): Lang {
   if (param === "pl" || param === "uk" || param === "en") return param;
   if (saved === "pl" || saved === "uk" || saved === "en") return saved;
-  return "pl";
+  return "uk";
 }
 
 export const DATE_LOCALE: Record<Lang, string> = { pl: "pl-PL", uk: "uk-UA", en: "en-GB" };

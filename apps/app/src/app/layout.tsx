@@ -11,7 +11,7 @@ export const viewport: Viewport = { themeColor: "#F4F3EF" };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en">
+    <html lang="uk">
       <body className="min-h-dvh">{children}</body>
     </html>
   );

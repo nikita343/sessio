@@ -3,11 +3,11 @@ import type { Lang } from "./i18n";
 
 /**
  * Language for the therapist app (dashboard, calendar, notes…). Same cookie as the client side
- * (`sessio_lang`, set by the language menu); Polish when nothing is chosen.
+ * (`sessio_lang`, set by the language menu); Ukrainian when nothing is chosen (demo default).
  */
 export async function uiLang(): Promise<Lang> {
   const v = (await cookies()).get("sessio_lang")?.value;
-  return v === "en" || v === "uk" || v === "pl" ? v : "pl";
+  return v === "en" || v === "uk" || v === "pl" ? v : "uk";
 }
 
 /** Pick the dictionary for a language: `const t = pick(DICT, lang)`. */
