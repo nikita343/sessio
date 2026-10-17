@@ -71,7 +71,7 @@ export function Questionnaire({ lang, initial }: { lang: Lang; initial: Answers 
       q: t.qLang,
       body: (
         <div className="grid gap-2 sm:grid-cols-2">
-          {(["pl", "uk", "en", "ru"] as const).map((k) => (
+          {(["pl", "uk", "en"] as const).map((k) => (
             <button key={k} type="button" aria-pressed={spoken === k} onClick={() => setSpoken(k)} className={big(spoken === k)}>
               <span className="first-letter:uppercase">{LANG_NAMES[k][lang]}</span> {dot(spoken === k)}
             </button>
