@@ -9,6 +9,10 @@ export const PACKAGES = [
 
 export type PackageSize = 1 | 4 | 8 | 12;
 
+/** Monthly membership: 4 sessions a month at 10% off, card only (BLIK/Przelewy24 can't charge monthly). */
+export const MEMBERSHIP = { sessions: 4, discount: 10 } as const;
+export const membershipPrice = (sessionMinor: number) => Math.round(sessionMinor * MEMBERSHIP.sessions * (100 - MEMBERSHIP.discount) / 100);
+
 export function packagePrice(sessionMinor: number, size: PackageSize) {
   if (size === 1) return sessionMinor;
   const p = PACKAGES.find((x) => x.size === size)!;
@@ -34,6 +38,10 @@ export const PKG_T: Record<
     payInstead: string;
     summary: (n: number, d: number) => string;
     noCredit: string;
+    membership: string;
+    perMonth: (p: string) => string;
+    membershipHint: string;
+    membershipSummary: string;
   }
 > = {
   uk: {
@@ -49,6 +57,10 @@ export const PKG_T: Record<
     payInstead: "Оплатити окремо",
     summary: (n, d) => `Пакет ${n} сесій (−${d}%)`,
     noCredit: "У пакеті не лишилося сесій. Оберіть оплату.",
+    membership: "Абонемент · 4 сесії на місяць",
+    perMonth: (p) => `${p} / міс`,
+    membershipHint: "Щомісяця 4 сесії зі знижкою 10%. Списується з картки раз на місяць, невикористані сесії переходять далі. Скасувати можна будь-коли — напишіть терапевту.",
+    membershipSummary: "Абонемент: 4 сесії на місяць (−10%)",
   },
   pl: {
     title: "Jak zapłacić",
@@ -63,6 +75,10 @@ export const PKG_T: Record<
     payInstead: "Zapłać osobno",
     summary: (n, d) => `Pakiet ${n} sesji (−${d}%)`,
     noCredit: "W pakiecie nie zostały sesje. Wybierz płatność.",
+    membership: "Abonament · 4 sesje miesięcznie",
+    perMonth: (p) => `${p} / mies.`,
+    membershipHint: "Co miesiąc 4 sesje taniej o 10%. Płatność kartą raz w miesiącu, niewykorzystane sesje przechodzą dalej. Możesz zrezygnować w każdej chwili — napisz do terapeuty.",
+    membershipSummary: "Abonament: 4 sesje miesięcznie (−10%)",
   },
   en: {
     title: "How to pay",
@@ -77,5 +93,9 @@ export const PKG_T: Record<
     payInstead: "Pay separately",
     summary: (n, d) => `${n}-session package (−${d}%)`,
     noCredit: "No sessions left in your package. Please choose a payment.",
+    membership: "Membership · 4 sessions a month",
+    perMonth: (p) => `${p} / month`,
+    membershipHint: "4 sessions every month at 10% off. Charged to your card monthly; unused sessions roll over. Cancel any time — message your therapist.",
+    membershipSummary: "Membership: 4 sessions a month (−10%)",
   },
 };

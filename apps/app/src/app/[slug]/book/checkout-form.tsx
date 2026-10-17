@@ -7,7 +7,7 @@ import { t, type Lang } from "@/lib/i18n";
 import { Field, Input, Textarea } from "@/components/ui";
 import type { SessionFormat } from "@/lib/types";
 import { money } from "@/lib/format";
-import { PACKAGES, PKG_T, packagePrice, type PackageSize } from "@/lib/packages";
+import { MEMBERSHIP, PACKAGES, PKG_T, membershipPrice, packagePrice, type PackageSize } from "@/lib/packages";
 
 export function CheckoutForm(p: {
   slug: string;
@@ -35,7 +35,8 @@ export function CheckoutForm(p: {
   const pt = PKG_T[p.lang];
   const [useCredit, setUseCredit] = useState((p.credits ?? 0) > 0);
   const [size, setSize] = useState<PackageSize>(1);
-  const total = money(packagePrice(p.priceMinor, size), p.currency);
+  const [member, setMember] = useState(false);
+  const total = member ? PKG_T[p.lang].perMonth(money(membershipPrice(p.priceMinor), p.currency)) : money(packagePrice(p.priceMinor, size), p.currency);
   const [format, setFormat] = useState<SessionFormat>(p.formats.includes("online") ? "online" : "in_person");
 
   if (state.error === "taken")
@@ -62,8 +63,8 @@ export function CheckoutForm(p: {
       <input type="hidden" name="service_id" value={p.serviceId} />
       <input type="hidden" name="summary" value={p.summary} />
       <input type="hidden" name="format" value={format} />
-      <input type="hidden" name="method" value={method} />
-      <input type="hidden" name="package" value={useCredit ? "credit" : String(size)} />
+      <input type="hidden" name="method" value={member ? "card" : method} />
+      <input type="hidden" name="package" value={useCredit ? "credit" : member ? "m" : String(size)} />
 
       {p.formats.length > 1 && (
         <Field label={d.where}>
@@ -123,13 +124,16 @@ export function CheckoutForm(p: {
         <legend className="t-overline mb-2 text-stone">{pt.title}</legend>
         <div className="grid grid-cols-2 gap-2">
           {([1, ...PACKAGES.map((x) => x.size)] as PackageSize[]).map((n) => {
-            const on = size === n;
+            const on = !member && size === n;
             const disc = n === 1 ? 0 : PACKAGES.find((x) => x.size === n)!.discount;
             return (
               <button
                 type="button"
                 key={n}
-                onClick={() => setSize(n)}
+                onClick={() => {
+                  setSize(n);
+                  setMember(false);
+                }}
                 className={`flex flex-col items-start gap-0.5 rounded-[14px] border px-4 py-3 text-left transition-colors ${on ? "border-sage bg-sage-soft" : "border-line bg-surface"}`}
               >
                 <span className="flex w-full items-center justify-between gap-2">
@@ -142,17 +146,29 @@ export function CheckoutForm(p: {
             );
           })}
         </div>
-        {size > 1 && <p className="t-caption text-stone">{pt.hint}</p>}
+        <button
+          type="button"
+          onClick={() => setMember(true)}
+          className={`flex flex-col items-start gap-0.5 rounded-[14px] border px-4 py-3 text-left transition-colors ${member ? "border-sage bg-sage-soft" : "border-line bg-surface"}`}
+        >
+          <span className="flex w-full items-center justify-between gap-2">
+            <span className="t-label-m">{pt.membership}</span>
+            <span className="t-caption rounded-full bg-lavender px-2 py-0.5 text-ink">{pt.save(MEMBERSHIP.discount)}</span>
+          </span>
+          <span className="t-body-s">{pt.perMonth(money(membershipPrice(p.priceMinor), p.currency))}</span>
+          <span className="t-caption text-stone">{pt.perSession(money(Math.round(membershipPrice(p.priceMinor) / MEMBERSHIP.sessions), p.currency))}</span>
+        </button>
+        {member ? <p className="t-caption text-stone">{pt.membershipHint}</p> : size > 1 && <p className="t-caption text-stone">{pt.hint}</p>}
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
         <legend className="t-overline mb-2 text-stone">{d.payment}</legend>
-        {methods.map(([id, [label, hint]]) => (
+        {methods.filter(([id]) => !member || id === "card").map(([id, [label, hint]]) => (
           <label
             key={id}
-            className={`flex cursor-pointer items-center gap-3 rounded-[14px] border px-4 py-3 transition-colors ${method === id ? "border-sage bg-sage-soft" : "border-line bg-surface"}`}
+            className={`flex cursor-pointer items-center gap-3 rounded-[14px] border px-4 py-3 transition-colors ${member || method === id ? "border-sage bg-sage-soft" : "border-line bg-surface"}`}
           >
-            <input type="radio" name="method_ui" checked={method === id} onChange={() => setMethod(id)} className="size-4 accent-[#3F6B5E]" />
+            <input type="radio" name="method_ui" checked={member || method === id} onChange={() => setMethod(id)} className="size-4 accent-[#3F6B5E]" />
             <span className="flex flex-col">
               <span className="t-label-m">{label}</span>
               <span className="t-caption text-stone">{hint}</span>

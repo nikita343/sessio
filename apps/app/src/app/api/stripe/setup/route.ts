@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const existing = await s.webhookEndpoints.list({ limit: 100 });
   for (const ep of existing.data) if (ep.url === url) await s.webhookEndpoints.del(ep.id);
 
-  const checkoutEvents = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.expired"] as const;
+  const checkoutEvents = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.expired", "invoice.paid"] as const;
   const platform = await s.webhookEndpoints.create({ url, enabled_events: [...checkoutEvents], description: "Sessio — platform payments" });
   await sb.rpc("server_put_stripe_secret", { p_secret: SERVER_SECRET(), p_name: "stripe_whsec", p_value: platform.secret });
 

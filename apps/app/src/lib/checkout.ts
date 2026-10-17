@@ -18,6 +18,8 @@ export async function startCheckout(o: {
   currency: string;
   slug: string;
   app: string;
+  /** Monthly membership: a card subscription instead of a one-off payment. */
+  recurring?: boolean;
 }) {
   const s = stripe();
   if (!s) return null;
@@ -25,13 +27,22 @@ export async function startCheckout(o: {
   const back = `${o.app}/b/${o.bookingId}?t=${o.token}&lang=${o.lang}`;
   const session = await s.checkout.sessions.create(
     {
-      mode: "payment",
-      payment_method_types: [o.method],
       customer_email: o.email,
       locale: o.lang === "uk" ? "auto" : o.lang,
-      line_items: [{ quantity: 1, price_data: { currency: o.currency.toLowerCase(), unit_amount: o.priceMinor, product_data: { name: o.summary } } }],
-      metadata: { booking_id: o.bookingId, method: o.method },
-      payment_intent_data: { metadata: { booking_id: o.bookingId, method: o.method }, description: o.summary },
+      metadata: { booking_id: o.bookingId, method: o.recurring ? "card" : o.method, ...(o.recurring ? { membership: "1" } : {}) },
+      ...(o.recurring
+        ? {
+            mode: "subscription" as const,
+            payment_method_types: ["card" as const],
+            line_items: [{ quantity: 1, price_data: { currency: o.currency.toLowerCase(), unit_amount: o.priceMinor, recurring: { interval: "month" as const }, product_data: { name: o.summary } } }],
+            subscription_data: { metadata: { booking_id: o.bookingId }, description: o.summary },
+          }
+        : {
+            mode: "payment" as const,
+            payment_method_types: [o.method],
+            line_items: [{ quantity: 1, price_data: { currency: o.currency.toLowerCase(), unit_amount: o.priceMinor, product_data: { name: o.summary } } }],
+            payment_intent_data: { metadata: { booking_id: o.bookingId, method: o.method }, description: o.summary },
+          }),
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       success_url: `${back}${account ? `&acct=${account}` : ""}&session_id={CHECKOUT_SESSION_ID}`,
       // Back on Stripe releases the held slot straight away

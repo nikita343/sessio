@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { actualMethod, stripe } from "@/lib/stripe";
-import { markPaid } from "@/lib/confirm";
+import { attachMembership, markPaid } from "@/lib/confirm";
 import { publicClient, SERVER_SECRET } from "@/lib/supabase/server";
 
 /**
@@ -35,6 +35,17 @@ export async function POST(req: Request) {
       if (session.payment_status === "paid" && session.metadata?.booking_id) {
         const method = await actualMethod(session.payment_intent, session.metadata.method ?? "card", event.account ?? undefined);
         await markPaid(session.metadata.booking_id, String(session.payment_intent ?? session.id), method);
+        if (session.mode === "subscription") await attachMembership(session.metadata.booking_id, session.subscription);
+      }
+      break;
+    }
+    case "invoice.paid": {
+      // monthly membership renewal: 4 more sessions (the first invoice is covered by checkout.session.completed)
+      const invoice = event.data.object as Stripe.Invoice & { subscription?: string | { id: string } | null; parent?: { subscription_details?: { subscription?: string | { id: string } } } };
+      const sub = invoice.subscription ?? invoice.parent?.subscription_details?.subscription;
+      const subId = typeof sub === "string" ? sub : sub?.id;
+      if (subId && invoice.billing_reason === "subscription_cycle" && invoice.id) {
+        await publicClient().rpc("server_membership_renew", { p_secret: SERVER_SECRET(), p_subscription: subId, p_invoice: invoice.id });
       }
       break;
     }

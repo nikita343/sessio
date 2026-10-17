@@ -20,3 +20,10 @@ export async function markPaid(bookingId: string, paymentRef: string, method: st
   }
   return row;
 }
+
+/** Membership checkout finished: remember the subscription so monthly renewals add sessions. */
+export async function attachMembership(bookingId: string, subscription: unknown) {
+  const id = typeof subscription === "string" ? subscription : (subscription as { id?: string } | null)?.id;
+  if (!id) return;
+  await publicClient().rpc("server_membership_attach", { p_secret: SERVER_SECRET(), p_booking: bookingId, p_subscription: id });
+}

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getPublicBooking } from "@/lib/booking-public";
 import { actualMethod, stripe, refundBooking } from "@/lib/stripe";
-import { markPaid } from "@/lib/confirm";
+import { attachMembership, markPaid } from "@/lib/confirm";
 import { publicClient } from "@/lib/supabase/server";
 import { fmtDate, pickLang, t } from "@/lib/i18n";
 import { money } from "@/lib/format";
@@ -36,6 +36,7 @@ export default async function BookingStatus(props: PageProps<"/b/[id]">) {
       const session = await s.checkout.sessions.retrieve(sp.session_id, undefined, acct ? { stripeAccount: acct } : undefined);
       if (session.payment_status === "paid" && session.metadata?.booking_id === id) {
         await markPaid(id, String(session.payment_intent ?? session.id), await actualMethod(session.payment_intent, session.metadata?.method ?? "card", acct));
+        if (session.mode === "subscription") await attachMembership(id, session.subscription);
         b = (await getPublicBooking(id, token))!;
       }
     }
